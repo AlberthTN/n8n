@@ -1,0 +1,189 @@
+{
+  "name": "Autorizacion",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "id"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -176,
+        -128
+      ],
+      "id": "249896e6-35ea-49fe-8e67-370171aab906",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.id }}",
+        "options": {
+          "systemMessage": "Eres un agente inteligente encargado de revizar si el usuario tiene acceso o no, para eso tienes una herramienta llamada `Autorizado` en la cual validaras la existencia del id.\n\nSi existe regresas true de lo contrario regresas false.\n\nEsta es tu unica funcion no debes ni contestar a otras peticiones ni interactuar mas solo responder tru or false segun sea el caso."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        48,
+        -128
+      ],
+      "id": "07ea4a74-0202-4974-92ef-18fecb88818c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -48,
+        48
+      ],
+      "id": "cba501e1-428d-4b22-bcfa-2acfe1ac7dcd",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1DgLiHG9aN-VW4k_o4Y4WJm60ffMpRnJLeiTYUGPWkZA",
+          "mode": "list",
+          "cachedResultName": "Autorizados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DgLiHG9aN-VW4k_o4Y4WJm60ffMpRnJLeiTYUGPWkZA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Autorizados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DgLiHG9aN-VW4k_o4Y4WJm60ffMpRnJLeiTYUGPWkZA/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        384,
+        48
+      ],
+      "id": "9acd26a2-a74e-4a77-abe1-49effab6f444",
+      "name": "Autorizados2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oEIJYXqLURYc88yW",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "sqlQuery": "SELECT\n  EXISTS(\n    SELECT id\n    FROM `neto-cloud.agente_rebeca.autorizacion`\n    WHERE id = '{{ $json.id }}'\n  ) AS encontrado",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQueryTool",
+      "typeVersion": 2.1,
+      "position": [
+        192,
+        112
+      ],
+      "id": "3a371808-8432-4436-b785-12f21bc0d8f0",
+      "name": "Autorizados",
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "id": "U091B7WDXJ4"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Autorizados": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5d71a633-23ad-4fa8-9dac-af21d43a3405",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "qX6o8mVWzEkUAd0O",
+  "tags": []
+}

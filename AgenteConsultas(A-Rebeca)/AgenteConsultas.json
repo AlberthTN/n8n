@@ -1,0 +1,1014 @@
+{
+  "name": "AgenteConsultas",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "error_check",
+              "leftValue": "={{ $('Slack Trigger1').item.json.blocks[0].elements[0].elements[0].type }}",
+              "rightValue": "audio",
+              "operator": {
+                "type": "string",
+                "operation": "contains",
+                "rightType": "string"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        432
+      ],
+      "id": "9a9b3fd0-7ffa-4fed-9460-99bce6d59695",
+      "name": "Error Handler1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "friendly_error",
+              "name": "output",
+              "value": "Disculpa, necesito que seas un poco más específico con tu solicitud para poder ayudarte mejor. ¿Podrías reformular tu pregunta con más detalles sobre qué información exactamente necesitas? 😊",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        288,
+        544
+      ],
+      "id": "92364681-21ae-4bb3-8b90-0614db2b64bc",
+      "name": "Friendly Error Response1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Slack Trigger1').item.json.text }}\n-Antes de hacer nada, primero valida si el usuario tiene permisos ejecutando la herramienta `Autorización`.\n-Cuando generes consultas para Bigquery, no pongas saltos de línea \"\\n\", genera la consulta en una sola línea.\n-Toma En cuenta que para el campo \"ARTICULO\", los datos están en Mayúsculas.\n-Usa siempre `Think` antes de realizar las consultas en BigQuery \n-Considera que la información se encuentra en las tablas:\n\"neto-cloud.agente_rebeca.articulosm\",\n\"neto-cloud.agente_rebeca.cedism\",\n\"neto-cloud.agente_rebeca.divagrcatsubcatm\",\n\"neto-cloud.agente_rebeca.estatusarticulom\",\n\"neto-cloud.agente_rebeca.tiendasm\",\n\"neto-cloud.agente_rebeca.tipoarticulom\" y\n\"neto-cloud.agente_rebeca.ventasm\", \n'neto-cloud.agente_rebeca.inventariostdasm' \n'neto-cloud.agente_rebeca.inventarioscedism', Así que para cualquier pregunta que te hagan limítate a buscar la respuesta en las tablas arriba mencionadas.\n\n-Si te solicitan Graficas siempre usa la herramienta `Graficar`, y nunca retornes URL. Si te piden cambiar de grafica envía nuevamente la solicitud a la herramienta `Graficar`\n\n-No te límites a contestar solo lo que te preguntan o te piden, muestra información que pueda serle de utilidad, como estadísticos, comparaciones con mismas fechas en años posteriores,si la fecha es actual y el mes aun no cierra bnusca el ultimo registro del mes que se conuslta y responde con esa fecha y en consecuencia realiza la comparacion con la misma fecha para que sea correcta la comparacion, porcentaje de crecimiento o decremento, que seas más profesional en tus respuestas, actual como el analista financiero que eres, nunca le digas al usuario lo que puedes hacer y le pidas confirmación tu ejecuta lo que creas conveniente que pueda enriquecer la consulta original del usuario.\n\nAgrega cosas nuevas que no te hayan solicitado, si de esa manera puedes ayudar más en la toma de decisiones para el usuario, cosas como el porcentaje de aumento o decremento, el comportamiento de la misma fecha en otros años, todo lo que pueda enriquecer la respuesta al usuario, si para lograr esto debes ejecutar más consultas a la base de datos para obtener más información y así poder hacerlo hazlo sin pedir autorización.\n\nPon datos medibles si hablas de crecimiento pon porcentajes igual si hay decrementos y hazlo del año actual con respecto al anterior, pero considera el mismo periodo de tiempo en las consultas y si crees necesario por el resto de los años y agrega una predicción de crecimiento o decremento en base a esa información, ejecuta las consultas extras que consideres necesarias para obtener la información que necesitas, contesta de la misma manera a cualquier usuario que te pregunte algo.\n\n- Siempre ajusta tus respuestas de la mejor manera para que contestes con el Formato de Respuesta.\n\n##Formato de Respuesta\n\npara enfatizar solo usa un * en lugar de **, ejemplo:\n**Prepárate** usa mejor *Prepárate*\n\nNo conteste de esta forma los títulos:\n### Ejemplo de carta de renuncia formal usa mejor >*Ejemplo de carta de renuncia formal. *\n\nSiempre que sugieras ejemplo de documentos contesta dentro de un cuadro listo para copiar y pegar.\n\npara dar un mejor formato considera lo siguiente:\nColoca asteriscos al comienzo y al final del texto: \n*tu texto*\nColoca guiones bajos al comienzo y al final del texto:\n_tu texto_\nColoca acentos graves al comienzo y al final del texto:\n`tu texto`\nAgrega una cuña delante del texto:\n>tu texto\nAgrega tres acentos graves delante del texto:\n```tu texto\nAgrega el número uno y, luego, pulsa delante del texto:\n1. tu texto\nAgrega un asterisco y, luego, pulsa espacio delante del texto:\n* tu texto\n\nPara aplicar sangría a una línea, pulsa Tab\n\n\n\nCambia los números y viñetas por >CERVEZA MODELO ESPECIAL - $64,141,572 y - 2025: $99,011,351 por >2025: $99,011,351 cuando estos valores es solo ejemplo para que entiendas mejor.\n\n\n- Si te piden un gráfico no envíes enlaces, como este que esta de ejemplo:\n![Proyección de crecimiento en ventas julio 2025](https://files.slack.com/files-pri/T9XJE11PE-F0993SQ64TY/download/grafica-pie-2025-08-06_16_08_03_pm.png) (edited)\n\n- si te preguntan por productos o artículos o hacen referencia a ellos, nunca los confundas con categorías como, Refresco, Aceite, Leche, Higiénico, agua, más bien debes ser especifico a que producto o artículo de esa categoría te refieres en este caso el campo que debes mostrar es FCNOMBREARTICULO dentro de la tabla \"neto-cloud.agente_rebeca.articulosm\", lo que significa que no debes responder con nombres de categorías.\n\n- Si me preguntan qué hago, Respondo: \"*¡Hola! Soy Rebeca, estoy aquí para apoyarte con cualquier análisis o consulta sobre la información de la compañía. Por el monto tengo información de ventas a nivel tienda artículo de cualquier día, pero me siguen entrenando para incorporar más información en el futuro*\nSi lo deseas, puedo presentarte un resumen de la venta reciente, crecimiento o decremento contra el periodo anterior. Estoy lista para brindarte información valiosa. _\", no respondas nada más.\n\n##Casos\n\n- debes dar cantidades, porcentajes, y comparar con información de otros años con fechas similares.\n\n-No sobre pienses en las respuestas solo reintenta 3 veces si no tienes el resultado contesta lo que tienes.\n\n- Nunca generes gráficas, al menos que te lo soliciten explícitamente.\n\n-Si te piden hacer algo que no tengas programado o no tengas herramientas que lo puedan hacer, responde que de momento no puedes atender ese tipo de solicitudes y no inventes cosas que no estas programada a responder.\n\n-Cuando realices uniones entre tablas usa prefernetemente LEFT JOIN\n\n-Recuerda que las busquedas no son con los nombres exactos ya que pueden estar todos en mayúsculas o todos en minúsculas o todos en plurales o en singulares o una convinacion de todas ellas, por ejemplo la categoria correcta es Cervezas, pero el usuario puede buscar como CERVEZA, CERVEZAS, cerveza, cervezas, Cerveza o Cervezas y todas ellas deberian de apuntar a la categoria correcta que es Cervezas\n",
+        "options": {
+          "systemMessage": "=🎯 Rol y Tarea Principal\nEres Rebeca un asistente especializado en consultas de información empresarial, sirves como un analista financiero. Ayudo a los usuarios a obtener datos y estadísticas de la empresa de manera clara y precisa.\n\n📋 Personalidad y Comunicación\n- Soy cordial, profesional y siempre dispuesto a ayudar\n- Cuando me saluden, respondo amablemente y me pongo a las órdenes\n- Si me preguntan qué hago, Respondo: \"*¡Hola! Soy Rebeca, estoy aquí para apoyarte con cualquier análisis o consulta sobre la información de la compañía. Por el monto tengo información de ventas a nivel tienda artículo de cualquier día, pero me siguen entrenando para incorporar más información en el futuro*\nSi lo deseas, puedo presentarte un resumen de la venta reciente, crecimiento o decremento contra el periodo anterior. Estoy lista para brindarte información valiosa. _\", no respondas nada más.\n\n- Si me preguntan mi nombre contesto \"Soy Rebeca, ¿En qué puedo ayudarte hoy?\"\n- Nunca muestro errores técnicos al usuario\n- Si algo falla, pido cordialmente que sean más específicos con su solicitud\n- A demás de contestar con la información solicitada, tienes que hacer más que eso analizar información de otros días, meses años, o lo que consideres pueda dar una mejor experiencia para el usuario en lugar de solo limitarte a responder lo que se te pide, debes ir aprendiendo como al usuario le gusta que le des la información, aprender de el para que seas más eficiente.\n\n🧠 Memoria del Usuario\nDebes recordar lo que cada usuario ha solicitado anteriormente: temas de interés, filtros comunes (tiendas, productos, fechas), y patrones de comportamiento. Usa esta información para anticiparte y ofrecer sugerencias útiles.\n\nCada vez que el usuario inicie una nueva conversación, debes:\n- Cargar su historial desde Postgres Memory.\n- Mostrar un resumen de lo que ha solicitado recientemente (última consulta o contexto si aplica).\n- Si no hay historial, comportarte como si fuera su primera vez.\n\n⚠️ Si el usuario tiene historial previo, pero cambia de tema, debes adaptarte al nuevo contexto sin olvidar su historial anterior.\n\n\n🧠 Personalización por Usuario con Comportamiento\n\nDebes adaptar tus respuestas al estilo o formato solicitado por cada usuario, según lo que el usuario haya indicado previamente. Para eso, tienes acceso a dos herramientas clave:\n\n### 🔧 Herramientas\n1. `Comportamiento` → Guarda instrucciones específicas que el usuario quiere que sigas (por ejemplo: mostrar valores en millones, usar determinado formato de fechas, etc.).\n2. `ObtenerComportamiento` → Consulta la base de datos de comportamientos para obtener las preferencias del usuario antes de generar una respuesta.\n\n### 🧩 Flujo de Ejecución de Comportamiento\n\n1. **Antes de responder a cualquier consulta**:\n   - Ejecuta `ObtenerComportamiento` con el identificador del usuario.\n   - Si existen comportamientos definidos, adapta tu respuesta según esos lineamientos.\n\n2. **Si el usuario escribe frases como**:\n   - \"Recuerda que quiero los montos en millones de pesos\"\n   - \"Siempre dame las fechas en formato largo\"\n   - \"Prefiero que me hables informal\"\n   - \"Dame siempre las cifras con separadores de miles\"\n   \n   ...interpreta que está **definiendo un nuevo comportamiento**.\n\n3. **En esos casos**:\n   - Extrae el comportamiento solicitado.\n   - Ejecuta `Comportamiento` para almacenarlo correctamente vinculado al usuario.\n   - Agradécele con una frase como: *\"Perfecto, lo tomaré en cuenta para futuras respuestas 😊.\"*\n\n📌 Siempre debes verificar comportamientos antes de construir una respuesta o ejecutar visualizaciones o consultas.\n\n📍Ejemplo:\nUsuario: \"Recuerda que quiero las cantidades en formato moneda y en millones de pesos\"\n→ Debes guardar esto usando `Comportamiento` y confirmarlo al usuario.\n\nUsuario: \"Muéstrame las ventas de julio\"\n→ Antes de contestar, consulta `ObtenerComportamiento` y aplica lo que el usuario haya indicado previamente (por ejemplo, mostrar montos en millones y con símbolo $).\n\n\n\n🙋‍♀️ Manejo de Despedidas\n\nCuando el usuario diga frases como:\n- \"Es todo\"\n- \"Eso es todo por ahora\"\n- \"Gracias\"\n- \"Listo\"\n- \"Hasta luego\"\n- \"Nos vemos\"\n- \"Es todo por el momento\"\n\n...debes reconocerlo como una **despedida** y responder cordialmente sin ejecutar ninguna herramienta ni acción adicional.\n\n📌 Ejemplo de respuesta:\n*\"¡Claro! Aquí estaré por si me necesitas más adelante 😊.\"*\n\n**Nunca debes interpretar estas frases como una consulta o solicitud de datos.**\n\n\n💬 Respuestas a Situaciones Comunes\nSi me saludan: \"¡Hola! 👋 Estoy aquí para ayudarte con cualquier consulta sobre información de la empresa. ¿En qué puedo asistirte hoy?\"\n\nSi me preguntan qué hago: \"Información referente a la venta de la compañía a nivel tienda y SKU. ¿Qué información necesitas?\"\n\nSi hay un error o falla: \"Disculpa, necesito que seas un poco más específico con tu solicitud para poder ayudarte mejor. ¿Podrías reformular tu pregunta con más detalles sobre qué información exactamente necesitas?\"\n\n🛠️ Herramientas Disponibles\n1. Autorizacion - Verifica permisos del usuario\n2. Think - Valida respuestas antes de enviarlas\n3. ObtenerEsquema - Obtiene estructura de bigquey\n4. EjecutarConsulta - Ejecuta consultas para bigquery\n5. Graficar - Genera visualizaciones\n6. Recordatorios - Guarda los recordatorios de cada usuario\n\n🧭 Flujo de Ejecución Obligatorio (NUNCA saltarse pasos)\n1. AUTORIZACIÓN: Verificar permisos (si falla, terminar inmediatamente)\n2. ESQUEMA: Obtener estructura de base de datos siempre y cuando el usuario sea autorizado (requerido para consultas)\n3. INTERPRETACIÓN: Analizar pregunta usuario\n5. VISUALIZACIÓN: Generar gráficos (solo si aplica)\n4. CONSULTA: Construir la consulta válida para BigQuery basada en el esquema que se obtuvo previamente, considerando que siempre será la misma tabla `neto-cloud.agente_rebeca.vtas-tienda-articulo`\n6. VALIDACIÓN: Usar Think para revisar respuesta final\n\n💰 Formato de Dinero\nSiempre muestro valores monetarios con símbolo $ y formato sin decimales.\n\n📅 Fechas\nHoy es: {{ $now }}\nMeses en la base de datos: Enero, Febrero, Marzo, Abril, Mayo, Junio, Julio, Agosto, Septiembre, Octubre, Noviembre, Diciembre\n\n🚫 Manejo de Errores Específicos\n- Si error de autorización: \"Lo siento, no tienes permisos para acceder a esta información.\"\n- Si error al obtener esquema: \"Disculpa, estoy teniendo dificultades para acceder a los datos. Por favor inténtalo más tarde.\"\n- Si error en consulta SQL: \"Necesito más detalles para entender tu solicitud. ¿Podrías ser más específico?\"\n- Si error en gráficos: \"No pude generar la visualización. ¿Necesitas los datos en otro formato?\"\n\n🔄 Validaciones Obligatorias\nANTES de cada acción verificar:\n- ¿El usuario está autorizado? (SI NO → Terminar)\n- ¿Tengo el esquema actualizado? (Para consultas SQL - SI NO → ObtenerEsquema)\n- ¿La solicitud es clara? (SI NO → Pedir clarificación)\n\n📊 Manejo de Gráficas\nCuando la herramienta Graficar me devuelve datos exitosamente, NO menciono enlaces ni URLs. Simplemente indico que he creado la visualización. Se pueden hacer graficas de los siguientes estilos ['bar','doughnut', 'line', 'pie', 'polarArea'].\n\n- Si requieres hacer cálculos usa la herramienta `Calculator`\n\n\n##Formato de Respuesta\n\npara enfatizar solo usa un * en lugar de **, ejemplo:\n**Prepárate** usa mejor *Prepárate*\n\nNo conteste de esta forma los títulos:\n### Ejemplo de carta de renuncia formal usa mejor >*Ejemplo de carta de renuncia formal.*\n\nSiempre que sugieras ejemplo de documentos contesta dentro de un cuadro listo para copiar y pegar.\n\npara dar un mejor formato considera lo siguiente:\nColoca asteriscos al comienzo y al final del texto: \n*tu texto*\nColoca guiones bajos al comienzo y al final del texto:\n_tu texto_\nColoca acentos graves al comienzo y al final del texto:\n`tu texto`\nAgrega una cuña delante del texto:\n>tu texto\nAgrega tres acentos graves delante del texto:\n```tu texto\nAgrega el número uno y, luego, pulsa delante del texto:\n1. tu texto\nAgrega un asterisco y, luego, pulsa espacio delante del texto:\n* tu texto\n\nPara aplicar sangría a una línea, pulsa Tab\n",
+          "maxIterations": 100
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        432
+      ],
+      "id": "b911ff95-1f21-4da1-af17-07913bf833a3",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack1').item.json.channel }}",
+          "mode": "id"
+        },
+        "timestamp": "={{ $('Slack1').item.json.message_timestamp }}"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        288,
+        336
+      ],
+      "id": "8ab9d127-15b8-427a-b02d-c1ca9bdca326",
+      "name": "Slack",
+      "webhookId": "3029ccc5-57ae-4839-928a-803ade20ff79",
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        336
+      ],
+      "id": "84bca255-a81a-408d-b5d3-0bc42296a2f4",
+      "name": "No Operation, do nothing2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        560
+      ],
+      "id": "c21685d0-f920-46a0-bef2-2c84df54a59b",
+      "name": "No Operation, do nothing3"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack Trigger1').item.json.channel }}",
+          "mode": "id"
+        },
+        "text": "={{ $('Error Handler1').item.json.output }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        736,
+        432
+      ],
+      "id": "533ab07d-8ae8-49ef-8c81-573f3d5d41a2",
+      "name": "Send a message1",
+      "webhookId": "7f2256c8-c748-46bf-9d15-e5463cfa87d5",
+      "credentials": {
+        "slackApi": {
+          "id": "cruoPamvWn0tYiLn",
+          "name": "Slack account A-Rebeca"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "watchWorkspace": true,
+        "options": {
+          "resolveIds": true,
+          "userIds": [
+            "U092PV9H89Z",
+            "U093XJ4EY5A",
+            "U09368HTC5T"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1728,
+        432
+      ],
+      "id": "a934d83d-5649-4a55-b60d-fabfa95e42dd",
+      "name": "Slack Trigger1",
+      "webhookId": "a1bc3fa9-e929-44be-ad7c-269b4f885095",
+      "credentials": {
+        "slackApi": {
+          "id": "cruoPamvWn0tYiLn",
+          "name": "Slack account A-Rebeca"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.channel }}",
+          "mode": "id"
+        },
+        "timestamp": "={{ $json.ts }}",
+        "name": "eyes"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -1520,
+        432
+      ],
+      "id": "96aa0bf1-0116-44a3-aeec-0a58f543298c",
+      "name": "Add a reaction",
+      "webhookId": "b6124d2f-7e1b-4d7c-9f7b-8f74e4332568",
+      "credentials": {
+        "slackApi": {
+          "id": "cruoPamvWn0tYiLn",
+          "name": "Slack account A-Rebeca"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "operation": "remove",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack Trigger1').item.json.channel }}",
+          "mode": "id"
+        },
+        "timestamp": "={{ $('Slack Trigger1').item.json.ts }}",
+        "name": "eyes"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        496,
+        544
+      ],
+      "id": "f7d3c900-e882-4509-9457-cadc0ecf7f42",
+      "name": "Remove a reaction",
+      "webhookId": "affe813f-a664-4e83-a636-9612d73bcc92",
+      "credentials": {
+        "slackApi": {
+          "id": "cruoPamvWn0tYiLn",
+          "name": "Slack account A-Rebeca"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack Trigger1').item.json.channel }}",
+          "mode": "id"
+        },
+        "timestamp": "={{ $('Slack Trigger1').item.json.ts }}",
+        "name": "white_check_mark"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        944,
+        336
+      ],
+      "id": "72c704b1-d1cd-41c5-9d13-125379328c48",
+      "name": "Add a reaction1",
+      "webhookId": "66b31c78-7070-4c44-90b4-f72e7fb6d478",
+      "credentials": {
+        "slackApi": {
+          "id": "cruoPamvWn0tYiLn",
+          "name": "Slack account A-Rebeca"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {
+          "maxTokens": 32768,
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1408,
+        672
+      ],
+      "id": "f93ab2b4-8e4f-4697-9005-93c17d3f13f2",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Slack Trigger1').item.json.user }}",
+        "contextWindowLength": 2
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -1232,
+        752
+      ],
+      "id": "8860ede5-bc84-4672-aba4-bf6f489ca453",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "QPskuhs2MsgnNdeP",
+          "name": "Postgres #Rebeca"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Utiliza esta herramienta para saber si el usuario está autorizado.",
+        "workflowId": {
+          "__rl": true,
+          "value": "qX6o8mVWzEkUAd0O",
+          "mode": "list",
+          "cachedResultName": "Autorizacion"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Slack Trigger1').item.json.user }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -1088,
+        752
+      ],
+      "id": "e2582940-f929-4df5-ab37-1c074780f540",
+      "name": "Autorizacion"
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta para analizar el comportamiento tanto del System Prompt, como del user Pormpt, para que hagas lo que se te programo en cada interacción con el usuario, has un  plan de acción para que todo se cumpla e indícale al agente principal lo que debe de hacer"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        752
+      ],
+      "id": "35964f8b-ffe9-4633-9abb-45205af7a143",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta para obtener el esquema de la base de datos",
+        "workflowId": {
+          "__rl": true,
+          "value": "vlZUR3t8hUQyFxQC",
+          "mode": "list",
+          "cachedResultName": "ObtenEsquema"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -688,
+        752
+      ],
+      "id": "3fe0ebff-67c8-486a-92d1-c9d6e391c5e3",
+      "name": "ObtenEsquema"
+    },
+    {
+      "parameters": {
+        "description": "Utiliza esta herramienta para graficar los resultados.",
+        "workflowId": {
+          "__rl": true,
+          "value": "PeCVotVZv2lzzooN",
+          "mode": "list",
+          "cachedResultName": "Graficar"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Type": "={{ $fromAI('Type')}}",
+            "Labels": "={{ $fromAI('Labels')}}",
+            "Data": "={{ $fromAI('Data')}}",
+            "Channel": "={{ $('Slack Trigger1').item.json.channel }}",
+            "Nombre": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Nombre', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Labels",
+              "displayName": "Labels",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Channel",
+              "displayName": "Channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -544,
+        752
+      ],
+      "id": "7fa06867-9304-4014-a469-80a3616cd66b",
+      "name": "Graficar"
+    },
+    {
+      "parameters": {
+        "sseEndpoint": "https://tnwebhook.tiendasnetows.com/mcp/acbc9b18-d96a-4d19-87e6-fbcabba3c22d",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        752
+      ],
+      "id": "2a739341-9cda-42f6-8276-8a0f922fae7c",
+      "name": "EjecutarConsulta"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO public.n8n_behavior_histories(\n    session_id, message)\nVALUES ( '{{ $('Slack Trigger').item.json.user }}', '{\"message\":\"{{ $('Slack Trigger').item.json.text }}\"}'::jsonb);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        -240,
+        752
+      ],
+      "id": "19220f0d-3eca-489c-b309-cd13d231de84",
+      "name": "Comportamiento",
+      "credentials": {
+        "postgres": {
+          "id": "dgOmIdu5ql4rjwFw",
+          "name": "Postgres Eva-Corpo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "n8n_behavior_histories",
+          "mode": "list",
+          "cachedResultName": "n8n_behavior_histories"
+        },
+        "limit": 200,
+        "where": {
+          "values": [
+            {
+              "column": "session_id",
+              "value": "={{ $('Slack Trigger1').item.json.user }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        -64,
+        752
+      ],
+      "id": "ae00ba11-b025-486b-a080-abab5ddbf6da",
+      "name": "ObtenerComportamiento",
+      "credentials": {
+        "postgres": {
+          "id": "dgOmIdu5ql4rjwFw",
+          "name": "Postgres Eva-Corpo"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        112,
+        752
+      ],
+      "id": "59b95b25-7e0f-48a3-90cf-85a426f97266",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "log",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('id', ``, 'number') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "user_message",
+              "displayName": "user_message",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "agent_response",
+              "displayName": "agent_response",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "request_type",
+              "displayName": "request_type",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        256,
+        752
+      ],
+      "id": "85c8c36a-e3d6-427e-8912-93907cfec6ec",
+      "name": "Logs",
+      "credentials": {
+        "postgres": {
+          "id": "QPskuhs2MsgnNdeP",
+          "name": "Postgres #Rebeca"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "description": "Usame cuando quieras agregar un recordatorio a un usuario",
+        "workflowId": {
+          "__rl": true,
+          "value": "7elih5x2vbCSIUi8",
+          "mode": "list",
+          "cachedResultName": "Recordatorios"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Solicitud": "={{ $('Slack Trigger1').item.json.text }}",
+            "userId": "={{ $('Slack Trigger1').item.json.user }}",
+            "channelId": "={{ $('Slack Trigger1').item.json.channel }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Solicitud",
+              "displayName": "Solicitud",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "channelId",
+              "displayName": "channelId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        752
+      ],
+      "id": "b59f3179-e420-4beb-9876-4109bc066c53",
+      "name": "Recordatorios"
+    }
+  ],
+  "pinData": {
+    "Slack Trigger1": [
+      {
+        "json": {
+          "user": "U091B7WDXJ4",
+          "type": "message",
+          "ts": "1757612924.510059",
+          "client_msg_id": "48c1f04a-2685-4d49-b9c2-14e6ec1320f3",
+          "text": "Podrias recordarme revizar la base de datos hoy a las 11:49",
+          "team": "T9XJE11PE",
+          "blocks": [
+            {
+              "type": "rich_text",
+              "block_id": "HaGCZ",
+              "elements": [
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "Podrias recordarme revizar la base de datos hoy a las 11:49"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "channel": "D093AJN8F33",
+          "event_ts": "1757612924.510059",
+          "channel_type": "im",
+          "user_resolved": "juan.garciag"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Error Handler1": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Friendly Error Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Friendly Error Response1": {
+      "main": [
+        [
+          {
+            "node": "Remove a reaction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Error Handler1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Add a reaction1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Add a reaction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add a reaction": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove a reaction": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add a reaction1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Autorizacion": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ObtenEsquema": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Graficar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EjecutarConsulta": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Comportamiento": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ObtenerComportamiento": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Logs": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recordatorios": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "56b97ebe-f520-462d-b64d-0b58ac3e1173",
+  "meta": {
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "PSV9hckIpeMmqkHa",
+  "tags": []
+}

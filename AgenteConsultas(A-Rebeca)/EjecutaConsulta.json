@@ -1,0 +1,126 @@
+{
+  "name": "EjecutaConsulta",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -176,
+        -80
+      ],
+      "id": "cfe2bdce-4f28-4ef0-8c01-0c64b8225734",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ $json.query }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        480,
+        -80
+      ],
+      "id": "484f25d4-0155-45b3-b785-a03070168de6",
+      "name": "Postgres1",
+      "credentials": {
+        "postgres": {
+          "id": "B1lVzRYnGkK7saFa",
+          "name": "Postgres account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "sqlQuery": "{{ $json.query }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 2.1,
+      "position": [
+        48,
+        -80
+      ],
+      "id": "2f4c0d18-fd60-41ce-ac8b-72632dca5a81",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        272,
+        -80
+      ],
+      "id": "53fea4cf-cd2f-46da-8b5e-77d95ba3c5d2",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "56ba64a1-d7eb-448e-a6a1-5157a2e0d75b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "inEYV4motuDWiwc1",
+  "tags": []
+}

@@ -1,0 +1,136 @@
+{
+  "name": "ObtenEsquema",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        -48
+      ],
+      "id": "745205c5-9775-4bc4-b02d-82567f8bbd86",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT table_name, column_name, data_type \nFROM information_schema.columns \nWHERE table_schema = 'public' \nORDER BY table_name, ordinal_position;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        480,
+        -64
+      ],
+      "id": "f8d6eb5a-6093-4c44-8de2-5468069b928b",
+      "name": "Postgres",
+      "credentials": {
+        "postgres": {
+          "id": "B1lVzRYnGkK7saFa",
+          "name": "Postgres account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "function transformSchema(input){\n  const tables = {};\n\n  input.forEach(({json}) => {\n    if(!json) return;\n\n    const { tablename, schemaname, column_name, data_type} = json;\n\n    if(!tables[tablename]){\n      tables[tablename] = { schema: schemabane, columns: []};\n\ntables[tablename].columns.push('${column:name} (${data_type})');\n    }\n  });\n  return Object.entries(tables).map(([tablename, {schema, columns}]) => `Table ${tablename} (schema: ${schema}) has columns: ${columns.join(\", \")}`).join(\"\\n\\n\");\n}\n\nconst input = $input.all();\nconsole.log(input);\nconst transformSchema = transformSchema(input);\n\nreturn { data: transformSchema };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        -240
+      ],
+      "id": "fdcbfea7-e3df-4dbe-be7a-02fc5fcb7fcc",
+      "name": "Code",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "sqlQuery": "-- Esquema + descripciones + constraints por COLUMNA (PK, FK, UNIQUE)\nWITH cols AS (\n  SELECT\n    table_name,\n    column_name,\n    data_type,\n    is_nullable,\n    ordinal_position\n  FROM `neto-cloud.agente_rebeca.INFORMATION_SCHEMA.COLUMNS`\n  WHERE table_name IN ('articulosm','cedism','divagrcatsubcatm','estatusarticulom','tiendas','tipoarticulom','ventasm','inventariostdasm','inventarioscedism')\n),\ndescs AS (\n  -- Descripciones de columnas: usar field_path = column_name\n  SELECT\n    table_name,\n    column_name,\n    description\n  FROM `neto-cloud.agente_rebeca.INFORMATION_SCHEMA.COLUMN_FIELD_PATHS`\n  WHERE table_name IN ('articulosm','cedism','divagrcatsubcatm','estatusarticulom','tiendas','tipoarticulom','ventasm','inventariostdasm','inventarioscedism')\n    AND field_path = column_name\n),\n-- Mapa de constraints POR COLUMNA (PK, FK, UNIQUE, etc.)\ncol_constraints AS (\n  SELECT\n    kcu.table_name,\n    kcu.column_name,\n    tc.constraint_type,\n    kcu.constraint_name\n  FROM `neto-cloud.agente_rebeca.INFORMATION_SCHEMA.KEY_COLUMN_USAGE` kcu\n  JOIN `neto-cloud.agente_rebeca.INFORMATION_SCHEMA.TABLE_CONSTRAINTS` tc\n    ON tc.constraint_name = kcu.constraint_name\n   AND tc.table_name      = kcu.table_name\n  WHERE kcu.table_name IN ('articulosm','cedism','divagrcatsubcatm','estatusarticulom','tiendas','tipoarticulom','ventasm','inventariostdasm','inventarioscedism')\n),\n-- Solo para FKs: obtener la tabla/columna referenciada\nfk_targets AS (\n  SELECT\n    kcu.table_name,\n    kcu.column_name,\n    kcu.constraint_name,\n    ccu.table_name  AS referenced_table_name,\n    ccu.column_name AS referenced_column_name\n  FROM `neto-cloud.agente_rebeca.INFORMATION_SCHEMA.KEY_COLUMN_USAGE` kcu\n  JOIN `neto-cloud.agente_rebeca.INFORMATION_SCHEMA.TABLE_CONSTRAINTS` tc\n    ON tc.constraint_name = kcu.constraint_name\n   AND tc.table_name      = kcu.table_name\n  JOIN `neto-cloud.agente_rebeca.INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE` ccu\n    ON ccu.constraint_name = kcu.constraint_name\n  WHERE tc.constraint_type = 'FOREIGN KEY'\n    AND kcu.table_name IN ('articulosm','cedism','divagrcatsubcatm','estatusarticulom','tiendas','tipoarticulom','ventasm','inventariostdasm','inventarioscedism')\n)\nSELECT\n  c.table_name,\n  c.column_name,\n  c.data_type,\n  c.is_nullable,\n  d.description,\n  cc.constraint_type,                 -- 'PRIMARY KEY' | 'FOREIGN KEY' | 'UNIQUE' | NULL\n  CASE WHEN cc.constraint_type = 'FOREIGN KEY' THEN ft.referenced_table_name  END AS referenced_table_name,\n  CASE WHEN cc.constraint_type = 'FOREIGN KEY' THEN ft.referenced_column_name END AS referenced_column_name\nFROM cols c\nLEFT JOIN descs d\n  ON d.table_name = c.table_name AND d.column_name = c.column_name\nLEFT JOIN col_constraints cc\n  ON cc.table_name = c.table_name AND cc.column_name = c.column_name\nLEFT JOIN fk_targets ft\n  ON ft.table_name = c.table_name AND ft.column_name = c.column_name AND ft.constraint_name = cc.constraint_name\nORDER BY\n  c.table_name, c.ordinal_position;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 2.1,
+      "position": [
+        -16,
+        -48
+      ],
+      "id": "54076eaa-35bf-4893-88b3-0ed72dc68d74",
+      "name": "Execute a SQL query",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -48
+      ],
+      "id": "9b093308-f830-486e-a8fa-4a68053d2606",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {}
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4b882612-ca90-4f07-85af-15efa7f3ceb7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "vlZUR3t8hUQyFxQC",
+  "tags": []
+}

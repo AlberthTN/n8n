@@ -1,0 +1,70 @@
+{
+  "name": "DBRebeca",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "acbc9b18-d96a-4d19-87e6-fbcabba3c22d"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "61aea956-167c-4b17-8d8b-b799da489547",
+      "name": "MCP Server Trigger",
+      "webhookId": "acbc9b18-d96a-4d19-87e6-fbcabba3c22d"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Project', ``, 'string') }}",
+          "mode": "id"
+        },
+        "sqlQuery": "{{ $fromAI('query') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQueryTool",
+      "typeVersion": 2.1,
+      "position": [
+        288,
+        208
+      ],
+      "id": "883133a0-1ddb-41df-a460-510dc6181362",
+      "name": "Execute a SQL query in Google BigQuery",
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute a SQL query in Google BigQuery": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f1259d20-2f00-4127-abd8-dd15c014ab55",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "RlIJVWGoBJtwsSUA",
+  "tags": []
+}

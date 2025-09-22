@@ -1,0 +1,290 @@
+{
+  "name": "Graficar",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Type"
+            },
+            {
+              "name": "Labels"
+            },
+            {
+              "name": "Data"
+            },
+            {
+              "name": "Channel"
+            },
+            {
+              "name": "Nombre"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        864,
+        464
+      ],
+      "id": "ac708a83-c80e-46ab-bcca-f97afde88c4b",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "binaryPropertyName": "salida.png",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        2224,
+        464
+      ],
+      "id": "26f621a2-4cc6-4022-9295-fada7dd75f2c",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2512,
+        464
+      ],
+      "id": "b939d8ad-0423-4e55-a141-910d8c374288",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "options": {
+          "channelId": "={{ $('When Executed by Another Workflow').item.json.Channel }}",
+          "fileName": "=grafica-{{ $('When Executed by Another Workflow').item.json.Type}}-{{ $now.format('yyyy-mm-dd HH:mm:ss a') }}.png",
+          "title": "={{ $('When Executed by Another Workflow').item.json.Type}}-{{ $now.format('yyyy-mm-dd HH:mm:ss a') }}.png"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2768,
+        464
+      ],
+      "id": "672dfb9f-c954-4c34-9f91-7749f02126cd",
+      "name": "Upload a file",
+      "webhookId": "6157d4ee-8173-43ea-8d46-0d506ff2f845",
+      "alwaysOutputData": true,
+      "credentials": {
+        "slackApi": {
+          "id": "cruoPamvWn0tYiLn",
+          "name": "Slack account A-Rebeca"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.Type }}{{ $json.Labels }}{{ $json.Data }}{{ $json.Nombre }}",
+        "options": {
+          "systemMessage": "=Eres un experto en generar gráficas, recibes los datos de la grafica analizas interpretas y con código JavaScript generas graficas en formato .png y la envías como salida.\nSolo mandas de salida el código JavaScript en una sola línea sin agregar nada mas.\n\n##Usa esta estructura de ejemplo: \nconst canvas = document.createElement('canvas'); canvas.width = 800; canvas.height = 600; const ctx = canvas.getContext('2d'); ctx.fillStyle = '#f8f9fa'; ctx.fillRect(0, 0, 800, 600); const data = [2174377767, 2094229325, 2546481043, 2706659922, 2459272581, 2428287225, 2333787145, 549099611]; const labels = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto']; const maxValue = Math.max(...data); const chartWidth = 600; const chartHeight = 400; const chartX = 100; const chartY = 50; const barWidth = chartWidth / data.length * 0.8; const barSpacing = chartWidth / data.length * 0.2; ctx.fillStyle = '#333'; ctx.font = '20px Arial'; ctx.textAlign = 'center'; ctx.fillText('Ventas totales por mes 2025', 400, 30); ctx.strokeStyle = '#ddd'; ctx.lineWidth = 1; for(let i = 0; i <= 5; i++) { const y = chartY + chartHeight - (i * chartHeight / 5); ctx.beginPath(); ctx.moveTo(chartX, y); ctx.lineTo(chartX + chartWidth, y); ctx.stroke(); ctx.fillStyle = '#666'; ctx.font = '12px Arial'; ctx.textAlign = 'right'; ctx.fillText((maxValue * i / 5 / 1000000).toFixed(0) + 'M', chartX - 10, y + 4); } ctx.strokeStyle = '#333'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(chartX, chartY); ctx.lineTo(chartX, chartY + chartHeight); ctx.lineTo(chartX + chartWidth, chartY + chartHeight); ctx.stroke(); data.forEach((value, index) => { const barHeight = (value / maxValue) * chartHeight; const x = chartX + (index * chartWidth / data.length) + (barSpacing / 2); const y = chartY + chartHeight - barHeight; ctx.fillStyle = `hsl(${200 + index * 20}, 70%, 50%)`; ctx.fillRect(x, y, barWidth, barHeight); ctx.fillStyle = '#333'; ctx.font = '10px Arial'; ctx.textAlign = 'center'; ctx.save(); ctx.translate(x + barWidth/2, chartY + chartHeight + 15); ctx.rotate(-Math.PI/4); ctx.fillText(labels[index], 0, 0); ctx.restore(); ctx.fillStyle = '#000'; ctx.font = '10px Arial'; ctx.textAlign = 'center'; ctx.fillText((value/1000000).toFixed(0) + 'M', x + barWidth/2, y - 5); }); const link = document.createElement('a'); link.download = 'ventas_mensuales_2025.png'; link.href = canvas.toDataURL(); link.click();\n\n-Pon el labels en negitas , tambien el titulo y el o los data"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1312,
+        464
+      ],
+      "id": "4ec9642c-7865-4901-b72a-59c3a64c0739",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1184,
+        672
+      ],
+      "id": "2e9d2f93-cc5c-46dc-8d10-7956367084a1",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "kUo1SOAWh5QhxVKs",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d2eea7cb-e2ec-449f-bcac-812a2dec13d9",
+              "name": "output",
+              "value": "={{ $json.output.split('\\n')[1].split('```')[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1664,
+        464
+      ],
+      "id": "6ee6a2ec-a577-48d4-9655-f1fca20b0165",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tnrender.tiendasnetows.com/render",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "format",
+              "value": "png"
+            },
+            {
+              "name": "code",
+              "value": "=output\n{{ $('AI Agent').item.json.output }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "salida.png"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1872,
+        464
+      ],
+      "id": "3a1e80a2-e2c8-4a42-b29b-8c9aa26f4d42",
+      "name": "HTTP Request1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Upload a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload a file": {
+      "main": [
+        []
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Mexico_City",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "e67ae5be-0d5e-4318-9a54-481257320ba6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "PeCVotVZv2lzzooN",
+  "tags": []
+}

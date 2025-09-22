@@ -1,0 +1,419 @@
+{
+  "name": "Cron",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1424,
+        128
+      ],
+      "id": "abb56a23-4e13-4dac-a347-e6d208e53021",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "sqlQuery": "SELECT *\nFROM `neto-cloud.agente_rebeca.user_reminders`\nWHERE status = 'pending'\nORDER BY created_at ASC\nLIMIT 1000;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 2.1,
+      "position": [
+        -1216,
+        128
+      ],
+      "id": "982e50f8-edc2-45a4-afc2-4ad102062f2f",
+      "name": "Obtener recordatorios pendientes",
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -992,
+        32
+      ],
+      "id": "71894f72-b2e4-4d9a-9694-9bef9ffbff5a",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3590fb21-5375-4300-8119-97ab075ddbcd",
+              "name": "datetime",
+              "value": "={{ (() => {\n  try {\n    const raw = $json.trigger_params;\n    const obj = typeof raw === 'string' ? JSON.parse(raw) : raw;\n    return obj?.datetime || '';\n  } catch (e) {\n    return '';\n  }\n})() }}",
+              "type": "string"
+            },
+            {
+              "id": "e7bf9fdc-3dcf-482f-be56-29e7cfa57850",
+              "name": "channel",
+              "value": "={{ (() => {\n  try {\n    const raw = $json.trigger_params;\n    const obj = typeof raw === 'string' ? JSON.parse(raw) : raw;\n    return obj?.channel_id || '';\n  } catch (e) {\n    return '';\n  }\n})() }}",
+              "type": "string"
+            },
+            {
+              "id": "a1b2c3d4-5678-90ef-ghij-klmnopqrstuv",
+              "name": "uuid",
+              "value": "={{ $json.reminder_id }}",
+              "type": "string"
+            },
+            {
+              "id": "b2c3d4e5-6789-01fg-hijk-lmnopqrstuvw",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -736,
+        48
+      ],
+      "id": "50b44c35-7ab2-4976-ae6a-45b8031a52c0",
+      "name": "Extraer campos"
+    },
+    {
+      "parameters": {
+        "jsCode": "const datetimeISO = $input.first().json.datetime; \nconst now = new Date(new Date().toLocaleString(\"en-US\", {timeZone: \"America/Mexico_City\"})); \n\nconsole.log('DEBUG - Fecha objetivo:', datetimeISO); console.log('DEBUG - Hora actual:', now.toISOString()); \n\nfunction isWithinTolerance(targetISO, toleranceSeconds = 40) { if (!targetISO) { \n  \n  console.log('DEBUG - Fecha vacía'); return false;\n} \n\nconst targetDate = new Date(targetISO); if (isNaN(targetDate)) { \n  console.log('DEBUG - Fecha inválida:', targetISO); return false; \n} \n                                                              \nconst diffMs = Math.abs(now - targetDate); \nconst withinTolerance = diffMs <= toleranceSeconds * 1000; \nconsole.log('DEBUG - Diferencia (ms):', diffMs); console.log('DEBUG - Dentro de tolerancia:', withinTolerance); \n                                                              \nreturn withinTolerance; } \nreturn [{ shouldTrigger: isWithinTolerance(datetimeISO, 40), currentTime: now.toISOString(), targetTime: datetimeISO, uuid: $input.first().json.uuid }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        48
+      ],
+      "id": "f9ebf445-71f9-4a54-96f6-4dbcf2124cc9",
+      "name": "Verificar hora"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Extraer campos').item.json.channel }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.text }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        832,
+        80
+      ],
+      "id": "dd803d75-329c-448c-9d71-0279f426b0c5",
+      "name": "Enviar mensaje Slack",
+      "webhookId": "87f73287-2a21-408a-8486-86f5ff115a01",
+      "credentials": {
+        "slackApi": {
+          "id": "cruoPamvWn0tYiLn",
+          "name": "Slack account A-Rebeca"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "246ff875-ae6a-4324-82e7-65e166181611",
+              "leftValue": "={{ $json.shouldTrigger }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        256
+      ],
+      "id": "7ee970c2-216d-4385-9913-845216a294ad",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f2df04e2-b310-48ac-b306-9a13173eaa80",
+              "name": "datetime",
+              "value": "={{ $json.datetime.split('-06')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "35950551-a533-4dbd-96a2-e7efcccaa7e6",
+              "name": "channel",
+              "value": "={{ $json.channel }}",
+              "type": "string"
+            },
+            {
+              "id": "d78a5c5b-ec2d-4c31-8c50-1748a1372918",
+              "name": "uuid",
+              "value": "={{ $json.uuid }}",
+              "type": "string"
+            },
+            {
+              "id": "470988a8-aca3-48ab-9fe0-64f5a73c51b7",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -496,
+        48
+      ],
+      "id": "34d645d5-f695-4097-9f1c-f5b48b8412c0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu objetivo es elaborar un mensaje de recordatorio referente al la siguiente entrada:  {{ $('Edit Fields').item.json.title }}\n\n-Dale espacios para que se vea mejor y agrega iconos que resalten el mensaje.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=##Formato de Respuesta  para enfatizar solo usa un * en lugar de **, ejemplo: **Prepárate** usa mejor *Prepárate*  No conteste de esta forma los títulos: ### Ejemplo de carta de renuncia formal usa mejor >*Ejemplo de carta de renuncia formal. *  Siempre que sugieras ejemplo de documentos contesta dentro de un cuadro listo para copiar y pegar.  para dar un mejor formato considera lo siguiente: Coloca asteriscos al comienzo y al final del texto:  *tu texto* Coloca guiones bajos al comienzo y al final del texto: _tu texto_ Coloca acentos graves al comienzo y al final del texto: `tu texto` Agrega una cuña delante del texto: >tu texto Agrega tres acentos graves delante del texto: ```tu texto Agrega el número uno y, luego, pulsa delante del texto: 1. tu texto Agrega un asterisco y, luego, pulsa espacio delante del texto: * tu texto  Para aplicar sangría a una línea, pulsa Tab"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        288,
+        -80
+      ],
+      "id": "e1a3fc58-2159-4114-8326-25953749eb93",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        352,
+        80
+      ],
+      "id": "0f4c5012-17cc-458f-8ca2-d67a3ab32a7c",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Schedule Trigger": [
+      {
+        "json": {
+          "timestamp": "2025-09-10T16:26:14.006-06:00",
+          "Readable date": "September 10th 2025, 4:26:14 pm",
+          "Readable time": "4:26:14 pm",
+          "Day of week": "Wednesday",
+          "Year": "2025",
+          "Month": "September",
+          "Day of month": "10",
+          "Hour": "16",
+          "Minute": "26",
+          "Second": "14",
+          "Timezone": "America/Mexico_City (UTC-06:00)"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Obtener recordatorios pendientes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Obtener recordatorios pendientes": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Extraer campos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer campos": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar hora": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar mensaje Slack": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Verificar hora",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Enviar mensaje Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f582b0bc-ce92-49ad-b936-18cda1dc1e43",
+  "meta": {
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "RK4BQ0dxg4N2zx5W",
+  "tags": []
+}

@@ -1,0 +1,365 @@
+{
+  "name": "FlujoAutorizacion",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1DgLiHG9aN-VW4k_o4Y4WJm60ffMpRnJLeiTYUGPWkZA",
+          "mode": "list",
+          "cachedResultName": "Autorizados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DgLiHG9aN-VW4k_o4Y4WJm60ffMpRnJLeiTYUGPWkZA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Autorizados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DgLiHG9aN-VW4k_o4Y4WJm60ffMpRnJLeiTYUGPWkZA/edit#gid=0"
+        },
+        "event": "rowUpdate",
+        "includeInOutput": "both",
+        "options": {
+          "columnsToWatch": [
+            "Status"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        32
+      ],
+      "id": "00a4334f-088e-47ad-a87a-188921aa016d",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "6Noseg3lrEUn3C9D",
+          "name": "Google Sheets Trigger A-Rebeca"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "insert",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "datasetId": {
+          "__rl": true,
+          "value": "agente_rebeca",
+          "mode": "list",
+          "cachedResultName": "agente_rebeca"
+        },
+        "tableId": {
+          "__rl": true,
+          "value": "autorizacion",
+          "mode": "list",
+          "cachedResultName": "autorizacion"
+        },
+        "dataMode": "define",
+        "fieldsUi": {
+          "values": [
+            {
+              "fieldId": "id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldId": "nombre",
+              "fieldValue": "={{ $json.real_name }}"
+            },
+            {
+              "fieldId": "telefono",
+              "fieldValue": "={{ $json.profile.phone }}"
+            },
+            {
+              "fieldId": "correo",
+              "fieldValue": "={{ $json.name }}@tiendasneto.com"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 2.1,
+      "position": [
+        704,
+        0
+      ],
+      "id": "dd824ed4-40b9-442c-a128-6ee49c56a789",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c9cb77b9-2309-4713-837d-a21be2b0f2c6",
+              "leftValue": "={{ $json.current.Status }}",
+              "rightValue": "PENDING",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "01e39dc9-cd50-44e2-bd93-7da39b77534e",
+              "leftValue": "={{ $json.previous.Status }}",
+              "rightValue": "PENDING",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        32
+      ],
+      "id": "a2d58a70-fbce-4ee7-b247-bcd7cbf48fab",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        448,
+        192
+      ],
+      "id": "3dbffb6f-a501-4e42-94ab-725cd9656f29",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1DgLiHG9aN-VW4k_o4Y4WJm60ffMpRnJLeiTYUGPWkZA",
+          "mode": "list",
+          "cachedResultName": "Autorizados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DgLiHG9aN-VW4k_o4Y4WJm60ffMpRnJLeiTYUGPWkZA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Autorizados",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DgLiHG9aN-VW4k_o4Y4WJm60ffMpRnJLeiTYUGPWkZA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Usuario": "={{ $('Google Sheets Trigger').item.json.previous.Usuario }}",
+            "Status": "OK"
+          },
+          "matchingColumns": [
+            "Usuario"
+          ],
+          "schema": [
+            {
+              "id": "Usuario",
+              "displayName": "Usuario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "96db6b17-b605-461a-abba-7f6f529be7ee",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "gsYHK5J1VGFHf5Ld",
+          "name": "Google Sheets A-Rebeca"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "user",
+        "user": {
+          "__rl": true,
+          "value": "={{ $json.previous.Usuario }}",
+          "mode": "id"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "71728694-f298-4d9e-b70a-f8fc8cd99a7d",
+      "name": "Get information about a user",
+      "webhookId": "110d490e-4756-4335-b31b-928a94d22fb4",
+      "credentials": {
+        "slackApi": {
+          "id": "cruoPamvWn0tYiLn",
+          "name": "Slack account A-Rebeca"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Google Sheets Trigger": [
+      {
+        "json": {
+          "previous": {
+            "row_number": 2,
+            "Usuario": "U08V1FZ141M",
+            "Status": "PENDING"
+          },
+          "current": {
+            "row_number": 2,
+            "Usuario": "U08V1FZ141M",
+            "Status": "OK"
+          },
+          "differences": {
+            "row_number": 2,
+            "Status": {
+              "previous": "PENDING",
+              "current": "OK"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get information about a user",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Get information about a user": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2d3186ff-2ec1-4b5e-b0bf-665e19a2aae1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "MLaNo0CSgrexPkqD",
+  "tags": []
+}

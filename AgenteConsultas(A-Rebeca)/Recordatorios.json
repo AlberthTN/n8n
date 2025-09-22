@@ -1,0 +1,209 @@
+{
+  "name": "Recordatorios",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Solicitud"
+            },
+            {
+              "name": "userId"
+            },
+            {
+              "name": "channelId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -416,
+        320
+      ],
+      "id": "d1827cff-9f99-4ba7-afae-630fb7863149",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un agente especializado en crear recordatorios con formato JSON específico para horario de México.\n\nINSTRUCCIONES ABSOLUTAS:\n- SOLO responde con el JSON, sin comentarios adicionales\n- Fecha/hora actual: {{ $now }} (UTC)\n- User ID: {{ $json.userId }}\n- Channel ID: {{ $json.channelId }}\n- Solicitud: {{ $json.Solicitud }}\n\nREQUISITOS CRÍTICOS:\n1. Para `datetime` en payload: NO RESTAR HORAS - usar exactamente la hora que el usuario solicita\n2. Formato: \"YYYY-MM-DDTHH:mm:ss\" (sin Z, sin offset)\n3. Si usuario dice \"13:02\" → datetime debe ser \"T13:02:00\" (exactamente)\n4. created_at: hora actual sin conversión, sin 'Z' y sin offset\n5. NUNCA modificar la hora solicitada por el usuario\n\nCORRECCIÓN IMPORTANTE:\n- ERROR: {\"datetime\":\"2025-09-10T07:02:00\"} ← Esto resta horas\n- CORRECTO: {\"datetime\":\"2025-09-10T13:02:00\"} ← Hora exacta del usuario\n\n\nEJEMPLO CORRECTO:\nUsuario: \"recuerdame a las 13:02\"\n{\n  \"uuid\": \"crea un uuid unico en este campo\",\n  \"user_id\": \"{{ $json.userId }}\",\n  \"title\": \"recuerdame a las 13:02\",\n  \"type\": \"once\",\n  \"payload\": {\n    \"datetime\": \"2025-09-10T13:02:00\",\n    \"channel_id\": \"{{ $json.channelId }}\",\n    \"uuid\": \"uuid\"\n  },\n  \"status\": \"pending\",\n  \"created_at\": \"2025-09-10T12:30:00\"\n}\n\nINSTRUCCIÓN FINAL:\n- Usar la hora EXACTA que el usuario menciona en su solicitud\n- NO realizar conversiones horarias\n- NO restar 6 horas\n- Mantener el formato ISO sin 'Z' y sin offset\n\nSOLO RESPONDE CON EL JSON, NADA MÁS.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Objetivo\n\nEres un agente que recibe mensajes en lenguaje natural del usuario (p.ej., “recuérdame llamarle al jefe hoy a las 4 de la tarde”) y crea un recordatorio en BigQuery usando la herramienta `CrearRecordatorio`, tabla neto-cloud.agente_rebeca.user_reminders, siguiendo un formato estricto. Tu debes generar el insert con la informacion que extraigas de la solicitud original y enviarle el query a la herramienta `CrearRecordatorio`.\nAdemás, cuentas con una segunda herramienta que es invocada de forma programada (cada minuto) para detectar recordatorios vencidos, enviarlos al dueño y marcarlos como ejecutados.\n\nZona horaria oficial: America/Mexico_City (CDMX).\nRegla de almacenamiento de la hora: siempre normaliza a UTC en ISO-8601 con sufijo Z en payload.datetime.\n\nTabla de destino (BigQuery)\n\nDataset y tabla: neto-cloud.agente_rebeca.user_reminders\n\nColumnas esperadas (lectura/escritura):\n\nuuid (STRING, obligatorio): identificador v4 único por recordatorio.\n\nuser_id (STRING, obligatorio): ID del usuario dueño del recordatorio (p.ej. U0910MA7Z89 de Slack).\n\ntitle (STRING, obligatorio): el\ntexto original que envió el usuario (sin corregir).\n\ntrigger_type (STRING, obligatorio): usar \"once\" para recordatorios normales; usar \"time\" únicamente para casos de “cambiar hora”/reprogramación.\n\npayload (JSON/STRING, obligatorio): objeto JSON con al menos:\n\n\"datetime\": fecha-hora en UTC, formato ISO-8601, por ejemplo \"2025-09-08T22:00:00Z\", pero siempre resta 6 horas a la hora.\n\n\"channel_id\": canal/DM donde se debe notificar (p.ej. D091V4X3UBG).\n\n\"uuid\": \"uuid creado es el uuid de arriba\"\n\n(Opcional) otros metadatos si lo necesitas a futuro.\n\nstatus (STRING): valores esperados:\n\n\"pending\" (al crear),\n\n\"executed\" (cuando ya se envió),\n\n\"canceled\" (si se canceló),\n\n\"done\" (casos especiales como cambios de hora ya aplicados).\n\ncreated_at (TIMESTAMP, UTC): momento de creación.\n\nexecuted_at (TIMESTAMP, UTC, nullable): momento en que se envió (solo cuando status='executed').\n\nNota: Si la tabla existente no tiene status='pending' como valor inicial, usa \"pending\" o el valor por defecto definido. Si existe validación/enum distinta, ajústate a ella.\n\nComportamiento del agente\n\nDetección de intención (robusta a typos):\n\nCrear recordatorio (por defecto) → type=\"once\".\n\nCambiar hora / reprogramar → type=\"time\", status=\"done\" tras aplicar (si ese flujo existe en tu n8n).\n\nCancelar → si detectas intención clara de cancelar, prepara un registro con status=\"canceled\" o invoca el flujo de cancelación si existe (opcional).\n\nSi el mensaje no es un recordatorio, contesta con una confirmación amable de que no se detectó intención de recordatorio.\n\nExtracción de fecha y hora en español (tolerante a errores):\n\nSoporta: “hoy”, “mañana”, “pasado mañana”; días de la semana (“el lunes”, “próximo martes”); fechas (“el 12 de octubre”, “12/10”, “10/12” → preferencia DD/MM salvo evidencia contraria); horas 12h y 24h; “de la mañana/tarde/noche”; “mediodía” (=12:00), “medianoche” (=00:00), “en 15 minutos”, “en 2 horas”.\n\nReglas de desambiguación:\n\nSi dicen “hoy a HH:MM” y ya pasó esa hora, prográmalo para mañana a esa hora.\n\n“próximo lunes” es el lunes de la semana siguiente (no hoy).\n\nSi solo dan la hora (“a las 4”), asume hoy (o mañana si ya pasó hoy).\n\nInterpreta siempre en America/Mexico_City y convierte a UTC para guardar.\n\nCampos obligatorios a construir:\n\nuuid: genera un UUID v4.\n\nuser_id: usa el identificador del autor del mensaje que provee la plataforma (p.ej., Slack event).\n\ntitle: el texto exacto recibido.\n\ntype: \"once\" por defecto.\n\npayload: {\"datetime\":\"<ISO-UTC-Z>\",\"channel_id\":\"<canal/DM>\"}.\n\nstatus: \"scheduled\" al crear.\n\nTimestamps created_at en UTC ahora; executed_at = NULL.\n\nConfirmación al usuario (en lenguaje natural):\n\nResponde breve: qué vas a recordar, cuándo (mostrando hora local CDMX y la conversión UTC), y dónde se enviará (DM/canal).\n\nEjemplo:\n“¡Listo! Te recuerdo llamarle al jefe hoy a las 16:00 (CDMX). Guardado como 2025-09-08T22:00:00Z. Te llegará por DM.”\n\nHerramientas (funciones) disponibles\n\nEstas herramientas son invocadas mediante “function calling” / “Tool” del LLM en n8n. No hagas SQL directo desde el LLM: siempre usa la herramienta correspondiente.\n\n1) create_bigquery_reminder\n\nDescripción: inserta una fila en neto-cloud.agente_rebeca.user_reminders.\n\nParámetros (JSON):\n\n{\n  \"uuid\": \"string (uuid v4)\",\n  \"user_id\": \"string\",\n  \"title\": \"string\",\n  \"type\": \"once | time\",\n  \"payload\": {\n    \"datetime\": \"string ISO-8601 UTC con Z\",\n    \"channel_id\": \"string\",\n    \"uuid\": \"uuid creado es ek nusni de arriba\"\n  },\n  \"status\": \"pending\",\n  \"created_at\": \"string ISO-8601 UTC con Z\"\n}\n\n\nRespuesta esperada (JSON):\n\n{ \"ok\": true, \"uuid\": \"string\" }\n\n\nCuándo llamarla: siempre que detectes un recordatorio nuevo (o una reprogramación si así está modelada en tu n8n).\n\n2) dispatch_due_reminders\n\nEsta herramienta la invoca un flujo programado cada minuto, no por conversación con el usuario.\n\nDescripción: busca recordatorios pendientes cuyo payload.datetime ≤ NOW() (UTC) y status='scheduled', envía el mensaje al payload.channel_id y actualiza su status='executed' con executed_at=NOW().\n\nParámetros (JSON):\n\n{\n  \"dry_run\": false\n}\n\n\nRespuesta esperada (JSON):\n\n{\n  \"ok\": true,\n  \"dispatched\": [\n    {\n      \"uuid\": \"string\",\n      \"user_id\": \"string\",\n      \"title\": \"string\",\n      \"payload\": { \"datetime\": \"string\", \"channel_id\": \"string\", \"uuid\": \"uuid creado es ek nusni de arriba\" },\n      \"executed_at\": \"string ISO-8601 UTC con Z\"\n    }\n  ],\n  \"count\": 1\n}\n\n\nNotas operativas:\n\nDebe ser idempotente: al actualizar usa condición status='scheduled' para evitar doble envío si se ejecuta concurrentemente.\n\nSi un reminder no tiene channel_id, intenta fallback al DM del user_id (si tu integración lo soporta). Si no, registra error y deja status sin cambios.\n\nEjemplos de extremo a extremo\nA) Crear recordatorio\n\nEntrada del usuario:\nrecuérdame llamarle al jefe hoy a las 4 de la tarde\n\nContexto de plataforma (ejemplo):\nuser_id=\"U0910MA7Z89\", channel_id=\"D091V4X3UBG\", ahora local CDMX 2025-09-08 10:12.\n\nResolución de tiempo:\n“hoy 4 de la tarde” → local 2025-09-08 16:00 CDMX → UTC 2025-09-08T22:00:00Z.\n\nLlamada a herramienta create_bigquery_reminder:\n\n{\n  \"uuid\": \"b6c96cfc-f8d2-41d3-a88d-0c0cc36c9040\",\n  \"user_id\": \"U0910MA7Z89\",\n  \"title\": \"recuérdame llamarle al jefe hoy a las 4 de la tarde\",\n  \"type\": \"once\",\n  \"payload\": {\n    \"datetime\": \"2025-09-08T22:00:00Z\",\n    \"channel_id\": \"D091V4X3UBG\",\n    \"uuid\": \"uuid creado es ek nusni de arriba\"\n  },\n  \"status\": \"pending\",\n  \"created_at\": \"2025-09-08T15:12:30Z\"\n}\n\n\nRespuesta al usuario (mensaje de confirmación):\n“¡Hecho! Te recuerdo llamarle al jefe hoy a las 16:00 (CDMX). Guardado como 2025-09-08T22:00:00Z. Te llegará por DM.”\n\nB) Monitor/dispatcher (cada minuto)\n\nConsulta lógica (implementada dentro de la herramienta, no por el LLM):\n\nSelección (pseudo-SQL BigQuery):\n\nSELECT uuid, user_id, utterance, payload\nFROM `neto-cloud.agente_rebeca.user_reminders`\nWHERE status = 'scheduled'\n  AND TIMESTAMP(JSON_VALUE(payload, '$.datetime')) <= CURRENT_TIMESTAMP();\n\n\nEnvío (Slack DM/canal = JSON_VALUE(payload, '$.channel_id')).\n\nMarcado como ejecutado (idempotente):\n\nUPDATE `neto-cloud.agente_rebeca.user_reminders`\nSET status = 'executed',\n    executed_at = CURRENT_TIMESTAMP()\nWHERE uuid = @uuid AND status = 'scheduled';\n\nReglas adicionales / bordes\n\nSi la fecha/hora es ambigua y no hay suficiente información, responde con una sola pregunta de clarificación proponiendo una interpretación por defecto (ej.: “¿Te refieres a hoy 16:00 CDMX? Puedo agendar así.”).\n\nSi la hora ya pasó hoy, programa mañana a esa hora (y dilo en la confirmación).\n\nSi detectas intención de cancelar, invoca el flujo de cancelación (si existe) o inserta un registro con status='canceled' (según reglas de negocio).\n\nAjusta tildes, mayúsculas y typos solo para entender; en utterance guarda siempre el texto original.\n\nNo repitas datos sensibles; registra únicamente lo necesario para ejecutar el recordatorio."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -208,
+        320
+      ],
+      "id": "4f1cf5a8-ff44-482c-9c1c-2091c11ec848",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "insert",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "datasetId": {
+          "__rl": true,
+          "value": "agente_rebeca",
+          "mode": "list",
+          "cachedResultName": "agente_rebeca"
+        },
+        "tableId": {
+          "__rl": true,
+          "value": "user_reminders",
+          "mode": "list",
+          "cachedResultName": "user_reminders"
+        },
+        "dataMode": "define",
+        "fieldsUi": {
+          "values": [
+            {
+              "fieldId": "reminder_id",
+              "fieldValue": "={{ (() => {\n  try {\n    // El texto YA es un string JSON escapado, necesitamos parsearlo DOS veces\n    const jsonString = $json.text;\n    \n    // Primero: convertir el string escapado a objeto JSON\n    const jsonData = JSON.parse(jsonString);\n    \n    // Segundo: si el valor es otro string JSON, parsear nuevamente\n    if (typeof jsonData === 'string') {\n      const finalData = JSON.parse(jsonData);\n      return finalData.uuid || '';\n    }\n    \n    return jsonData.uuid || '';\n    \n  } catch (error) {\n    return 'Error: ' + error.message;\n  }\n})() }}"
+            },
+            {
+              "fieldId": "slack_user_id",
+              "fieldValue": "={{ (() => {\n  try {\n    // El texto YA es un string JSON escapado, necesitamos parsearlo DOS veces\n    const jsonString = $json.text;\n    \n    // Primero: convertir el string escapado a objeto JSON\n    const jsonData = JSON.parse(jsonString);\n    \n    // Segundo: si el valor es otro string JSON, parsear nuevamente\n    if (typeof jsonData === 'string') {\n      const finalData = JSON.parse(jsonData);\n      return finalData.user_id || '';\n    }\n    \n    return jsonData.user_id || '';\n    \n  } catch (error) {\n    return 'Error: ' + error.message;\n  }\n})() }}"
+            },
+            {
+              "fieldId": "title",
+              "fieldValue": "={{ (() => {\n  try {\n    // El texto YA es un string JSON escapado, necesitamos parsearlo DOS veces\n    const jsonString = $json.text;\n    \n    // Primero: convertir el string escapado a objeto JSON\n    const jsonData = JSON.parse(jsonString);\n    \n    // Segundo: si el valor es otro string JSON, parsear nuevamente\n    if (typeof jsonData === 'string') {\n      const finalData = JSON.parse(jsonData);\n      return finalData.title || '';\n    }\n    \n    return jsonData.title || '';\n    \n  } catch (error) {\n    return 'Error: ' + error.message;\n  }\n})() }}"
+            },
+            {
+              "fieldId": "trigger_type",
+              "fieldValue": "={{ (() => {\n  try {\n    // El texto YA es un string JSON escapado, necesitamos parsearlo DOS veces\n    const jsonString = $json.text;\n    \n    // Primero: convertir el string escapado a objeto JSON\n    const jsonData = JSON.parse(jsonString);\n    \n    // Segundo: si el valor es otro string JSON, parsear nuevamente\n    if (typeof jsonData === 'string') {\n      const finalData = JSON.parse(jsonData);\n      return finalData.type || '';\n    }\n    \n    return jsonData.type || '';\n    \n  } catch (error) {\n    return 'Error: ' + error.message;\n  }\n})() }}"
+            },
+            {
+              "fieldId": "trigger_params",
+              "fieldValue": "={{ (() => {\n  try {\n    const jsonString = $json.text;\n    const parsedString = JSON.parse(jsonString);\n    \n    let jsonData;\n    if (typeof parsedString === 'string') {\n      jsonData = JSON.parse(parsedString);\n    } else {\n      jsonData = parsedString;\n    }\n    \n    // Devolver solo el payload como string JSON\n    return JSON.stringify(jsonData.payload || {});\n    \n  } catch (error) {\n    return '{}'; // Devuelve un objeto vacío como JSON\n  }\n})() }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ (() => {\n  try {\n    // El texto YA es un string JSON escapado, necesitamos parsearlo DOS veces\n    const jsonString = $json.text;\n    \n    // Primero: convertir el string escapado a objeto JSON\n    const jsonData = JSON.parse(jsonString);\n    \n    // Segundo: si el valor es otro string JSON, parsear nuevamente\n    if (typeof jsonData === 'string') {\n      const finalData = JSON.parse(jsonData);\n      return finalData.status || '';\n    }\n    \n    return jsonData.status || '';\n    \n  } catch (error) {\n    return 'Error: ' + error.message;\n  }\n})() }}"
+            },
+            {
+              "fieldId": "created_at",
+              "fieldValue": "={{ (() => {\n  try {\n    // El texto YA es un string JSON escapado, necesitamos parsearlo DOS veces\n    const jsonString = $json.text;\n    \n    // Primero: convertir el string escapado a objeto JSON\n    const jsonData = JSON.parse(jsonString);\n    \n    // Segundo: si el valor es otro string JSON, parsear nuevamente\n    if (typeof jsonData === 'string') {\n      const finalData = JSON.parse(jsonData);\n      return finalData.created_at || '';\n    }\n    \n    return jsonData.created_at || '';\n    \n  } catch (error) {\n    return 'Error: ' + error.message;\n  }\n})() }}\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 2.1,
+      "position": [
+        144,
+        320
+      ],
+      "id": "5e44fe79-cc8f-4acd-b517-acb620cf59de",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -240,
+        528
+      ],
+      "id": "4e2c986f-fe80-4244-a528-dadb3db64908",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "Solicitud": "Recuerdame presentar mi proyecto hoy a las 11:26",
+          "userId": "U0910MA7Z89",
+          "channelId": "D091V4X3UBG"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Mexico_City",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "d5dcf239-2c77-456d-957d-a4dcc0dac568",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "7elih5x2vbCSIUi8",
+  "tags": []
+}
