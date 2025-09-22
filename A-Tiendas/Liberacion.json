@@ -1,0 +1,117 @@
+{
+  "name": "Liberacion",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Nombre"
+            },
+            {
+              "name": "Sucursal"
+            },
+            {
+              "name": "Cantidad",
+              "type": "number"
+            },
+            {
+              "name": "Motivo"
+            },
+            {
+              "name": "url"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "77c1ea98-607b-420c-a789-475e409714b2",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "358ffd2f-e18a-4d17-8965-a597a510d817",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://front.tiendasneto.corp:9442/WebSIAN/Autorizador",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "usuarioId",
+              "value": "=1123453"
+            },
+            {
+              "name": "pass",
+              "value": "=qweqwewqe"
+            },
+            {
+              "name": "tipoVerificacion",
+              "value": "0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "46d573eb-809f-4b48-90d3-14a2032c48c9",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3eb0f424-61aa-419d-bc63-f04956da55c6",
+  "meta": {
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "p6UGVGR8SY0fvNSl",
+  "tags": []
+}
