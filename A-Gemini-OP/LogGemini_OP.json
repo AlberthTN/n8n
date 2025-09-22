@@ -1,0 +1,518 @@
+{
+  "name": "LogGemini_OP",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            },
+            {
+              "name": "channeld"
+            },
+            {
+              "name": "thread_ts"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1120,
+        80
+      ],
+      "id": "8fa98502-8ab0-419e-b24c-c5ab7df4ac03",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "logsgemini_op",
+          "mode": "list",
+          "cachedResultName": "logsgemini_op"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "correo": "={{ $json.correo }}",
+            "userid": "={{ $json.userId }}",
+            "username": "={{ $json.userName }}",
+            "peticiones": 1
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "correo",
+              "displayName": "correo",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userid",
+              "displayName": "userid",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "username",
+              "displayName": "username",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "peticiones",
+              "displayName": "peticiones",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        208
+      ],
+      "id": "617f2983-3883-49b8-86b3-d041110dcf4a",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "R61MFbkxKEgO2hHh",
+          "name": "Postgres $LogsGemini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "user",
+        "user": {
+          "__rl": true,
+          "value": "={{ $json.usuarioId }}",
+          "mode": "id"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -896,
+        80
+      ],
+      "id": "56e8b8ec-397f-4ed9-a0d1-90dd0ba8492e",
+      "name": "Get information about a user",
+      "webhookId": "91296286-fcf7-44fb-9a08-e2904291ed15",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "13ed7363-5060-4a38-9c00-f675c7f5717b",
+              "name": "correo",
+              "value": "={{ $json.name }}@tiendasneto.com",
+              "type": "string"
+            },
+            {
+              "id": "81eed328-24f7-4879-b810-f3a0f9bc9977",
+              "name": "userId",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "b59324bb-9c34-453c-a853-fbb2ddd1183c",
+              "name": "userName",
+              "value": "={{ $json.profile.display_name }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -672,
+        80
+      ],
+      "id": "f4e8bf19-7c2d-482d-9de9-fabeb3f8dbbf",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "Select peticiones from logsgemini_op where userid = '{{ $('When Executed by Another Workflow').item.json.usuarioId }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "678e221e-0e11-4344-b54c-053263987162",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "R61MFbkxKEgO2hHh",
+          "name": "Postgres $LogsGemini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e0222ec7-da37-4b85-975d-498a78959ac1",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -240,
+        80
+      ],
+      "id": "d1f3d32e-f31c-4fc4-a06b-864f309b079f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT EXISTS (\n    SELECT 1\n    FROM logsgemini_op\n    WHERE userId = 'U091B7WDXJ4'\n) AS existe;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -432,
+        80
+      ],
+      "id": "2feb0b20-6696-490d-91c1-c74da0f8aba9",
+      "name": "Execute a SQL query1",
+      "credentials": {
+        "postgres": {
+          "id": "R61MFbkxKEgO2hHh",
+          "name": "Postgres $LogsGemini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "logsgemini_op",
+          "mode": "list",
+          "cachedResultName": "logsgemini_op"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userid": "={{ $('When Executed by Another Workflow').item.json.usuarioId }}",
+            "peticiones": "={{ $json.peticiones }}\n",
+            "username": "="
+          },
+          "matchingColumns": [
+            "userid"
+          ],
+          "schema": [
+            {
+              "id": "correo",
+              "displayName": "correo",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userid",
+              "displayName": "userid",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "username",
+              "displayName": "username",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "peticiones",
+              "displayName": "peticiones",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        432,
+        0
+      ],
+      "id": "0fa8e102-d5ae-4ab0-8e1d-f66b1521225e",
+      "name": "Update rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "R61MFbkxKEgO2hHh",
+          "name": "Postgres $LogsGemini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let peticiones = $input.first().json.peticiones;\npeticiones++;\nconsole.log(peticiones);\nreturn { peticiones };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "a7fa63e6-1598-40cd-9e9f-91bb4a244c75",
+      "name": "Code"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        912,
+        0
+      ],
+      "id": "2fa7c8ef-ef59-4ac3-a4cc-4c3e392b7bba",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        224,
+        208
+      ],
+      "id": "699b7f23-a812-444a-b06e-01355dcd8d28",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "95026bde-c893-4b18-9774-830bf244f5d1",
+              "name": "success",
+              "value": "OK",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        0
+      ],
+      "id": "cdcdc6da-d6e8-4bc0-b721-bdbdcb4f033b",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get information about a user",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get information about a user": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update rows in a table": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Update rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "99bc3687-b65c-46e1-a54d-1815f3561f9e",
+  "meta": {
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "mDTWbkQGmlakCtph",
+  "tags": []
+}

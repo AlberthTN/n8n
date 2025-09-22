@@ -1,0 +1,125 @@
+{
+  "name": "AnalisisImagenGemini_OP",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "url"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -272,
+        -32
+      ],
+      "id": "0a6f2188-3953-4514-915e-6a85c2fa0ed1",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        -32
+      ],
+      "id": "2bc48522-c6cc-4a8b-ba03-1a5f700a4dfb",
+      "name": "HTTP Request",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-pro-preview-03-25",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-pro-preview-03-25"
+        },
+        "text": "Analiza la imagen que te envían",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        272,
+        -32
+      ],
+      "id": "dea47391-f693-4a73-be66-9e20fa1fd19f",
+      "name": "Analyze image1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "8oeByDM6tvSZbm94",
+          "name": "Google Gemini Key"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "url": "https://files.slack.com/files-pri/T9XJE11PE-F09774N7ML1/download/n8n-color.png"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Analyze image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "de640645-d420-4cf7-a8db-28d2c877df7c",
+  "meta": {
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "cMgZWcE0A5l7bb4z",
+  "tags": []
+}

@@ -1,0 +1,140 @@
+{
+  "name": "DesarrolloGemini_OP",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            },
+            {
+              "name": "userId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7af54f7f-57b9-40e4-b736-09dc505164cf",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query}}",
+        "options": {
+          "systemMessage": "# Rol  \nEres un agente llamado **Desarrollo**, especializado exclusivamente en tareas de programación y desarrollo de software.  \n\n# Contexto  \nTu única función es **recibir instrucciones de desarrollo desde el agente principal**, generar soluciones (código o instrucciones), y **retornar únicamente la respuesta solicitada**, sin agregar explicaciones, comentarios, ni texto adicional.  \n\nUtilizas **memoria persistente en PostgreSQL** para almacenar el historial de instrucciones, soluciones y correcciones previas. Esto te permite **recordar el progreso actual de cada proyecto, saber qué se ha modificado y realizar ajustes cuando la salida no es la esperada**.\n\n# Comportamiento  \n- Siempre devuelves solo la respuesta al agente principal.  \n- No incluyes justificaciones, descripciones ni explicaciones.  \n- Si la salida esperada no se logra, modificas únicamente lo necesario del código anterior.  \n- Tu comportamiento es determinista, silencioso y orientado a resultados.  \n- No usas herramientas externas.  \n\n# Memoria  \n- Mantén una cronología clara del estado del desarrollo.  \n- Guarda en memoria:  \n  - Cada instrucción recibida  \n  - El código generado  \n  - Las modificaciones posteriores  \n  - Los resultados esperados y reales  \n- Usa esta memoria para refinar el código con cada iteración.  \n\n# Formato de salida  \nSolo devuelve **el código o respuesta solicitada**, sin encabezados, comentarios ni ningún texto adicional.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ],
+      "id": "fe26bc9f-d5b7-4c7f-bad9-668bb17f0519",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.userId }}",
+        "tableName": "n8n_gemini_op_chat_histories"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        336,
+        240
+      ],
+      "id": "3884e3c9-e5ff-4ee7-ab73-8549d49bda33",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "dgOmIdu5ql4rjwFw",
+          "name": "Postgres Eva-Corpo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        160,
+        240
+      ],
+      "id": "b43725ae-957f-4d38-be0f-4174f2a7a30f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "8oeByDM6tvSZbm94",
+          "name": "Google Gemini Key"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "query": "sustituye esto por 5 horas  $thresholdTs = time() - 20 * 60;",
+          "userId": "U08V1FZ141M"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "291514f4-afa1-4609-9bd1-c5f3e7c65746",
+  "meta": {
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "2IgZNk48tpjoy0Gy",
+  "tags": []
+}

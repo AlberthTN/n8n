@@ -1,0 +1,1441 @@
+{
+  "name": "AnalisisDocumentos_OP",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "url"
+            },
+            {
+              "name": "UserID"
+            },
+            {
+              "name": "peticion"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -848,
+        864
+      ],
+      "id": "c8ab3ebd-2962-42d1-80a0-dbb1c953f9a0",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('When Executed by Another Workflow').item.json.url.split(' ')[1] }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "a1c76224-dde4-4d59-b4b5-3662572e1a53",
+      "name": "HTTP Request",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "aa9f0b4e-96ad-4c9d-9be6-c460a4bc465a",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        528
+      ],
+      "id": "68c2531b-dc45-4d72-bd43-ff0b0bfbc4e0",
+      "name": "HTTP Request1",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": ".pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    },
+                    "id": "20f45e4b-7186-4752-b999-e4d4b220d658"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PDF"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d706b7e0-5c89-42e9-ab39-0e462181c2d6",
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": ".xlsx",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "EXCELNEW"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2578e382-453a-4750-bd3a-8d8aec66f4e6",
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": ".xls",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "EXCEL"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d1972510-f79d-419c-8fad-f77a8d67eafc",
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": ".rtf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "RTF"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d4305a6e-7dd2-421a-85e8-0cb2c6b5b2af",
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": ".csv",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CSV"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d5b901da-66db-4be0-920d-359141277bff",
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": ".html",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "HTML"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c43757b7-50c9-487e-b718-8d44e6b1a50b",
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": ".ics",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ICS"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "404f702d-01b2-4e38-bdb4-8b46733210d5",
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": ".json",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "JSON"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a50474b7-9958-438a-bfd6-7c71c9204280",
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": ".ods",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ODS"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "fffd6be5-329e-4fc7-93bc-0a4d520b567f",
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": "=.txt",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TEXT"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "16a1c92f-bd3e-4ae5-b4ad-cd5f8e9330c7",
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": ".xml",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "XML"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8a57f9fb-cde1-45ca-954b-94475d1f5078",
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": ".pptx",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PPTX"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "13f25b1c-0292-4758-aedf-0f766641fef6",
+                    "leftValue": "={{ $json.url }}",
+                    "rightValue": ".docx",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "DOCX"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -480,
+        720
+      ],
+      "id": "8cd34dce-a80a-4c65-b9e0-bb56197769f3",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        240,
+        160
+      ],
+      "id": "af58bb78-353d-4166-959f-57af0e167265",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('When Executed by Another Workflow').item.json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        160
+      ],
+      "id": "80356024-5ff0-441f-883c-223c77b97a5a",
+      "name": "HTTP Request2",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $('When Executed by Another Workflow').item.json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        336
+      ],
+      "id": "fecf1a6a-8fb8-4a43-8b25-adb764fc1b39",
+      "name": "HTTP Request3",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "xls",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        240,
+        336
+      ],
+      "id": "8ccfa223-68f5-42f6-8f6e-67f54f339073",
+      "name": "Extract from File2"
+    },
+    {
+      "parameters": {
+        "operation": "rtf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        240,
+        528
+      ],
+      "id": "12659b3f-1718-43c7-8289-040085df1f6b",
+      "name": "Extract from File3"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        688
+      ],
+      "id": "2ce2b3cd-90a0-47a2-a361-2511279c6d5d",
+      "name": "HTTP Request4",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        240,
+        688
+      ],
+      "id": "ed486cfc-4cae-4dba-834d-df6793bb3e0c",
+      "name": "Extract from File4"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('When Executed by Another Workflow').item.json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        880
+      ],
+      "id": "61371f15-b776-4bd9-883b-071396556470",
+      "name": "HTTP Request5",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "html",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        240,
+        880
+      ],
+      "id": "c1a02e72-9f32-4e0a-aea4-87b6a6bb905c",
+      "name": "Extract from File5"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('When Executed by Another Workflow').item.json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        1056
+      ],
+      "id": "c0762d5a-370f-458d-8316-86f2da648bbb",
+      "name": "HTTP Request6",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "fromIcs",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        240,
+        1056
+      ],
+      "id": "a78d74fe-19ac-42a5-9d04-0d9a566daf21",
+      "name": "Extract from File6"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('When Executed by Another Workflow').item.json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        1248
+      ],
+      "id": "9a4e6fe4-46f2-47c8-8cca-30942a897fb1",
+      "name": "HTTP Request7",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        240,
+        1248
+      ],
+      "id": "2f821a29-fce8-46e8-92ee-cc42b2dbcd22",
+      "name": "Extract from File7"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('When Executed by Another Workflow').item.json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        1408
+      ],
+      "id": "7f2d00b9-390f-455c-969e-c9a93d64ec43",
+      "name": "HTTP Request8",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "ods",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        240,
+        1408
+      ],
+      "id": "6b3bf1aa-ba88-4dc1-9525-f83dbfa62f17",
+      "name": "Extract from File8"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('When Executed by Another Workflow').item.json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        1568
+      ],
+      "id": "4adead04-48a7-452e-8dd3-972e2c57f5e6",
+      "name": "HTTP Request9",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        240,
+        1568
+      ],
+      "id": "6551f7dc-ae63-41d2-948b-3e409bbf28b6",
+      "name": "Extract from File9"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('When Executed by Another Workflow').item.json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        1696
+      ],
+      "id": "ec127214-5188-46d9-bd2a-874c420f8597",
+      "name": "HTTP Request10",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        240,
+        1696
+      ],
+      "id": "97831d22-3408-400a-9385-7690914a68b4",
+      "name": "Extract from File10"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('When Executed by Another Workflow').item.json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        1904
+      ],
+      "id": "02ff326e-79c6-45b7-b369-cafad47118a3",
+      "name": "HTTP Request11",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        240,
+        1904
+      ],
+      "id": "5cb8e4c9-627b-44ea-9e62-f25e8d304128",
+      "name": "Extract from File11"
+    },
+    {
+      "parameters": {
+        "preBuiltAgentsCalloutHttpRequest": "",
+        "httpVariantWarning": "",
+        "curlImport": "",
+        "method": "POST",
+        "": "",
+        "url": "https://v2.convertapi.com/convert/pptx/to/pdf",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "convertApi",
+        "provideSslCertificates": false,
+        "sendQuery": false,
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 2xWWViMphIWYQpbSQQTXJV8nwkxWKSLo"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"Parameters\": [\n        {\n            \"Name\": \"File\",\n            \"FileValue\": {\n                \"Name\": \"mifil.pptx\",\n                \"Data\": \"{{$json.data}}\"\n            }\n        },\n        {\n            \"Name\": \"StoreFile\",\n            \"Value\": true\n        }\n    ]\n}",
+        "options": {},
+        "infoMessage": ""
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        512,
+        1904
+      ],
+      "id": "d053c50e-4726-4f95-aa4b-0fbbb5f084d4",
+      "name": "ConvertAPI HTTP Request",
+      "extendsCredential": "convertApi",
+      "credentials": {
+        "convertApi": {
+          "id": "04vNPOXlA115DTTC",
+          "name": "ConvertAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.Files[0].Url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        768,
+        1904
+      ],
+      "id": "d762cc51-6332-4e52-8a45-a3ed28682fe3",
+      "name": "HTTP Request12",
+      "credentials": {
+        "slackApi": {
+          "id": "WPl1Iv7WmYbtplFW",
+          "name": "Slack #A-GPT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        992,
+        1904
+      ],
+      "id": "aa5a924a-884b-4672-9e61-cecf8793d48c",
+      "name": "Extract from File12"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('When Executed by Another Workflow').item.json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        2096
+      ],
+      "id": "774fc005-c533-46be-9be6-4afa23e24a09",
+      "name": "HTTP Request13",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        240,
+        2096
+      ],
+      "id": "00626496-252c-4ee6-99a5-64b739d2293f",
+      "name": "Extract from File13"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.Files[0].Url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        768,
+        2096
+      ],
+      "id": "b04c4213-66ce-4ef7-a013-0d63959468de",
+      "name": "HTTP Request14",
+      "credentials": {
+        "slackApi": {
+          "id": "WPl1Iv7WmYbtplFW",
+          "name": "Slack #A-GPT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        992,
+        2096
+      ],
+      "id": "4bc09285-2bfd-4adb-b064-c3e6a8c38e28",
+      "name": "Extract from File14"
+    },
+    {
+      "parameters": {
+        "preBuiltAgentsCalloutHttpRequest": "",
+        "httpVariantWarning": "",
+        "curlImport": "",
+        "method": "POST",
+        "": "",
+        "url": "https://v2.convertapi.com/convert/docx/to/pdf",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "convertApi",
+        "provideSslCertificates": false,
+        "sendQuery": false,
+        "sendHeaders": true,
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 2xWWViMphIWYQpbSQQTXJV8nwkxWKSLo"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"Parameters\": [\n        {\n            \"Name\": \"File\",\n            \"FileValue\": {\n                \"Name\": \"mifil.docx\",\n                \"Data\": \"{{$json.data}}\"\n            }\n        },\n        {\n            \"Name\": \"StoreFile\",\n            \"Value\": true\n        }\n    ]\n}",
+        "options": {},
+        "infoMessage": ""
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        512,
+        2096
+      ],
+      "id": "81eb2fdb-a633-45db-8d46-bb1a2d9c348c",
+      "name": "ConvertAPI HTTP Request1",
+      "extendsCredential": "convertApi",
+      "credentials": {
+        "convertApi": {
+          "id": "04vNPOXlA115DTTC",
+          "name": "ConvertAPI account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "url": "https://files.slack.com/files-pri/T9XJE11PE-F097N3SR5S4/download/_guia_de_las_energias_renovables.pdf https://files.slack.com/files-pri/T9XJE11PE-F097N3SR5S4/download/_guia_de_las_energias_renovables.pdf",
+          "UserID": "U091B7WDXJ4",
+          "peticion": "Que es y para que sirve este documento"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Extract from File3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request8",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request9",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request10",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request11",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Extract from File2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Extract from File4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "Extract from File5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request6": {
+      "main": [
+        [
+          {
+            "node": "Extract from File6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request7": {
+      "main": [
+        [
+          {
+            "node": "Extract from File7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request8": {
+      "main": [
+        [
+          {
+            "node": "Extract from File8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request9": {
+      "main": [
+        [
+          {
+            "node": "Extract from File9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request10": {
+      "main": [
+        [
+          {
+            "node": "Extract from File10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request11": {
+      "main": [
+        [
+          {
+            "node": "Extract from File11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File11": {
+      "main": [
+        [
+          {
+            "node": "ConvertAPI HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ConvertAPI HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request12": {
+      "main": [
+        [
+          {
+            "node": "Extract from File12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request13": {
+      "main": [
+        [
+          {
+            "node": "Extract from File13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File13": {
+      "main": [
+        [
+          {
+            "node": "ConvertAPI HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request14": {
+      "main": [
+        [
+          {
+            "node": "Extract from File14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ConvertAPI HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "05365d7e-e0bd-4bb5-9785-3909922161ca",
+  "meta": {
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "Dcd9Qdqf8qxmKO6q",
+  "tags": []
+}

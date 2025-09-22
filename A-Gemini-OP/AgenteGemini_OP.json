@@ -1,0 +1,1442 @@
+{
+  "name": "AgenteGemini_OP",
+  "nodes": [
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.files[0].mimetype }}",
+                    "rightValue": "audio/mp4",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "16fa1d83-9a8f-433d-b6ac-1850e61ef1e5"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9b21d775-5854-4440-a627-51774c5afa42",
+                    "leftValue": "={{ $('Slack Trigger').item.json.blocks[0].elements[0].elements[0].type }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "57075f88-6db1-49c3-92ca-724e114281db",
+                    "leftValue": "={{ $json.files[0].mimetype }}",
+                    "rightValue": "video/mp4",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "video"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b5933fa2-328f-4b32-b0dd-354d73c616c4",
+                    "leftValue": "={{ $json.files[0].mimetype }}",
+                    "rightValue": "image/",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "imagen"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a720a28c-bb73-4d67-bffd-7f039f197cfc",
+                    "leftValue": "={{ $json.subtype }}",
+                    "rightValue": "file_share",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "archivo"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -880,
+        480
+      ],
+      "id": "b1b8cf71-b80c-42f3-ac89-53def16a5197",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}{{ $json.files?.[0]?.url_private_download || '' }}\n\n# Comportamiento  \nRespondes en lenguaje natural, con un tono amable, profesional y directo, pero con un toque de humor.  \nEres claro, eficiente y vas al grano. Si falta contexto, lo pides sin rodeos pero con estilo. Eres un Agente Mexicano, asi que responde con ese acento, pero formal y no digas grocerias.\n\npara enfatizar solo usa un * en lugar de **, ejemolo:\n**Prepárate** usa mejor *Prepárate*\n\nNo conteste de esta forma los titulos:\n### Ejemplo de carta de renuncia formal usa mejor >*Ejemplo de carta de renuncia formal.*\n\nSiempre que sugieras ejemplo de documentos constesta dentro de un cuadro listo para copiar y pegar.\n\npara dar un mejor formato considera lo siguiente:\nColoca asteriscos al comienzo y al final del texto: \n*tu texto*\nColoca guiones bajos al comienzo y al final del texto:\n_tu texto_\nColoca virgulillas al comienzo y al final del texto:\n~tu texto~\nColoca acentos graves al comienzo y al final del texto:\n`tu texto`\nAgrega una cuña delante del texto:\n>tu texto\nAgrega tres acentos graves delante del texto:\n```tu texto\nAgrega el número uno y, luego, pulsa  delante del texto:\n1. tu texto\nAgrega un asterisco y, luego, pulsa espacio  delante del texto:\n* tu texto\n\nPara aplicar sangría a una línea, pulsa tab\n-Cuando te envien un documento, necesito que guardes informacion que te retorna la herramienta `AnalisisDocuemntos` y la mantengas en memoria, ya que te hare preguntas posteriores el mismo documento y si respondes mal nos meten a la carcel.\n-si no recibes documento toma encuenta que la imformacion solicitada es del documento anterior asi que responde con la informacion que guastaste en memoria que debe ser toda la que hay en el documento.\n- Nunca debes pedir informacion que ya te proporcionaron, si no tienes la informacion envia el ultimo enlace a documentos que te enviaron a la herramienta `AnalisisDocuemntos` y guarda el reultado en memoria para que puedas contestar las preguntas.\n-Cuando recibas cualquier peticion de Desarrollo, codigo, funciones, clases etc. Utiliza la herramienta `Desarrollo`\n\n-Siempre que te hagan una solicitud llama a la herramienta `Logs`\n\n-Siempre que te soliciten una grafica usa la herramienta `Graficar`, si no te proporcionan los datos usa la herramienta 'WEB' para obtenerlos.\n",
+        "options": {
+          "systemMessage": "=Rol\nEres un agente de IA multifuncional integrado en n8n, especializado en:\n✅ Análisis de imágenes/documentos\n✅ Generación de imágenes\n✅ Cálculos matemáticos\n✅ Revisión lógica y verificación de datos\n✅ Creacion de videos cortos\n\nRegistro obligatorio: Todas las interacciones deben quedar registradas en el sistema.\n\nFecha y hora actual\n{{ $now }} (actualizado automáticamente)\n\nEstilo de respuesta\nLenguaje: Natural, claro y conciso.\n\nTono: Profesional pero cercano. Humor/sarcasmo opcionales (solo si aportan valor).\n\nPrioridad: Precisión > Velocidad. Verifica siempre antes de responder.\n\nHerramientas y reglas de uso\n🔹 Usa SIEMPRE la herramienta adecuada según el tipo de archivo o solicitud:\n\nHerramienta\tUso\tParámetros obligatorios\n##Calculadora\tCálculos matemáticos, estadísticas o conversiones.\t{{ $json.text }} (ej: \"5+3*2\")\n##WEB\tBusquedas en Internet (ej: \"¿Quien es Leonel Messi?\")\n##Think\tValidar lógica de respuestas (antes de enviar).\t{{ $json.text }} (pregunta a verificar)\n##AnalisisImagen\tAnalizar imágenes (descripción, detección de objetos, etc.).\t{{ $json.files?.[0]?.url_private || '' }}\n##GenerarImagen\tCrear imágenes desde texto.\t{{ $json.channel }} + {{ $json.text }}\n##AnalisisDocumentos\tProcesar PDFs, Word, Excel (extraer texto, tablas, etc.) la herramienta te regresa un json guarda la informacion que viene en texto en memoria y si preguntan algo del archivo toma la informacion de ahi.\t{{ $json.files?.[0]?.url_private || '' }}\n##Logs Esta herramienta se usa siempre al contestar para llevar el control de las solicitudes.\n##Graficar Esta herramienta se usa siempre que te pidan generar una gráfica.\nReglas críticas:\nSi el usuario envía un archivo:\n\n📄 PDF/Word/Excel → ##AnalisisDocumentos\n\n🖼️ Imagen (JPG/PNG) → ##AnalisisImagen\n\nSi piden generar una imagen: → ##GenerarImagen + prompt en {{ $json.text }}.\n\nAntes de responder: Usa ##Think para validar coherencia (ej: cálculos complejos).\n\nEjemplos de uso correcto\nUsuario sube un PDF:\n\ntext\nAcción: ##AnalisisDocumentos  \nInput: {{ $json.files?.[0]?.url_private || '' }}\nPiden calcular \"√25+2\":\n\n\ntext\nAcción: ##Calculadora  \nInput: {{ \"sqrt(25)+2\" }}  \nSolicitan una imagen de un bosque:\n\ntext\nAcción: ##GenerarImagen  \nInput: Canal: {{ $json.channel }}, Prompt: \"Bosque al atardecer, estilo realista\"  \nCorrecciones aplicadas\n🛠️ Estructura clara: Separado en secciones lógicas.\n\n🎯 Instrucciones específicas: Elimina ambigüedades en el uso de herramientas.\n\n🔄 Variables compatibles: Usa { } correctamente para n8n.\n\n⚠️ Validación explícita: Añadida regla de verificación con ##Think."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        528
+      ],
+      "id": "02ce84a3-81db-4e98-9b99-bf15d29ebd65",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "description": "Asegurate que el agente principal use las herramientas correctas:\nEjemplo si recibes un PDF o un Archivo de texto envialo con AnalisisDocumentos"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        736
+      ],
+      "id": "250a0533-3f8a-4fcb-815a-bca22caa43f8",
+      "name": "Think"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        736
+      ],
+      "id": "89448f84-2500-4e66-bea6-5e8f73fb9eb4",
+      "name": "Calculadora"
+    },
+    {
+      "parameters": {
+        "description": "utiliza esta herramienta si recibes una imagen",
+        "workflowId": {
+          "__rl": true,
+          "value": "cMgZWcE0A5l7bb4z",
+          "mode": "list",
+          "cachedResultName": "AnalisisImagenGemini_OP"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ $('Slack Trigger').item.json.files[0].url_private_download }}"
+          },
+          "matchingColumns": [
+            "url"
+          ],
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1360,
+        736
+      ],
+      "id": "5db1c070-93a6-484b-a755-52e6ecf9fa2b",
+      "name": "AnalisisImagen"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RHpYuGRx9yrnIc3q",
+          "mode": "list",
+          "cachedResultName": "GeneradorImagenGemini_OP"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $('Slack Trigger').item.json.text }}",
+            "ChanelID": "={{ $('Slack Trigger').item.json.channel }}",
+            "thread_ts": "={{ $('Slack Trigger').item.json.thread_ts }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "ChanelID",
+              "displayName": "ChanelID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "thread_ts",
+              "displayName": "thread_ts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1520,
+        736
+      ],
+      "id": "86829475-c6ff-44cf-9ae6-210370dc7dde",
+      "name": "GenerarImagen"
+    },
+    {
+      "parameters": {
+        "description": "Usala cuando recibas enlaces de documentos PDF, xls, word, pokerpoint, etc.",
+        "workflowId": {
+          "__rl": true,
+          "value": "rIVfF9JYta2U80f0",
+          "mode": "list",
+          "cachedResultName": "AnalisisDocuemntosGemini"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ $('Slack Trigger').item.json?.files?.[0]?.url_private_download || ''}} {{ $fromAI('query') }}",
+            "UserID": "={{ $('Slack Trigger').item.json.user }}",
+            "peticion": "={{ $('Slack Trigger').item.json.text }}"
+          },
+          "matchingColumns": [
+            "url"
+          ],
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "UserID",
+              "displayName": "UserID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "peticion",
+              "displayName": "peticion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1712,
+        736
+      ],
+      "id": "e8fc7ae2-10ee-455e-a140-7123b7ebc61a",
+      "name": "AnalisisDocumentos",
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta en cada ejecución,.",
+        "workflowId": {
+          "__rl": true,
+          "value": "mDTWbkQGmlakCtph",
+          "mode": "list",
+          "cachedResultName": "LogGemini_OP"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "thread_ts": "={{ $('Slack Trigger').item.json.thread_ts }}",
+            "channeld": "={{ $('Slack Trigger').item.json.channel }}",
+            "query": "={{ $('Slack Trigger').item.json.text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "channeld",
+              "displayName": "channeld",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "thread_ts",
+              "displayName": "thread_ts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1872,
+        736
+      ],
+      "id": "cdaf0282-3b5c-4fee-8447-6463b19db76a",
+      "name": "Logs"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ec069102-81cf-4668-ac7c-89f4dc2e2682",
+              "name": "text",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        432,
+        0
+      ],
+      "id": "b4d3948f-0abc-4ce7-80f5-5015ab8b12f0",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.files[0].url_private }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7228f025-cb5c-48d3-a03d-b2d492879d30",
+      "name": "HTTP Request5",
+      "credentials": {
+        "slackApi": {
+          "id": "k6FSHdRrXaiVb1DD",
+          "name": "Slack #A-Gemini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        224,
+        0
+      ],
+      "id": "d2148c49-ebbc-425e-b5e1-284179013e77",
+      "name": "Transcribe a recording1",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Slack Trigger').item.json.user }}",
+        "tableName": "n8n_chat_histories_gemini",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        944,
+        736
+      ],
+      "id": "d24b9a1c-3f96-4cf6-b085-de4cd2c30f0c",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "B1lVzRYnGkK7saFa",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        800,
+        736
+      ],
+      "id": "4d549129-9694-47c7-b103-6a0f50ced2dc",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta cuando no tengas información.",
+        "workflowId": {
+          "__rl": true,
+          "value": "mTJVZ01Ilo9FpLKt",
+          "mode": "list",
+          "cachedResultName": "WEBGemini"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1984,
+        736
+      ],
+      "id": "458feb45-6361-4007-b907-ea300bfe07e0",
+      "name": "WEB"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0b3e6f04-8dd3-4283-89eb-2b0ecbd94883",
+              "leftValue": "={{ $('Slack Trigger').item.json.blocks[0].elements[0].elements[0].type }}",
+              "rightValue": "audio",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1664,
+        496
+      ],
+      "id": "1753a4c0-42fd-47a2-b278-2c7dbb954ad7",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "input": "={{ $json.output }}",
+        "voice": "onyx",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1984,
+        240
+      ],
+      "id": "8e071bfa-e507-4e81-b2b9-750d2d575635",
+      "name": "Generate audio",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "options": {
+          "channelId": "={{ $('Slack Trigger').item.json.channel }}",
+          "fileName": "=audio{{$now.format('yyyy-MM-dd')}}.mp3",
+          "threadTs": "={{ $('Slack Trigger').item.json.thread_ts }}"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2176,
+        240
+      ],
+      "id": "91597864-d0ae-4cd6-815a-fe313a93749b",
+      "name": "Upload a file",
+      "webhookId": "f39a8908-c1d7-4757-9336-c42d7f5dfdf5",
+      "credentials": {
+        "slackApi": {
+          "id": "0gIpN1ByfQqRZC5m",
+          "name": "Slack account #A-GPT_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack Trigger').item.json.channel }}",
+          "mode": "id"
+        },
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Slack Trigger').item.json.thread_ts }}",
+              "reply_broadcast": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2176,
+        528
+      ],
+      "id": "dc9a1bf5-95d3-4526-81f4-8561dac54cf0",
+      "name": "Send a message",
+      "webhookId": "ff8a4dfe-78ea-4e90-8843-cf6c8ed5e788",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2560,
+        528
+      ],
+      "id": "5b2e14f7-7213-46b3-832a-5f372d7e54a2",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2752,
+        240
+      ],
+      "id": "314d13c5-96e7-4bb8-925b-edf6078e18c2",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta cuando ocupes cualquier tema de desarrollo.",
+        "workflowId": {
+          "__rl": true,
+          "value": "2IgZNk48tpjoy0Gy",
+          "mode": "list",
+          "cachedResultName": "DesarrolloGemini_OP"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $('Slack Trigger').item.json.text }}",
+            "userId": "={{ $('Slack Trigger').item.json.user }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2128,
+        736
+      ],
+      "id": "363a1c8b-50d2-4ba9-9aea-5413104da8b4",
+      "name": "Desarrollo"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "FTsldQREFMVEksgA",
+          "mode": "list",
+          "cachedResultName": "GraficaGPT"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Type": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Type', ``, 'string') }}",
+            "Label": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Label', ``, 'string') }}",
+            "Data": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Data', ``, 'string') }}",
+            "Channel": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Channel', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Label",
+              "displayName": "Label",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Channel",
+              "displayName": "Channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2272,
+        736
+      ],
+      "id": "24df511a-b528-4966-be1f-b2a62079d81f",
+      "name": "Graficar"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        624,
+        720
+      ],
+      "id": "d378c11e-d37a-4398-a04f-4e54b92f854f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "8oeByDM6tvSZbm94",
+          "name": "Google Gemini Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta cuando te pidan generar un video.",
+        "workflowId": {
+          "__rl": true,
+          "value": "NrNpauE94lPZEyhq",
+          "mode": "list",
+          "cachedResultName": "CreacionVideos"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $('Slack Trigger').item.json.text }}",
+            "usuarioId": "={{ $('Slack Trigger').item.json.user }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "usuarioId",
+              "displayName": "usuarioId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2416,
+        736
+      ],
+      "id": "d8c90c84-75bd-40c2-8588-97539ae95274",
+      "name": "CreacionVideos",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "watchWorkspace": true,
+        "options": {
+          "resolveIds": true,
+          "userIds": [
+            "U0987BJSTPA"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1296,
+        528
+      ],
+      "id": "d8963cdb-e7ec-437e-bbb3-2e523057a53c",
+      "name": "Slack Trigger",
+      "webhookId": "012e008c-f3fb-41cb-a223-54fd79744b97",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.channel }}",
+          "mode": "id"
+        },
+        "timestamp": "={{ $json.ts }}",
+        "name": "eyes"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -1072,
+        528
+      ],
+      "id": "81c04840-fb25-4498-8f11-63dcd96b1474",
+      "name": "Add a reaction",
+      "webhookId": "ae71ee19-14d6-4b53-8440-1d15e80fff05",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "operation": "remove",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack Trigger').item.json.channel }}",
+          "mode": "id"
+        },
+        "timestamp": "={{ $('Slack Trigger').item.json.ts }}",
+        "name": "eyes"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2368,
+        240
+      ],
+      "id": "130aaa40-9061-4bae-b927-1ca2596af47d",
+      "name": "Remove a reaction1",
+      "webhookId": "affe813f-a664-4e83-a636-9612d73bcc92",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack Trigger').item.json.channel }}",
+          "mode": "id"
+        },
+        "timestamp": "={{ $('Slack Trigger').item.json.ts }}",
+        "name": "white_check_mark"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2544,
+        240
+      ],
+      "id": "9d4b34bf-15da-476e-8d46-afe80c1989a2",
+      "name": "Add a reaction1",
+      "webhookId": "66b31c78-7070-4c44-90b4-f72e7fb6d478",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "operation": "remove",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack Trigger').item.json.channel }}",
+          "mode": "id"
+        },
+        "timestamp": "={{ $('Slack Trigger').item.json.ts }}",
+        "name": "eyes"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1984,
+        528
+      ],
+      "id": "793539ac-ecf0-4035-af61-18b5808fef20",
+      "name": "Remove a reaction2",
+      "webhookId": "6b8c36d9-91d5-42bf-9ab3-fba27fbf593f",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack Trigger').item.json.channel }}",
+          "mode": "id"
+        },
+        "timestamp": "={{ $('Slack Trigger').item.json.ts }}",
+        "name": "white_check_mark"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2384,
+        528
+      ],
+      "id": "ae7a49ac-8ceb-4d20-9709-acd649c9a384",
+      "name": "Add a reaction2",
+      "webhookId": "b1475ea9-4556-4ad1-979a-4b2a58b50520",
+      "credentials": {
+        "slackApi": {
+          "id": "Fqi16ZOXwmsKQMrm",
+          "name": "Slack account #A-GEMINI_OP"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Slack Trigger": [
+      {
+        "json": {
+          "user": "U09861S5WBA",
+          "type": "message",
+          "ts": "1755015335.303769",
+          "client_msg_id": "c2fc363b-5efd-41aa-a7f7-8e0f8a0a9d36",
+          "text": "Hola",
+          "team": "TA20EJRHC",
+          "blocks": [
+            {
+              "type": "rich_text",
+              "block_id": "Te7d+",
+              "elements": [
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "Hola"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "channel": "D0987CY46AU",
+          "event_ts": "1755015335.303769",
+          "channel_type": "im",
+          "user_resolved": "juan.garciag"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculadora": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AnalisisImagen": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GenerarImagen": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AnalisisDocumentos": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Logs": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WEB": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Generate audio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Remove a reaction2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate audio": {
+      "main": [
+        [
+          {
+            "node": "Upload a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload a file": {
+      "main": [
+        [
+          {
+            "node": "Remove a reaction1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Add a reaction2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Desarrollo": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Graficar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CreacionVideos": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "Add a reaction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add a reaction": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove a reaction1": {
+      "main": [
+        [
+          {
+            "node": "Add a reaction1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add a reaction1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove a reaction2": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add a reaction2": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6dd4ea8d-dc44-43be-8ea9-cab473b9aa1a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "EwNkwdTcltcvMebx",
+  "tags": []
+}
