@@ -1,0 +1,315 @@
+{
+  "name": "Presentaciones",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            },
+            {
+              "name": "data"
+            },
+            {
+              "name": "canal"
+            },
+            {
+              "name": "tipo"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        144,
+        0
+      ],
+      "id": "6b382932-fb59-4089-bd08-2ab64571e3c3",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {
+          "maxTokensToSample": 20000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        544,
+        256
+      ],
+      "id": "3164ad44-d058-4cf2-98a4-8ebf3822a8f3",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "kUo1SOAWh5QhxVKs",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d2eea7cb-e2ec-449f-bcac-812a2dec13d9",
+              "name": "output",
+              "value": "={{ $json.text.split('```javascript')[1].split('```')[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        992,
+        0
+      ],
+      "id": "e0e552e1-7907-46f7-beff-f615f51f1b2f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tnrender.tiendasnetows.com/presentaciones",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "formato",
+              "value": "pdf"
+            },
+            {
+              "name": "code",
+              "value": "=output\n{{ $json.output }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "presentacion.pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        0
+      ],
+      "id": "624a112a-3927-48fc-94f8-afbd06ed57bb",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "binaryPropertyName": "salida.png",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        -16
+      ],
+      "id": "dd42e09a-1e3d-4987-a65d-3d8ff96173c2",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2080,
+        -16
+      ],
+      "id": "123b1db9-a374-456d-8ec4-287f07ba5112",
+      "name": "Convert to File1"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "binaryPropertyName": "presentacion.pdf",
+        "options": {
+          "channelId": "={{ $('When Executed by Another Workflow').item.json.canal }}",
+          "fileName": "presentacion.pdf",
+          "title": "={{ $('Basic LLM Chain').item.json.text.split('=====')[1] }}"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1440,
+        0
+      ],
+      "id": "5fa29636-b64f-486e-bdfd-88267ef30819",
+      "name": "Upload a file1",
+      "webhookId": "6157d4ee-8173-43ea-8d46-0d506ff2f845",
+      "alwaysOutputData": true,
+      "credentials": {
+        "slackApi": {
+          "id": "WPl1Iv7WmYbtplFW",
+          "name": "Slack #A-GPT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}{{ $json.data }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Eres un experto en generar presentaciones ejecutivas profecionales, recibes la informacion y como necesitan la presentacion, como resultado generar una presentacion muy bien estructurada ejecutiva para direccion en codigo javascript.\n-Regresa un nombre para la presentación\n\nHoy es: {{ $now }}\n\n#Ejemplo de como debes crear la presentación:\noutput\n// ===== Presentación de ejemplo (PDF o PPTX) =====\n// Tips:\n// - Cada canvas = 1 diapositiva (usa presentation.addSlide(w,h) o document.createElement('canvas')).\n// - Tamaño recomendado 1280x720 (16:9).\n// - Fuente: \"DejaVu Sans\" (preinstalada/registrada en el servidor).\n\nconst W = 1280, H = 720;\nconst THEME = {\n  bg1: '#0ea5e9',      // azul claro\n  bg2: '#312e81',      // índigo oscuro\n  primary: '#2563eb',  // azul\n  accent: '#22c55e',   // verde\n  text: '#0f172a',     // slate-900\n  textLight: '#334155',// slate-600\n  grid: '#e2e8f0',     // slate-200\n  white: '#ffffff',\n  card: '#f8fafc'      // slate-50\n};\n\n// Helpers\nfunction gradientBackground(ctx, x, y, w, h, c1, c2) {\n  const g = ctx.createLinearGradient(0, 0, w, h);\n  g.addColorStop(0, c1);\n  g.addColorStop(1, c2);\n  ctx.fillStyle = g;\n  ctx.fillRect(x, y, w, h);\n}\n\nfunction footerBar(ctx, text) {\n  const barH = 48;\n  ctx.fillStyle = 'rgba(255,255,255,0.18)';\n  ctx.fillRect(0, H - barH, W, barH);\n  ctx.fillStyle = THEME.white;\n  ctx.font = '18px \"DejaVu Sans\"';\n  ctx.textAlign = 'right';\n  ctx.textBaseline = 'middle';\n  ctx.fillText(text, W - 28, H - barH / 2);\n}\n\nfunction heading(ctx, title, subtitle, y = 220) {\n  ctx.fillStyle = THEME.white;\n  ctx.textAlign = 'center';\n  ctx.textBaseline = 'top';\n  ctx.font = 'bold 56px \"DejaVu Sans\"';\n  ctx.fillText(title, W / 2, y);\n  ctx.globalAlpha = 0.95;\n  ctx.font = '24px \"DejaVu Sans\"';\n  ctx.fillText(subtitle, W / 2, y + 70);\n  ctx.globalAlpha = 1;\n}\n\nfunction bullets(ctx, x, y, items, lineH = 42) {\n  ctx.textAlign = 'left';\n  ctx.textBaseline = 'top';\n  ctx.font = '24px \"DejaVu Sans\"';\n  ctx.fillStyle = THEME.text;\n  for (let i = 0; i < items.length; i++) {\n    // punto\n    ctx.beginPath();\n    ctx.fillStyle = THEME.primary;\n    ctx.arc(x, y + i * lineH + 14, 6, 0, Math.PI * 2);\n    ctx.fill();\n    // texto\n    ctx.fillStyle = THEME.text;\n    ctx.fillText(items[i], x + 20, y + i * lineH);\n  }\n}\n\nfunction roundRect(ctx, x, y, w, h, r) {\n  const rr = Math.min(r, w / 2, h / 2);\n  ctx.beginPath();\n  ctx.moveTo(x + rr, y);\n  ctx.arcTo(x + w, y, x + w, y + h, rr);\n  ctx.arcTo(x + w, y + h, x, y + h, rr);\n  ctx.arcTo(x, y + h, x, y, rr);\n  ctx.arcTo(x, y, x + w, y, rr);\n  ctx.closePath();\n}\n\nfunction shadowCard(ctx, x, y, w, h, r = 20) {\n  ctx.save();\n  ctx.shadowColor = 'rgba(2,6,23,0.15)';\n  ctx.shadowBlur = 20;\n  ctx.shadowOffsetY = 6;\n  ctx.fillStyle = THEME.card;\n  roundRect(ctx, x, y, w, h, r);\n  ctx.fill();\n  ctx.restore();\n}\n\nfunction formatMillions(n) {\n  return (n / 1_000_000).toFixed(0) + 'M';\n}\n\n// ===== Slide 1: Portada =====\n{\n  const slide = presentation.addSlide(W, H);\n  const ctx = slide.getContext('2d');\n  gradientBackground(ctx, 0, 0, W, H, THEME.bg1, THEME.bg2);\n\n  // Marca diagonal suave\n  ctx.globalAlpha = 0.12;\n  ctx.fillStyle = '#ffffff';\n  ctx.translate(W * 0.2, H * 0.1);\n  ctx.rotate(-Math.PI / 12);\n  ctx.fillRect(-200, 0, W * 1.2, H * 0.2);\n  ctx.setTransform(1, 0, 0, 1, 0, 0);\n  ctx.globalAlpha = 1;\n\n  heading(ctx, 'Reporte Comercial 2025', 'Ventas y KPIs — Tiendas Neto');\n  footerBar(ctx, 'Confidencial · Agosto 2025');\n}\n\n// ===== Slide 2: Agenda =====\n{\n  const slide = presentation.addSlide(W, H);\n  const ctx = slide.getContext('2d');\n  ctx.fillStyle = THEME.white;\n  ctx.fillRect(0, 0, W, H);\n\n  // Encabezado\n  ctx.fillStyle = THEME.primary;\n  ctx.fillRect(0, 0, W, 100);\n  ctx.fillStyle = THEME.white;\n  ctx.font = 'bold 32px \"DejaVu Sans\"';\n  ctx.textAlign = 'left';\n  ctx.textBaseline = 'middle';\n  ctx.fillText('Agenda', 40, 50);\n\n  // Bullets\n  bullets(ctx, 120, 180, [\n    'Resumen ejecutivo',\n    'Resultados por mes',\n    'Top categorías',\n    'Conclusiones y próximos pasos'\n  ], 56);\n\n  footerBar(ctx, 'Ventas 2025 — Agenda');\n}\n\n// ===== Slide 3: Gráfica de barras =====\n{\n  const slide = presentation.addSlide(W, H);\n  const ctx = slide.getContext('2d');\n  ctx.fillStyle = THEME.white;\n  ctx.fillRect(0, 0, W, H);\n\n  // Título\n  ctx.fillStyle = THEME.text;\n  ctx.font = 'bold 34px \"DejaVu Sans\"';\n  ctx.textAlign = 'left';\n  ctx.textBaseline = 'top';\n  ctx.fillText('Ventas totales por mes 2025', 60, 40);\n\n  // Data\n  const data = [2174377767, 2094229325, 2546481043, 2706659922, 2459272581, 2428287225, 2333787145, 549099611];\n  const labels = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago'];\n  const maxValue = Math.max(...data);\n  const chart = { x: 100, y: 110, w: 1080, h: 480 };\n\n  // Grid\n  ctx.strokeStyle = THEME.grid;\n  ctx.lineWidth = 1;\n  ctx.font = '16px \"DejaVu Sans\"';\n  ctx.textAlign = 'right';\n  ctx.textBaseline = 'middle';\n  for (let i = 0; i <= 5; i++) {\n    const y = chart.y + chart.h - (i * chart.h / 5);\n    ctx.beginPath();\n    ctx.moveTo(chart.x, y);\n    ctx.lineTo(chart.x + chart.w, y);\n    ctx.stroke();\n    ctx.fillStyle = THEME.textLight;\n    ctx.fillText(formatMillions(maxValue * i / 5), chart.x - 10, y);\n  }\n\n  // Ejes\n  ctx.strokeStyle = THEME.text;\n  ctx.lineWidth = 2;\n  ctx.beginPath();\n  ctx.moveTo(chart.x, chart.y);\n  ctx.lineTo(chart.x, chart.y + chart.h);\n  ctx.lineTo(chart.x + chart.w, chart.y + chart.h);\n  ctx.stroke();\n\n  // Barras\n  const colW = chart.w / data.length;\n  const barW = colW * 0.66;\n  data.forEach((v, i) => {\n    const bh = (v / maxValue) * chart.h;\n    const x = chart.x + i * colW + (colW - barW) / 2;\n    const y = chart.y + chart.h - bh;\n    ctx.fillStyle = `hsl(${210 + i * 18}, 70%, 48%)`;\n    // sombra\n    ctx.save();\n    ctx.shadowColor = 'rgba(2,6,23,0.12)';\n    ctx.shadowBlur = 12;\n    ctx.shadowOffsetY = 6;\n    roundRect(ctx, x, y, barW, bh, 8);\n    ctx.fill();\n    ctx.restore();\n\n    // etiqueta valor\n    ctx.fillStyle = THEME.text;\n    ctx.font = '14px \"DejaVu Sans\"';\n    ctx.textAlign = 'center';\n    ctx.textBaseline = 'bottom';\n    ctx.fillText(formatMillions(v), x + barW / 2, y - 6);\n\n    // etiqueta mes\n    ctx.save();\n    ctx.translate(x + barW / 2, chart.y + chart.h + 24);\n    ctx.rotate(-Math.PI / 6);\n    ctx.fillStyle = THEME.textLight;\n    ctx.font = '16px \"DejaVu Sans\"';\n    ctx.textAlign = 'center';\n    ctx.textBaseline = 'middle';\n    ctx.fillText(labels[i], 0, 0);\n    ctx.restore();\n  });\n\n  // Leyenda simple\n  ctx.fillStyle = THEME.textLight;\n  ctx.font = '16px \"DejaVu Sans\"';\n  ctx.textAlign = 'left';\n  ctx.textBaseline = 'top';\n  ctx.fillText('Unidad: millones (M)', chart.x, chart.y + chart.h + 50);\n\n  footerBar(ctx, 'Ventas 2025 — Barras');\n}\n\n// ===== Slide 4: KPIs =====\n{\n  const slide = presentation.addSlide(W, H);\n  const ctx = slide.getContext('2d');\n  ctx.fillStyle = THEME.white;\n  ctx.fillRect(0, 0, W, H);\n\n  ctx.fillStyle = THEME.text;\n  ctx.font = 'bold 34px \"DejaVu Sans\"';\n  ctx.textAlign = 'left';\n  ctx.textBaseline = 'top';\n  ctx.fillText('KPIs Clave', 60, 40);\n\n  const cards = [\n    { title: 'Ingresos YTD', value: '$12,450M', delta: '+8.2%', color: THEME.primary },\n    { title: 'Ticket Promedio', value: '$178.20', delta: '+3.1%', color: THEME.accent },\n    { title: 'NPS', value: '67', delta: '+4 pts', color: '#f59e0b' } // ámbar\n  ];\n\n  const cw = 340, ch = 200, gap = 40;\n  const startX = 100, startY = 180;\n\n  cards.forEach((c, i) => {\n    const x = startX + i * (cw + gap);\n    const y = startY;\n\n    shadowCard(ctx, x, y, cw, ch, 24);\n\n    // banda superior\n    ctx.fillStyle = c.color;\n    roundRect(ctx, x, y, cw, 12, 24);\n    ctx.fill();\n\n    // textos\n    ctx.fillStyle = THEME.textLight;\n    ctx.font = '18px \"DejaVu Sans\"';\n    ctx.textAlign = 'left';\n    ctx.textBaseline = 'top';\n    ctx.fillText(c.title, x + 20, y + 26);\n\n    ctx.fillStyle = THEME.text;\n    ctx.font = 'bold 40px \"DejaVu Sans\"';\n    ctx.fillText(c.value, x + 20, y + 70);\n\n    // delta con flechita\n    ctx.fillStyle = c.color;\n    ctx.font = '22px \"DejaVu Sans\"';\n    ctx.fillText(c.delta, x + 20 + 28, y + 130);\n    // triángulo (flecha)\n    ctx.beginPath();\n    ctx.moveTo(x + 20, y + 142);\n    ctx.lineTo(x + 20 + 16, y + 122);\n    ctx.lineTo(x + 20 + 32, y + 142);\n    ctx.closePath();\n    ctx.fill();\n  });\n\n  footerBar(ctx, 'Ventas 2025 — KPIs');\n}\n\n// Fin. Todas las canvases se convertirán en diapositivas (PDF o PPTX).\n\n"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        416,
+        0
+      ],
+      "id": "c2545ad1-90fc-446b-8370-fbdf078d6083",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1648,
+        0
+      ],
+      "id": "565e02c9-0a9c-4949-acc8-1ae268c1027c",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "query": "Por favor con la información del documento adjunto realiza una presentación para dirección, ejecutiva, señalando el comportamiento de las ventas hasta este año.",
+          "data": "Te presento un resumen ejecutivo de las ventas hasta este año:\n\n1. Las ventas en general muestran un crecimiento sostenido desde 2020 hasta la fecha.\n2. Los modelos que más contribuyen a los ingresos son Mazda 3, CX-5, Nissan Frontier y Toyota Hilux.\n3. El canal principal de ventas es el sucursal, con un fuerte desempeño también del canal online.\n4. La mayoría de los clientes son individuales, pero las empresas también representan una parte significativa.\n5. Hay una tendencia a ofrecer descuentos moderados que no comprometen demasiado el margen de ganancia.\n6. Los márgenes de ganancia varían entre 10% y 21%, manteniéndose saludables para la empresa.\n7. Localidades como Tijuana, Ciudad de México y Guadalajara son mercados clave para la distribución.\n\nEsta presentación ofrece una visión clara del comportamiento de las ventas, focalizando en los aspectos más relevantes para tomar decisiones estratégicas.\n",
+          "canal": "D09497Y7URF",
+          "tipo": "PDF"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Upload a file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File1": {
+      "main": [
+        []
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload a file1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a3a38b92-4088-455e-9508-215fdcd1ccd6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "9qW82rCQPEVtWqEP",
+  "tags": []
+}

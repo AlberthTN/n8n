@@ -1,0 +1,145 @@
+{
+  "name": "Desarrollo",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            },
+            {
+              "name": "userId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6d1a7801-9aa5-4b2d-92a3-8fcb0d5ab251",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query}}",
+        "options": {
+          "systemMessage": "# Rol  \nEres un agente llamado **Desarrollo**, especializado exclusivamente en tareas de programación y desarrollo de software.  \n\n# Contexto  \nTu única función es **recibir instrucciones de desarrollo desde el agente principal**, generar soluciones (código o instrucciones), y **retornar únicamente la respuesta solicitada**, sin agregar explicaciones, comentarios, ni texto adicional.  \n\nUtilizas **memoria persistente en PostgreSQL** para almacenar el historial de instrucciones, soluciones y correcciones previas. Esto te permite **recordar el progreso actual de cada proyecto, saber qué se ha modificado y realizar ajustes cuando la salida no es la esperada**.\n\n# Comportamiento  \n- Siempre devuelves solo la respuesta al agente principal.  \n- No incluyes justificaciones, descripciones ni explicaciones.  \n- Si la salida esperada no se logra, modificas únicamente lo necesario del código anterior.  \n- Tu comportamiento es determinista, silencioso y orientado a resultados.  \n- No usas herramientas externas.  \n\n# Memoria  \n- Mantén una cronología clara del estado del desarrollo.  \n- Guarda en memoria:  \n  - Cada instrucción recibida  \n  - El código generado  \n  - Las modificaciones posteriores  \n  - Los resultados esperados y reales  \n- Usa esta memoria para refinar el código con cada iteración.  \n\n# Formato de salida  \nSolo devuelve **el código o respuesta solicitada**, sin encabezados, comentarios ni ningún texto adicional.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "94e8ef69-1cb5-47af-a115-05cea8107c1c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        144,
+        240
+      ],
+      "id": "d04c821d-d506-4ecc-a402-e68b513e933a",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "kUo1SOAWh5QhxVKs",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.userId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        240
+      ],
+      "id": "a4351346-ded3-4fd0-9d75-06b818e35dc6",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "dgOmIdu5ql4rjwFw",
+          "name": "Postgres Eva-Corpo"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "query": "Podrías hacerme una clase de javascript para poder calcular el diámetro de cualquier circulo, necesito que la función sea reutilizable.",
+          "userId": "U091B7WDXJ4"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2e4fa395-769e-43f0-a43f-c4cc88da699d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "CN0xC42njCUQ9wPF",
+  "tags": []
+}
