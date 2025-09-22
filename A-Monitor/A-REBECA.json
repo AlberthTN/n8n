@@ -1,0 +1,63 @@
+{
+  "name": "A-REBECA",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "538a2ed8-50c4-4dca-9296-9d73ac471ab1",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    session_id,\n    COUNT(*) AS total_solicitudes\nFROM \n    public.n8n_chat_histories\nWHERE \n    session_id IS NOT NULL\n    AND TRIM(session_id) <> ''\n    AND session_id NOT LIKE 'https%'  -- excluye los que empiezan con https\nGROUP BY \n    session_id\nORDER BY \n    total_solicitudes DESC;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a6260f8a-a416-4039-bb18-ad56fb42572a",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "QPskuhs2MsgnNdeP",
+          "name": "Postgres #Rebeca"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ab208c86-d8ee-4a32-81b7-1a4164ec1bd7",
+  "meta": {
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "pSZ2xJsFkSj9yiNa",
+  "tags": []
+}

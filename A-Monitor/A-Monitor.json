@@ -1,0 +1,324 @@
+{
+  "name": "A-Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -288,
+        -64
+      ],
+      "id": "9ad67b25-40af-4f79-ae16-a8585d2de3c1",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json['Readable date'] }}",
+        "options": {
+          "systemMessage": "=\nEres un agente experto en estadisticas de uso de sofware.\n\nTu tarea principal es consultar las tools por la informacion y ya que tengas la informacion completa generas una presentacion de uso en formato JavaScript listo para que otra herrameinta lo ejecute y retorne el resultado.\n\nPaso 1: Primero ejecuta la herramienta A-GPT y espera el resultado.\nPaso 2: Despuás ejecuta la herramienta A-GEMINI y espera el resultado.\nPaso 3: Despuás ejecuta la herramienta A-REBECA y espera el resultado.\n\nPor ultimo con la informacion completa crea un reporte en formato pdf en javascript listo para ejecuarse y retornar el archivo pdf.\n\n-Solo retorna el codigo de javascript que generaste, no tetornes nada mas, jamas pongas ```javascript\\n\n\n-Nunca utilices \\n en el código, colo cal el codigo en una sola linea que se pueda interpretar correctamente.\n\n-Nunca pongas explicaciones, unicament eel código javascript\n\n#Ejemplo de como debes crear la presentación:\noutput\n// ===== Presentación: Reporte de Uso de Agentes IA (PDF/PPTX) =====\n// Cada canvas = 1 diapositiva (usa presentation.addSlide(W,H)).\n// Tamaño recomendado 1280x720 (16:9). Fuente sugerida: \"DejaVu Sans\".\n\nconst W = 1280, H = 720;\nconst THEME = {\nbg1: '#667eea', // primario\nbg2: '#764ba2', // primario 2\nprimary: '#2563eb', // azul\naccent: '#4ecdc4', // verde-agua\nwarn: '#ff6b6b', // rojo\namber: '#f59e0b',\ntext: '#0f172a', // slate-900\ntextLight: '#334155',// slate-600\ngrid: '#e2e8f0', // slate-200\nwhite: '#ffffff',\ncard: '#f8fafc' // slate-50\n};\n\n// ===== Helpers de estilo / dibujo =====\nfunction gradientBackground(ctx, x, y, w, h, c1, c2) {\nconst g = ctx.createLinearGradient(0, 0, w, h);\ng.addColorStop(0, c1);\ng.addColorStop(1, c2);\nctx.fillStyle = g;\nctx.fillRect(x, y, w, h);\n}\n\nfunction footerBar(ctx, text) {\nconst barH = 48;\nctx.fillStyle = 'rgba(255,255,255,0.18)';\nctx.fillRect(0, H - barH, W, barH);\nctx.fillStyle = THEME.white;\nctx.font = '18px \"DejaVu Sans\"';\nctx.textAlign = 'right';\nctx.textBaseline = 'middle';\nctx.fillText(text, W - 28, H - barH / 2);\n}\n\nfunction heading(ctx, title, subtitle, y = 220) {\nctx.fillStyle = THEME.white;\nctx.textAlign = 'center';\nctx.textBaseline = 'top';\nctx.font = 'bold 56px \"DejaVu Sans\"';\nctx.fillText(title, W / 2, y);\nctx.globalAlpha = 0.95;\nctx.font = '24px \"DejaVu Sans\"';\nctx.fillText(subtitle, W / 2, y + 70);\nctx.globalAlpha = 1;\n}\n\nfunction bullets(ctx, x, y, items, lineH = 42) {\nctx.textAlign = 'left';\nctx.textBaseline = 'top';\nctx.font = '24px \"DejaVu Sans\"';\nctx.fillStyle = THEME.text;\nfor (let i = 0; i < items.length; i++) {\nctx.beginPath();\nctx.fillStyle = THEME.primary;\nctx.arc(x, y + i * lineH + 14, 6, 0, Math.PI * 2);\nctx.fill();\nctx.fillStyle = THEME.text;\nctx.fillText(items[i], x + 20, y + i * lineH);\n}\n}\n\nfunction roundRect(ctx, x, y, w, h, r) {\nconst rr = Math.min(r, w / 2, h / 2);\nctx.beginPath();\nctx.moveTo(x + rr, y);\nctx.arcTo(x + w, y, x + w, y + h, rr);\nctx.arcTo(x + w, y + h, x, y + h, rr);\nctx.arcTo(x, y + h, x, y, rr);\nctx.arcTo(x, y, x + w, y, rr);\nctx.closePath();\n}\n\nfunction shadowCard(ctx, x, y, w, h, r = 20) {\nctx.save();\nctx.shadowColor = 'rgba(2,6,23,0.15)';\nctx.shadowBlur = 20;\nctx.shadowOffsetY = 6;\nctx.fillStyle = THEME.card;\nroundRect(ctx, x, y, w, h, r);\nctx.fill();\nctx.restore();\n}\n\nconst fmt = (n) => n.toLocaleString('es-MX');\n\n// ===== Datos (los tuyos) =====\nconst gptData = [{\"session_id\":\"U091B7WDXJ4\",\"total_solicitudes\":506},{\"session_id\":\"U092B470DEU\",\"total_solicitudes\":288},{\"session_id\":\"U0931PBDJQM\",\"total_solicitudes\":240},{\"session_id\":\"U09661J8JCA\",\"total_solicitudes\":188},{\"session_id\":\"U091R7TP8KE\",\"total_solicitudes\":166},{\"session_id\":\"UB818RC65\",\"total_solicitudes\":142},{\"session_id\":\"U093XJ4EY5A\",\"total_solicitudes\":134},{\"session_id\":\"UA20JDKSA\",\"total_solicitudes\":126},{\"session_id\":\"U0921L54NFN\",\"total_solicitudes\":122},{\"session_id\":\"U095QTXSVSL\",\"total_solicitudes\":118},{\"session_id\":\"U9YF1UC4W\",\"total_solicitudes\":110},{\"session_id\":\"U093YNN7CQL\",\"total_solicitudes\":100},{\"session_id\":\"U093F7ZB41J\",\"total_solicitudes\":90},{\"session_id\":\"U0918105ELE\",\"total_solicitudes\":78},{\"session_id\":\"U0939UXSH8R\",\"total_solicitudes\":78},{\"session_id\":\"U094P39UPFU\",\"total_solicitudes\":78},{\"session_id\":\"U092FC7AH8R\",\"total_solicitudes\":76},{\"session_id\":\"U094X9YU7S7\",\"total_solicitudes\":76},{\"session_id\":\"U091FFZQLCC\",\"total_solicitudes\":74},{\"session_id\":\"U094TPYEJJD\",\"total_solicitudes\":74},{\"session_id\":\"U094AN9V3GE\",\"total_solicitudes\":68},{\"session_id\":\"U0943NCFG75\",\"total_solicitudes\":66},{\"session_id\":\"U094RN2EJ0G\",\"total_solicitudes\":66},{\"session_id\":\"U092E08UH5W\",\"total_solicitudes\":64},{\"session_id\":\"U092PARRP98\",\"total_solicitudes\":64},{\"session_id\":\"U094EGTNLG2\",\"total_solicitudes\":62},{\"session_id\":\"U092JKV4EQN\",\"total_solicitudes\":62},{\"session_id\":\"U08V1FZ141M\",\"total_solicitudes\":60},{\"session_id\":\"U093MK9G7PW\",\"total_solicitudes\":58},{\"session_id\":\"U091YU64MPZ\",\"total_solicitudes\":52},{\"session_id\":\"U097AJQ7DHC\",\"total_solicitudes\":50},{\"session_id\":\"UA20FDZ46\",\"total_solicitudes\":48},{\"session_id\":\"U093RDWCVPV\",\"total_solicitudes\":46},{\"session_id\":\"U0937HDH23D\",\"total_solicitudes\":46},{\"session_id\":\"U093761BXR9\",\"total_solicitudes\":42},{\"session_id\":\"U093ABM91BL\",\"total_solicitudes\":38},{\"session_id\":\"U093QFMJ7CY\",\"total_solicitudes\":38},{\"session_id\":\"U0952K65E7J\",\"total_solicitudes\":38},{\"session_id\":\"U0947R0SWFM\",\"total_solicitudes\":38},{\"session_id\":\"U092V60NX0T\",\"total_solicitudes\":38},{\"session_id\":\"U04SX55NUBX\",\"total_solicitudes\":36},{\"session_id\":\"U0931R63S02\",\"total_solicitudes\":34},{\"session_id\":\"U09861S5WBA\",\"total_solicitudes\":34},{\"session_id\":\"U092X6VBPLL\",\"total_solicitudes\":32},{\"session_id\":\"U093G9EA2Q4\",\"total_solicitudes\":32},{\"session_id\":\"U092WGAG0F6\",\"total_solicitudes\":32},{\"session_id\":\"U093F9Z83MY\",\"total_solicitudes\":32},{\"session_id\":\"U097SFTNSLR\",\"total_solicitudes\":30},{\"session_id\":\"U091P07BCCX\",\"total_solicitudes\":28},{\"session_id\":\"U094DF2ASSZ\",\"total_solicitudes\":28},{\"session_id\":\"U090APT3A5B\",\"total_solicitudes\":26},{\"session_id\":\"U092UST6ECT\",\"total_solicitudes\":26},{\"session_id\":\"U091PD86GBD\",\"total_solicitudes\":26},{\"session_id\":\"U094H0LKNVA\",\"total_solicitudes\":26},{\"session_id\":\"U0931PLH06L\",\"total_solicitudes\":24},{\"session_id\":\"U08G83PETQD\",\"total_solicitudes\":22},{\"session_id\":\"U0938LCJBBK\",\"total_solicitudes\":22},{\"session_id\":\"U092DA2101E\",\"total_solicitudes\":22},{\"session_id\":\"U04U6G04S0N\",\"total_solicitudes\":22},{\"session_id\":\"U0930HJJV4P\",\"total_solicitudes\":22},{\"session_id\":\"U094EHUGYNN\",\"total_solicitudes\":22},{\"session_id\":\"U0932MDJC2Y\",\"total_solicitudes\":22},{\"session_id\":\"U0926C4SL67\",\"total_solicitudes\":20},{\"session_id\":\"U0938BZKRKQ\",\"total_solicitudes\":18},{\"session_id\":\"UA27XKNKZ\",\"total_solicitudes\":18},{\"session_id\":\"U092W312D8U\",\"total_solicitudes\":16},{\"session_id\":\"U092UAKK4H1\",\"total_solicitudes\":16},{\"session_id\":\"U0931S04GAW\",\"total_solicitudes\":16},{\"session_id\":\"U094QKD5ARY\",\"total_solicitudes\":16},{\"session_id\":\"U091W7GU3KM\",\"total_solicitudes\":16},{\"session_id\":\"U09323ML4CS\",\"total_solicitudes\":16},{\"session_id\":\"U093VJ13N2H\",\"total_solicitudes\":12},{\"session_id\":\"U092GD085QR\",\"total_solicitudes\":10},{\"session_id\":\"U0931841T7H\",\"total_solicitudes\":10},{\"session_id\":\"U092ZKWAU93\",\"total_solicitudes\":10},{\"session_id\":\"U0942N5SWN4\",\"total_solicitudes\":10},{\"session_id\":\"U097PMBREAF\",\"total_solicitudes\":10},{\"session_id\":\"U03NLP83QP3\",\"total_solicitudes\":8},{\"session_id\":\"U098W10JQP2\",\"total_solicitudes\":8},{\"session_id\":\"U092TM6JC4D\",\"total_solicitudes\":8},{\"session_id\":\"U093K790188\",\"total_solicitudes\":8},{\"session_id\":\"U093AEG4N9M\",\"total_solicitudes\":8},{\"session_id\":\"U093Q7U56LB\",\"total_solicitudes\":8},{\"session_id\":\"U093A26UC68\",\"total_solicitudes\":8},{\"session_id\":\"U093XBA8BCJ\",\"total_solicitudes\":8},{\"session_id\":\"U092QKMHCN6\",\"total_solicitudes\":6},{\"session_id\":\"U04FHTRV2Q5\",\"total_solicitudes\":6},{\"session_id\":\"U09597Z9BJP\",\"total_solicitudes\":6},{\"session_id\":\"U092A4DTE5V\",\"total_solicitudes\":6},{\"session_id\":\"U0964P8A0GH\",\"total_solicitudes\":6},{\"session_id\":\"U07LVB9T65A\",\"total_solicitudes\":6},{\"session_id\":\"U093AFD8XHN\",\"total_solicitudes\":6},{\"session_id\":\"USLACKBOT\",\"total_solicitudes\":6},{\"session_id\":\"U095RV2422J\",\"total_solicitudes\":6},{\"session_id\":\"U0952UW9V2L\",\"total_solicitudes\":4},{\"session_id\":\"U095ZB04RAQ\",\"total_solicitudes\":4},{\"session_id\":\"U092ZMT18SK\",\"total_solicitudes\":4},{\"session_id\":\"U0930C12Y13\",\"total_solicitudes\":4},{\"session_id\":\"U094QNF406L\",\"total_solicitudes\":4},{\"session_id\":\"U07DK3QMT98\",\"total_solicitudes\":4},{\"session_id\":\"U092R46ED24\",\"total_solicitudes\":4},{\"session_id\":\"U0937U8DFQT\",\"total_solicitudes\":4},{\"session_id\":\"U092V8UDSH1\",\"total_solicitudes\":4},{\"session_id\":\"U0751QT7VD5\",\"total_solicitudes\":4},{\"session_id\":\"U096KGJBN2K\",\"total_solicitudes\":4},{\"session_id\":\"U08JDTQLPRD\",\"total_solicitudes\":4},{\"session_id\":\"U092UPVNXEF\",\"total_solicitudes\":2},{\"session_id\":\"U09855KS129\",\"total_solicitudes\":2},{\"session_id\":\"U095PPSTPD4\",\"total_solicitudes\":2},{\"session_id\":\"U0923UGSKCL\",\"total_solicitudes\":2},{\"session_id\":\"U0964LZPLLA\",\"total_solicitudes\":2},{\"session_id\":\"U06R8BUL5EJ\",\"total_solicitudes\":2},{\"session_id\":\"U099LBYNV0S\",\"total_solicitudes\":2},{\"session_id\":\"U092UULSPPC\",\"total_solicitudes\":2},{\"session_id\":\"U08AF1R422Z\",\"total_solicitudes\":2},{\"session_id\":\"U096YPCC116\",\"total_solicitudes\":2},{\"session_id\":\"U0955AMR5CY\",\"total_solicitudes\":2},{\"session_id\":\"U090D1D6PDM\",\"total_solicitudes\":2},{\"session_id\":\"UA19BA4G5\",\"total_solicitudes\":2},{\"session_id\":\"U097V3TBBT4\",\"total_solicitudes\":2}];\n\nconst geminiData = [{\"session_id\":\"U091B7WDXJ4\",\"total_solicitudes\":222},{\"session_id\":\"U04U6G04S0N\",\"total_solicitudes\":118},{\"session_id\":\"U092PARRP98\",\"total_solicitudes\":68},{\"session_id\":\"U09861S5WBA\",\"total_solicitudes\":50},{\"session_id\":\"U092E08UH5W\",\"total_solicitudes\":46},{\"session_id\":\"U0921L54NFN\",\"total_solicitudes\":44},{\"session_id\":\"U094D6AG2PP\",\"total_solicitudes\":38},{\"session_id\":\"U9YF1UC4W\",\"total_solicitudes\":38},{\"session_id\":\"U092DA2101E\",\"total_solicitudes\":36},{\"session_id\":\"U092V60NX0T\",\"total_solicitudes\":30},{\"session_id\":\"UA20JDKSA\",\"total_solicitudes\":30},{\"session_id\":\"U092UAKK4H1\",\"total_solicitudes\":24},{\"session_id\":\"UB818RC65\",\"total_solicitudes\":16},{\"session_id\":\"U093F9Z83MY\",\"total_solicitudes\":16},{\"session_id\":\"U092UPVNXEF\",\"total_solicitudes\":16},{\"session_id\":\"U091R7TP8KE\",\"total_solicitudes\":14},{\"session_id\":\"U08V1FZ141M\",\"total_solicitudes\":10},{\"session_id\":\"U093QFMJ7CY\",\"total_solicitudes\":10},{\"session_id\":\"U0918105ELE\",\"total_solicitudes\":10},{\"session_id\":\"U091HV64FL3\",\"total_solicitudes\":10},{\"session_id\":\"U0921L5PMK7\",\"total_solicitudes\":10},{\"session_id\":\"U091W7GU3KM\",\"total_solicitudes\":8},{\"session_id\":\"U0931PBDJQM\",\"total_solicitudes\":8},{\"session_id\":\"UA19BA4G5\",\"total_solicitudes\":8},{\"session_id\":\"U0939UXSH8R\",\"total_solicitudes\":8},{\"session_id\":\"U08V9FPQAGN\",\"total_solicitudes\":8},{\"session_id\":\"U094P39UPFU\",\"total_solicitudes\":8},{\"session_id\":\"U0947R6PSJ1\",\"total_solicitudes\":6},{\"session_id\":\"U04FHTRV2Q5\",\"total_solicitudes\":6},{\"session_id\":\"U092ZKWAU93\",\"total_solicitudes\":6},{\"session_id\":\"U0923UGSKCL\",\"total_solicitudes\":4},{\"session_id\":\"U02KZCA35PX\",\"total_solicitudes\":4},{\"session_id\":\"U0932PYL4U8\",\"total_solicitudes\":4},{\"session_id\":\"U0926C4SL67\",\"total_solicitudes\":4},{\"session_id\":\"U0937HDH23D\",\"total_solicitudes\":2},{\"session_id\":\"U097X0915DF\",\"total_solicitudes\":2},{\"session_id\":\"U094RN2EJ0G\",\"total_solicitudes\":2},{\"session_id\":\"U0955AMR5CY\",\"total_solicitudes\":2},{\"session_id\":\"U093786V9A9\",\"total_solicitudes\":2},{\"session_id\":\"UA20FDZ46\",\"total_solicitudes\":2}];\n\nconst dateISO = new Date().toISOString().slice(0,10);\n\n// ===== Métricas rápidas =====\nconst A = gptData.reduce((s,x)=>s+x.total_solicitudes,0);\nconst B = geminiData.reduce((s,x)=>s+x.total_solicitudes,0);\nconst ALL = [...gptData, ...geminiData];\nconst UNIQUE = new Set(ALL.map(i=>i.session_id)).size;\nconst AVG = ( (A+B) / UNIQUE ).toFixed(2);\nconst AGPT_SESS = gptData.length, AGEM_SESS = geminiData.length;\n\n// ===== Utilidades de gráficos (canvas puro) =====\nfunction drawGrid(ctx, chart, maxValue, steps = 5) {\nctx.strokeStyle = THEME.grid;\nctx.lineWidth = 1;\nctx.font = '16px \"DejaVu Sans\"';\nctx.textAlign = 'right';\nctx.textBaseline = 'middle';\nfor (let i = 0; i <= steps; i++) {\nconst y = chart.y + chart.h - (i * chart.h / steps);\nctx.beginPath(); ctx.moveTo(chart.x, y); ctx.lineTo(chart.x + chart.w, y); ctx.stroke();\nctx.fillStyle = THEME.textLight;\nconst val = Math.round(maxValue * i / steps).toLocaleString('es-MX');\nctx.fillText(val, chart.x - 10, y);\n}\nctx.strokeStyle = THEME.text;\nctx.lineWidth = 2;\nctx.beginPath();\nctx.moveTo(chart.x, chart.y);\nctx.lineTo(chart.x, chart.y + chart.h);\nctx.lineTo(chart.x + chart.w, chart.y + chart.h);\nctx.stroke();\n}\n\nfunction donut(ctx, cx, cy, r, thickness, segments) {\n// segments: [{value, color, label}]\nconst total = segments.reduce((s,a)=>s+a.value,0) || 1;\nlet start = -Math.PI/2;\nsegments.forEach(seg => {\nconst angle = (seg.value / total) * Math.PI * 2;\nctx.beginPath();\nctx.strokeStyle = seg.color;\nctx.lineWidth = thickness;\nctx.arc(cx, cy, r, start, start + angle);\nctx.stroke();\nstart += angle;\n});\n// etiqueta central\nconst pct = Math.round((segments[0].value/total)*100);\nctx.fillStyle = THEME.text;\nctx.font = 'bold 34px \"DejaVu Sans\"';\nctx.textAlign = 'center';\nctx.textBaseline = 'middle';\nctx.fillText(${pct}% A-GPT, cx, cy - 10);\nctx.font = '16px \"DejaVu Sans\"';\nctx.fillStyle = THEME.textLight;\nctx.fillText(Total: ${fmt(total)}, cx, cy + 18);\n}\n\n// ===== Slide 1: Portada =====\n{\nconst slide = presentation.addSlide(W, H);\nconst ctx = slide.getContext('2d');\ngradientBackground(ctx, 0, 0, W, H, THEME.bg1, THEME.bg2);\n\n// Marca diagonal suave\nctx.globalAlpha = 0.12;\nctx.fillStyle = '#ffffff';\nctx.translate(W * 0.2, H * 0.1);\nctx.rotate(-Math.PI / 12);\nctx.fillRect(-200, 0, W * 1.2, H * 0.2);\nctx.setTransform(1, 0, 0, 1, 0, 0);\nctx.globalAlpha = 1;\n\nheading(ctx, 'Reporte de Uso de Agentes IA', A-GPT vs A-GEMINI · Fecha: ${dateISO});\nfooterBar(ctx, 'Confidencial');\n}\n\n// ===== Slide 2: KPIs =====\n{\nconst slide = presentation.addSlide(W, H);\nconst ctx = slide.getContext('2d');\nctx.fillStyle = THEME.white; ctx.fillRect(0, 0, W, H);\n\nctx.fillStyle = THEME.text;\nctx.font = 'bold 34px \"DejaVu Sans\"';\nctx.textAlign = 'left'; ctx.textBaseline = 'top';\nctx.fillText('KPIs principales', 60, 40);\n\nconst cards = [\n{ title: 'Total Solicitudes', value: fmt(A+B), color: THEME.primary },\n{ title: 'Sesiones Únicas', value: fmt(UNIQUE), color: THEME.accent },\n{ title: 'Promedio por Sesión', value: AVG, color: THEME.warn },\n];\n\nconst w = 340, h = 160, gap = 40, startX = 100, startY = 140;\ncards.forEach((c, i) => {\nconst x = startX + i * (w + gap), y = startY;\nshadowCard(ctx, x, y, w, h, 24);\nctx.fillStyle = c.color; roundRect(ctx, x, y, w, 12, 24); ctx.fill();\n\nrust\nCopiar\nEditar\nctx.fillStyle = THEME.textLight;\nctx.font = '18px \"DejaVu Sans\"';\nctx.fillText(c.title, x + 20, y + 24);\n\nctx.fillStyle = THEME.text;\nctx.font = 'bold 40px \"DejaVu Sans\"';\nctx.fillText(c.value, x + 20, y + 74);\n});\n\n// Resumen por herramienta\nctx.fillStyle = THEME.text;\nctx.font = 'bold 24px \"DejaVu Sans\"';\nctx.fillText('Resumen por herramienta', 100, 360);\nctx.font = '20px \"DejaVu Sans\"';\nctx.fillStyle = THEME.textLight;\nctx.fillText(A-GPT: ${fmt(A)} solicitudes · Sesiones: ${AGPT_SESS}, 100, 400);\nctx.fillText(A-GEMINI: ${fmt(B)} solicitudes · Sesiones: ${AGEM_SESS}, 100, 430);\n\n// Donut distribución\ndonut(ctx, 980, 420, 140, 28, [\n{ value: A, color: THEME.primary },\n{ value: B, color: THEME.accent }\n]);\n\nfooterBar(ctx, 'KPIs y Resumen');\n}\n\n// ===== Slide 3: Top 10 usuarios (barras) =====\n{\nconst totals = {};\n[...gptData, ...geminiData].forEach(u => totals[u.session_id] = (totals[u.session_id] || 0) + u.total_solicitudes);\nconst top10 = Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,10);\n\nconst slide = presentation.addSlide(W, H);\nconst ctx = slide.getContext('2d');\nctx.fillStyle = THEME.white; ctx.fillRect(0, 0, W, H);\n\nctx.fillStyle = THEME.text;\nctx.font = 'bold 34px \"DejaVu Sans\"';\nctx.textAlign = 'left'; ctx.textBaseline = 'top';\nctx.fillText('Top 10 sesiones por solicitudes', 60, 40);\n\nconst chart = { x: 120, y: 120, w: 1040, h: 460 };\nconst maxValue = Math.max(...top10.map(([,v])=>v), 1);\n\ndrawGrid(ctx, chart, maxValue, 5);\n\nconst colW = chart.w / top10.length;\nconst barW = colW * 0.66;\n\ntop10.forEach(([sid, v], i) => {\nconst bh = (v / maxValue) * chart.h;\nconst x = chart.x + i * colW + (colW - barW) / 2;\nconst y = chart.y + chart.h - bh;\n\njavascript\nCopiar\nEditar\nctx.fillStyle = `hsl(${210 + i * 16}, 70%, 48%)`;\nctx.save();\nctx.shadowColor = 'rgba(2,6,23,0.12)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 6;\nroundRect(ctx, x, y, barW, bh, 8); ctx.fill();\nctx.restore();\n\n// valor\nctx.fillStyle = THEME.text;\nctx.font = '14px \"DejaVu Sans\"';\nctx.textAlign = 'center'; ctx.textBaseline = 'bottom';\nctx.fillText(fmt(v), x + barW/2, y - 6);\n\n// etiqueta\nctx.save();\nctx.translate(x + barW / 2, chart.y + chart.h + 24);\nctx.rotate(-Math.PI / 6);\nctx.fillStyle = THEME.textLight;\nctx.font = '16px \"DejaVu Sans\"';\nctx.textAlign = 'center'; ctx.textBaseline = 'middle';\nctx.fillText(sid, 0, 0);\nctx.restore();\n});\n\nfooterBar(ctx, 'Top 10 sesiones');\n}\n\n// ===== Slide 4: Comparativa simple (barras apiladas) =====\n{\nconst slide = presentation.addSlide(W, H);\nconst ctx = slide.getContext('2d');\nctx.fillStyle = THEME.white; ctx.fillRect(0, 0, W, H);\n\nctx.fillStyle = THEME.text;\nctx.font = 'bold 34px \"DejaVu Sans\"';\nctx.textAlign = 'left'; ctx.textBaseline = 'top';\nctx.fillText('Comparativa A-GPT vs A-GEMINI', 60, 40);\n\nconst total = A + B;\nconst x = 120, y = 220, w = 1040, h = 80;\n\n// barra apilada\nconst wA = (A / total) * w;\nconst wB = w - wA;\n\n// fondo\nshadowCard(ctx, x-10, y-30, w+20, 160, 24);\n\nctx.fillStyle = THEME.primary; roundRect(ctx, x, y, wA, h, 12); ctx.fill();\nctx.fillStyle = THEME.accent; roundRect(ctx, x + wA, y, wB, h, 12); ctx.fill();\n\n// labels\nctx.font = '22px \"DejaVu Sans\"';\nctx.fillStyle = THEME.white;\nctx.textAlign = 'center'; ctx.textBaseline = 'middle';\nctx.fillText(A-GPT: ${fmt(A)} (${Math.round(A/total*100)}%), x + wA/2, y + h/2);\nctx.fillText(A-GEMINI: ${fmt(B)} (${Math.round(B/total*100)}%), x + wA + wB/2, y + h/2);\n\n// stats secundarios\nctx.fillStyle = THEME.textLight;\nctx.font = '20px \"DejaVu Sans\"';\nctx.textAlign = 'left';\nctx.fillText(Sesiones A-GPT: ${AGPT_SESS}, 120, 360);\nctx.fillText(Sesiones A-GEMINI: ${AGEM_SESS}, 120, 392);\nctx.fillText(Promedio por sesión (global): ${AVG}, 120, 424);\n\nfooterBar(ctx, 'Comparativa general');\n}\n\n// ===== Slide 5 y 6: Tabla Top 30 (paginada) =====\n{\n// construir filas Top 30\nconst TOTAL = A + B;\nconst rows = [...gptData.map(x=>({...x, h:'A-GPT'})), ...geminiData.map(x=>({...x, h:'A-GEMINI'}))]\n.sort((a,b)=>b.total_solicitudes - a.total_solicitudes)\n.slice(0, 30)\n.map(r => [r.session_id, r.h, fmt(r.total_solicitudes), ((r.total_solicitudes/TOTAL)*100).toFixed(1)+'%']);\n\nconst perPage = 15;\nconst pages = Math.ceil(rows.length / perPage);\n\nfor (let p = 0; p < pages; p++) {\nconst slide = presentation.addSlide(W, H);\nconst ctx = slide.getContext('2d');\nctx.fillStyle = THEME.white; ctx.fillRect(0, 0, W, H);\n\npgsql\nCopiar\nEditar\nctx.fillStyle = THEME.text;\nctx.font = 'bold 34px \"DejaVu Sans\"';\nctx.textAlign = 'left'; ctx.textBaseline = 'top';\nctx.fillText('Top 30 sesiones por volumen', 60, 40);\n\n// tabla\nconst start = p * perPage;\nconst pageRows = rows.slice(start, start + perPage);\n\nconst table = { x: 100, y: 120, w: 1080, rowH: 34 };\nconst cols = [\n  { title: 'Session ID', w: 380 },\n  { title: 'Herramienta', w: 220 },\n  { title: 'Total', w: 240 },\n  { title: '% del Total', w: 240 },\n];\n\n// header\nctx.fillStyle = THEME.primary;\nroundRect(ctx, table.x, table.y, table.w, 42, 10); ctx.fill();\nctx.fillStyle = THEME.white;\nctx.font = 'bold 18px \"DejaVu Sans\"';\nctx.textBaseline = 'middle';\nlet dx = table.x + 16;\ncols.forEach(c => {\n  ctx.textAlign = 'left';\n  ctx.fillText(c.title, dx, table.y + 21);\n  dx += c.w;\n});\n\n// body\nlet y = table.y + 52;\npageRows.forEach((row, i) => {\n  // zebra\n  ctx.fillStyle = i % 2 ? '#f2f5f9' : '#ffffff';\n  ctx.fillRect(table.x, y-2, table.w, table.rowH);\n  // text\n  ctx.fillStyle = THEME.text;\n  ctx.font = '16px \"DejaVu Sans\"';\n  ctx.textBaseline = 'middle';\n  let xx = table.x + 16;\n  row.forEach((cell, ci) => {\n    ctx.textAlign = ci === 0 ? 'left' : (ci === 1 ? 'left' : 'right');\n    const cx = ci === 0 ? xx : (xx + cols[ci].w - 16);\n    ctx.fillText(cell, cx, y + table.rowH/2 - 2);\n    xx += cols[ci].w;\n  });\n  y += table.rowH + 4;\n});\n\nctx.fillStyle = THEME.textLight;\nctx.font = '16px \"DejaVu Sans\"';\nctx.textAlign = 'left';\nctx.fillText(`Mostrando ${start+1}-${start+pageRows.length} de 30`, table.x, y + 20);\n\nfooterBar(ctx, `Tabla · Página ${p+1}/${pages}`);\n}\n}\n\n// ===== Slide extra: Agenda / Próximos pasos (opcional) =====\n{\nconst slide = presentation.addSlide(W, H);\nconst ctx = slide.getContext('2d');\nctx.fillStyle = THEME.white;\nctx.fillRect(0, 0, W, H);\n\n// Encabezado\nctx.fillStyle = THEME.primary;\nctx.fillRect(0, 0, W, 100);\nctx.fillStyle = THEME.white;\nctx.font = 'bold 32px \"DejaVu Sans\"';\nctx.textAlign = 'left';\nctx.textBaseline = 'middle';\nctx.fillText('Conclusiones y próximos pasos', 40, 50);\n\nbullets(ctx, 120, 180, [\n'A-GPT concentra la mayor parte del volumen; replicar mejores prácticas a A-GEMINI.',\n'Identificar usuarios de alto uso para entrevistas y casos de éxito.',\n'Configurar alertas cuando una sesión supere umbrales definidos.',\n'Crear dashboard operativo en tiempo real con estos KPIs.'\n], 56);\n\nfooterBar(ctx, 'Cierre');\n}\n\n// Fin. Todas las canvases se exportan por tu pipeline como PDF o PPTX.\n\n\n-Nunca agregues \\n crea el codigo completo compatible con javascript"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -80,
+        -64
+      ],
+      "id": "9668d311-8548-4ad8-b2bc-2684ac0c35b0",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta para consultar las estadísticas de el agente A-GPT",
+        "workflowId": {
+          "__rl": true,
+          "value": "1kcTcVVrxgZS5NVN",
+          "mode": "list",
+          "cachedResultName": "A-GPT"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        352,
+        144
+      ],
+      "id": "048c6e58-c0bf-4d40-aec6-4786198e1fcb",
+      "name": "A-GPT"
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta para consultar las estadísticas de el agente A-GEMINI",
+        "workflowId": {
+          "__rl": true,
+          "value": "zWM7EgWV8qWXmCC7",
+          "mode": "list",
+          "cachedResultName": "A-GEMINI"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        144
+      ],
+      "id": "4223eff0-a9b2-4004-86ad-8bda460635e6",
+      "name": "A-GEMINI"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tnrender.tiendasnetows.com/presentaciones",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "formato",
+              "value": "pdf"
+            },
+            {
+              "name": "code",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "Reporte.pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        464,
+        -64
+      ],
+      "id": "e722c3a8-b621-4b29-b05d-e36d84f9d4f2",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "binaryPropertyName": "Reporte.pdf",
+        "options": {
+          "channelId": "=D09497Y7URF",
+          "fileName": "Reporte.pdf",
+          "title": "=Reporte.pdf"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        704,
+        -64
+      ],
+      "id": "7ee243bc-0988-4e6b-969c-99363e4ef5a3",
+      "name": "Upload a file1",
+      "webhookId": "6157d4ee-8173-43ea-8d46-0d506ff2f845",
+      "alwaysOutputData": true,
+      "credentials": {
+        "slackApi": {
+          "id": "WPl1Iv7WmYbtplFW",
+          "name": "Slack #A-GPT"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -64
+      ],
+      "id": "ef9ef65f-9d2f-49c0-ab6e-91671120bb0b",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {
+          "timeout": 1000000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -128,
+        240
+      ],
+      "id": "586df5d2-ec8c-4d13-9780-9ab4c6615ac7",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta para consultar las estadísticas de el agente A-REBECA",
+        "workflowId": {
+          "__rl": true,
+          "value": "pSZ2xJsFkSj9yiNa",
+          "mode": "list",
+          "cachedResultName": "A-REBECA"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        608,
+        144
+      ],
+      "id": "bdc5e1e4-25f7-4cb1-8de4-7113faf72747",
+      "name": "A-REBECA"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A-GPT": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A-GEMINI": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Upload a file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload a file1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A-REBECA": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "62fc964c-985a-4b84-9518-8d98f34ba767",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "PGf1L75dXDQPYwlJ",
+  "tags": []
+}

@@ -1,0 +1,64 @@
+{
+  "name": "A-GEMINI",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        48
+      ],
+      "id": "bbbe3a4f-9e41-4497-a884-4efc84ac11c4",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    session_id,\n    COUNT(*) AS total_solicitudes\nFROM \n    public.n8n_chat_histories_gemini\nWHERE \n    session_id IS NOT NULL\n    AND TRIM(session_id) <> ''\n    AND session_id NOT LIKE 'https%'  -- excluye los que empiezan con https\nGROUP BY \n    session_id\nORDER BY \n    total_solicitudes DESC;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        208,
+        48
+      ],
+      "id": "ce3a94a1-1ad4-416b-97f7-f95e5059d75f",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "B1lVzRYnGkK7saFa",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e00b859b-82c0-409d-a401-4d32478cbbe1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "zWM7EgWV8qWXmCC7",
+  "tags": []
+}

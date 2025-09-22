@@ -1,0 +1,69 @@
+{
+  "name": "A-GPT",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "336dddc6-f672-4de7-9d9f-e692996d4414",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    session_id,\n    COUNT(*) AS total_solicitudes\nFROM \n    public.n8n_chat_histories\nWHERE \n    session_id IS NOT NULL\n    AND TRIM(session_id) <> ''\n    AND session_id NOT LIKE 'https%'  -- excluye los que empiezan con https\nGROUP BY \n    session_id\nORDER BY \n    total_solicitudes DESC;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        288,
+        0
+      ],
+      "id": "98cf0a11-fbaa-484e-921d-dcf363999c30",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "B1lVzRYnGkK7saFa",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7f60b5f6-79d6-40ae-8003-22b6724bfade",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "1kcTcVVrxgZS5NVN",
+  "tags": []
+}
