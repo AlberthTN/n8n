@@ -1,0 +1,512 @@
+{
+  "name": "A-Imagen",
+  "nodes": [
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "watchWorkspace": true,
+        "options": {
+          "resolveIds": true,
+          "userIds": [
+            "U09GHGTKSL8"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        -48
+      ],
+      "id": "3aa9d87d-0371-43b7-84c0-b3db0bc6e0fd",
+      "name": "Slack Trigger",
+      "webhookId": "7b7a1c34-2fa0-4b6e-b07f-1b0d45739f9c",
+      "credentials": {
+        "slackApi": {
+          "id": "KeRz8uv4jvr2vGMf",
+          "name": "Slack#A-Imagen"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.original_image_data }}\n\n##Formato de Respuesta\n\npara enfatizar solo usa un * en lugar de **, ejemplo:\n**Prepárate** usa mejor *Prepárate*\n\nNo conteste de esta forma los títulos:\n### Ejemplo de carta de renuncia formal usa mejor >*Ejemplo de carta de renuncia formal. *\n\nSiempre que sugieras ejemplo de documentos contesta dentro de un cuadro listo para copiar y pegar.\n\npara dar un mejor formato considera lo siguiente:\nColoca asteriscos al comienzo y al final del texto: \n*tu texto*\nColoca guiones bajos al comienzo y al final del texto:\n_tu texto_\nColoca acentos graves al comienzo y al final del texto:\n`tu texto`\nAgrega una cuña delante del texto:\n>tu texto\nAgrega tres acentos graves delante del texto:\n```tu texto\nAgrega el número uno y, luego, pulsa delante del texto:\n1. tu texto\nAgrega un asterisco y, luego, pulsa espacio delante del texto:\n* tu texto\n\nPara aplicar sangría a una línea, pulsa Tab",
+        "options": {
+          "systemMessage": "=Rol\nEres un asistente de automatización conectado a Slack. Tu tarea es procesar imágenes o URLs de imágenes enviadas por usuarios y devolver un análisis detallado de los productos detectados.\n\nComportamiento\n\nResponde de forma breve, clara y profesional.\n\nSi recibes una URL de imagen, envíala inmediatamente a la herramienta Imagen.\n\nEspera la respuesta de la herramienta y devuelve la información procesada en Slack con el formato especificado.\n\nNunca omitas ningún producto detectado, incluso si su precio no está visible. En esos casos, marca el precio como null.\n\nSi el mensaje no contiene una URL válida, pide al usuario que proporcione una imagen o enlace válido.\n\nNo uses texto innecesario ni inventes URLs.\n\nHerramientas\n\nImagen: Procesa la URL de la imagen y devuelve los productos detectados con sus precios (si están visibles).\n\nReglas de Formato en Slack\n\nUsa negritas con *, cursivas con _ y bloques de código con `.\n\nPara listas, usa •.\n\nPara títulos o subtítulos, usa > *Título*.\n\nEvita títulos tipo ###.\n\nEstructura de Respuesta Esperada\n\nListado de productos detectados:\n• Producto: [Nombre] — Precio: $[Precio] (o null si no está visible)\n• Producto: [Nombre] — Precio: $[Precio]\n... (incluye todos los productos detectados)\n\nCalificación: [Nota]\nJustificación: [Explicación breve]\nÁreas de mejora:\n• [Punto 1]\n• [Punto 2]\n• [Punto 3]\n\nRestricciones\n\nNunca omitas productos aunque su precio sea null.\n\nSiempre incluye las secciones de Calificación, Justificación y Áreas de mejora.\n\nAsegúrate de que la salida sea visualmente clara y apta para Slack."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        -48
+      ],
+      "id": "dbe8e2b7-44ee-4dce-baad-76dcd584fdbe",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        784,
+        128
+      ],
+      "id": "b706aa6c-3ad5-44b0-8b05-02cda7f12ebf",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta para analizar imágenes, y retorna toda la información completa",
+        "workflowId": {
+          "__rl": true,
+          "value": "afvGWEJPx2vX1TrB",
+          "mode": "list",
+          "cachedResultName": "Imagen#A-Imagen"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ $json.original_image_data }}",
+            "userId": "={{ $('Slack Trigger').item.json.files[0].user }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1104,
+        176
+      ],
+      "id": "f6db1775-77e3-4f7a-97f4-c62a4dddf7e7",
+      "name": "Imagen"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack Trigger').item.json.channel }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.output }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1232,
+        -48
+      ],
+      "id": "80787b6e-3fd1-45d9-b6d4-495dc767f77c",
+      "name": "Send a message",
+      "webhookId": "180dbcc2-55e4-4e18-a1de-a5b15c7acb6f",
+      "credentials": {
+        "slackApi": {
+          "id": "KeRz8uv4jvr2vGMf",
+          "name": "Slack#A-Imagen"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "object",
+        "operation": "get",
+        "getParameters": {},
+        "encryptionHeaders": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.googleCloudStorage",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        -48
+      ],
+      "id": "095255e4-455c-4c1d-8d78-97cbba794d8d",
+      "name": "ValidarExistenciaImagen"
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\nconst imageBuffer = $input.first().json.files[0].url_private; // Asumiendo que la imagen viene en este campo\nconst hash = crypto.createHash('md5').update(imageBuffer).digest('hex');\nreturn [{ json: { image_hash: hash, original_image_data: imageBuffer } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        -48
+      ],
+      "id": "9c462f6d-906b-4de3-b581-eea8ee8c8505",
+      "name": "HasheaImagen"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ad6998bf-fce2-4a53-9902-4a1a5ba76ddf",
+              "leftValue": "no",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        176,
+        -48
+      ],
+      "id": "ccd5f6ab-5372-44bd-bc70-cec2ece0121f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "projectId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 2.1,
+      "position": [
+        720,
+        -256
+      ],
+      "id": "174a55e9-dc05-411b-95fa-e792032f8103",
+      "name": "RecuperaData",
+      "credentials": {
+        "googleBigQueryOAuth2Api": {
+          "id": "FFxsQQvsnF7uDZCN",
+          "name": "Google BigQuery Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack Trigger').item.json.channel }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.output }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1216,
+        -240
+      ],
+      "id": "efa43d56-1209-4289-b116-559babd0c9d8",
+      "name": "Send a message1",
+      "webhookId": "180dbcc2-55e4-4e18-a1de-a5b15c7acb6f",
+      "credentials": {
+        "slackApi": {
+          "id": "KeRz8uv4jvr2vGMf",
+          "name": "Slack#A-Imagen"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        896,
+        -256
+      ],
+      "id": "860fa5a1-b30e-47d0-a02d-afb5bcda795c",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "resource": "object",
+        "operation": "create",
+        "createData": {},
+        "createQuery": {},
+        "encryptionHeaders": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.googleCloudStorage",
+      "typeVersion": 1,
+      "position": [
+        528,
+        -32
+      ],
+      "id": "15a02bc3-fc22-4751-8bbf-a85a2d3885b1",
+      "name": "SubirImagen"
+    }
+  ],
+  "pinData": {
+    "Slack Trigger": [
+      {
+        "json": {
+          "text": "",
+          "files": [
+            {
+              "id": "F09FQB0TCG2",
+              "created": 1758120442,
+              "timestamp": 1758120442,
+              "name": "IMG_6575 (1).jpg",
+              "title": "IMG_6575 (1).jpg",
+              "mimetype": "image/jpeg",
+              "filetype": "jpg",
+              "pretty_type": "JPEG",
+              "user": "U091B7WDXJ4",
+              "user_team": "T9XJE11PE",
+              "editable": false,
+              "size": 2681850,
+              "mode": "hosted",
+              "is_external": false,
+              "external_type": "",
+              "is_public": false,
+              "public_url_shared": false,
+              "display_as_bot": false,
+              "username": "",
+              "url_private": "https://files.slack.com/files-pri/T9XJE11PE-F09FQB0TCG2/img_6575__1_.jpg",
+              "url_private_download": "https://files.slack.com/files-pri/T9XJE11PE-F09FQB0TCG2/download/img_6575__1_.jpg",
+              "media_display_type": "unknown",
+              "thumb_64": "https://files.slack.com/files-tmb/T9XJE11PE-F09FQB0TCG2-166f836f63/img_6575__1__64.jpg",
+              "thumb_80": "https://files.slack.com/files-tmb/T9XJE11PE-F09FQB0TCG2-166f836f63/img_6575__1__80.jpg",
+              "thumb_360": "https://files.slack.com/files-tmb/T9XJE11PE-F09FQB0TCG2-166f836f63/img_6575__1__360.jpg",
+              "thumb_360_w": 270,
+              "thumb_360_h": 360,
+              "thumb_480": "https://files.slack.com/files-tmb/T9XJE11PE-F09FQB0TCG2-166f836f63/img_6575__1__480.jpg",
+              "thumb_480_w": 360,
+              "thumb_480_h": 480,
+              "thumb_160": "https://files.slack.com/files-tmb/T9XJE11PE-F09FQB0TCG2-166f836f63/img_6575__1__160.jpg",
+              "thumb_720": "https://files.slack.com/files-tmb/T9XJE11PE-F09FQB0TCG2-166f836f63/img_6575__1__720.jpg",
+              "thumb_720_w": 540,
+              "thumb_720_h": 720,
+              "thumb_800": "https://files.slack.com/files-tmb/T9XJE11PE-F09FQB0TCG2-166f836f63/img_6575__1__800.jpg",
+              "thumb_800_w": 800,
+              "thumb_800_h": 1067,
+              "thumb_960": "https://files.slack.com/files-tmb/T9XJE11PE-F09FQB0TCG2-166f836f63/img_6575__1__960.jpg",
+              "thumb_960_w": 720,
+              "thumb_960_h": 960,
+              "thumb_1024": "https://files.slack.com/files-tmb/T9XJE11PE-F09FQB0TCG2-166f836f63/img_6575__1__1024.jpg",
+              "thumb_1024_w": 768,
+              "thumb_1024_h": 1024,
+              "original_w": 4284,
+              "original_h": 5712,
+              "thumb_tiny": "AwAwACRxUsQSAFXt68YpgG4DehJUYHP/ANeo1ZpJQskgcH+6eh+hqaKNXh2uhxw27HQUik7DNqjAZSCOuO/6/wCTSGMsDsB68cdf8/l6UskMiYBUMMYA54qWBNuzI2lgSRz6j/Giw+ctUUUUEGVtMkiEkMR0UHk/lxQ0Z37RGSV49f5U2NArACQA9iAev44qyGKouJixYc5kxigd2RJCW2qYnyOu7v8AyqaBfLuAvT5CcenIpDKiNkMTkcjdjP5H60y3JEwJk3DaeM5x096ANDPvRn3rIlc+a/zHqaZvb1piJBs53bi3qOgqaJw21WdiCQcen5VCQTJuVcFiSR6c1ai2R54Jz60ARzbDIH8xvoVNMyEkCrwVBDcVZMgJHy459P8A69QyIGl3KMDbigZTOc0lWmtwxyaT7MPekB//2Q==",
+              "permalink": "https://tiendasnetocorpo.slack.com/files/U091B7WDXJ4/F09FQB0TCG2/img_6575__1_.jpg",
+              "permalink_public": "https://slack-files.com/T9XJE11PE-F09FQB0TCG2-090ce10acd",
+              "skipped_shares": true,
+              "has_rich_preview": false,
+              "file_access": "visible"
+            }
+          ],
+          "upload": false,
+          "user": "U091B7WDXJ4",
+          "display_as_bot": false,
+          "type": "message",
+          "ts": "1758120461.006469",
+          "client_msg_id": "48ef4052-f62d-4561-92a8-68b45cca29bf",
+          "channel": "D09FQATP1T8",
+          "subtype": "file_share",
+          "event_ts": "1758120461.006469",
+          "channel_type": "im",
+          "user_resolved": "juan.garciag"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "HasheaImagen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Imagen": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ValidarExistenciaImagen": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HasheaImagen": {
+      "main": [
+        [
+          {
+            "node": "ValidarExistenciaImagen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "RecuperaData",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SubirImagen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RecuperaData": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SubirImagen": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f0cf63a0-acc5-4cfd-8326-6dbda9f08607",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "c6kUD9vhgFNBVBxf",
+  "tags": []
+}

@@ -1,0 +1,167 @@
+{
+  "name": "Imagen#A-Imagen",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "url"
+            },
+            {
+              "name": "userId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "abe9bf2a-f572-494e-a8c1-d458fab5d0d9",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        256,
+        0
+      ],
+      "id": "f49ddda9-42dd-45f9-b575-bc6cc220f42f",
+      "name": "Download Image",
+      "credentials": {
+        "slackApi": {
+          "id": "KeRz8uv4jvr2vGMf",
+          "name": "Slack#A-Imagen"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-2024-11-20",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-2024-11-20"
+        },
+        "text": "=Analiza cuidadosamente la imagen completa de un estante.  \nRecorre de arriba hacia abajo y de izquierda a derecha, identificando todos los productos visibles, incluso si son de la misma marca pero diferente presentación, sabor, tamaño o variante.  \nExtrae el nombre exacto que aparece en la caja, frasco, empaque o etiqueta frontal y el precio que corresponda en la etiqueta debajo o frente al producto.  \n\nReglas importantes:\n- Devuelve la salida en un listado de texto (no en JSON).  \n- Cada línea debe tener el formato:  \n  • Producto: [Nombre exacto] — Precio: [precio detectado o \"null\"]  \n- Si un precio no es legible o no aparece, escribe \"Precio: null\".  \n- No repitas productos idénticos, pero sí incluye presentaciones diferentes (por ejemplo, distintos sabores de una bebida, tamaños de un detergente, etc.).  \n- Asegúrate de devolver todos los productos visibles, aunque sean más de 100.  \n\n⚠️ IMPORTANTE: Después del listado de productos, AGREGA SIEMPRE estas tres secciones obligatorias:  \n\n**Calificación:**  \nIndica un número del 1 al 10 (puede incluir decimales como 8.7).  \n\n**Justificación:**  \nExplica brevemente tu calificación considerando:  \n- Estantes completos (sin faltantes visibles).  \n- Claridad y visibilidad de los precios.  \n- Correspondencia entre producto y etiqueta de precio.  \n- Orden y estética general del exhibidor.  \n- Otros parámetros relevantes que observes.  \n\n**Áreas de mejora:**  \nIndica qué aspectos deben optimizarse (ejemplo: falta de producto, etiquetas mal colocadas, precios poco visibles, orden, limpieza, variedad, etc.).  \n\nNO OMITAS NINGUNA DE ESTAS TRES SECCIONES.  \n",
+        "inputType": "base64",
+        "options": {
+          "detail": "high",
+          "maxTokens": 10000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        688,
+        0
+      ],
+      "id": "eb9c27d8-c520-439a-905a-822f8ce6277a",
+      "name": "Analyze image1",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-pro",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-pro"
+        },
+        "text": "=Analiza cuidadosamente la imagen completa de un estante.  \nRecorre de arriba hacia abajo y de izquierda a derecha, identificando todos los productos visibles, incluso si son de la misma marca pero diferente presentación, sabor, tamaño o variante.  \nExtrae el nombre exacto que aparece en la caja, frasco, empaque o etiqueta frontal y el precio que corresponda en la etiqueta debajo o frente al producto.  \n\nReglas importantes:\n- Devuelve la salida en un listado de texto (no en JSON).  \n- Cada línea debe tener el formato:  \n  • Producto: [Nombre exacto] — Precio: [precio detectado o \"null\"]  \n- Si un precio no es legible o no aparece, escribe \"Precio: null\".  \n- No repitas productos idénticos, pero sí incluye presentaciones diferentes (por ejemplo, distintos sabores de una bebida, tamaños de un detergente, etc.).  \n- Asegúrate de devolver todos los productos visibles, aunque sean más de 100.  \n\n⚠️ IMPORTANTE: Después del listado de productos, AGREGA SIEMPRE estas tres secciones obligatorias:  \n\n**Calificación:**  \nIndica un número del 1 al 10 (puede incluir decimales como 8.7).  \n\n**Justificación:**  \nExplica brevemente tu calificación considerando:  \n- Estantes completos (sin faltantes visibles).  \n- Claridad y visibilidad de los precios.  \n- Correspondencia entre producto y etiqueta de precio.  \n- Orden y estética general del exhibidor.  \n- Otros parámetros relevantes que observes.  \n\n**Áreas de mejora:**  \nIndica qué aspectos deben optimizarse (ejemplo: falta de producto, etiquetas mal colocadas, precios poco visibles, orden, limpieza, variedad, etc.).  \n\nNO OMITAS NINGUNA DE ESTAS TRES SECCIONES.  \n",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        464,
+        0
+      ],
+      "id": "e4bc772b-c257-4a9e-b996-cd741a4149ce",
+      "name": "Analyze image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "8oeByDM6tvSZbm94",
+          "name": "Google Gemini Key"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "url": "https://files.slack.com/files-pri/T9XJE11PE-F09FVMQS7M2/img_6575.jpg",
+          "userId": "U091B7WDXJ4"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Download Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image": {
+      "main": [
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze image": {
+      "main": [
+        [
+          {
+            "node": "Analyze image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "23498d47-db53-47f4-8aa8-7ce40d318c31",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "afvGWEJPx2vX1TrB",
+  "tags": []
+}
