@@ -1,0 +1,230 @@
+{
+  "name": "AnalisisImagen#A-Precios",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "url"
+            },
+            {
+              "name": "userId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        -112
+      ],
+      "id": "f07b3a68-8121-4d9c-8e0c-e97612a38e74",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        16,
+        -112
+      ],
+      "id": "6be1b9e0-88e3-4eae-aab9-20c343646a40",
+      "name": "Download Image",
+      "credentials": {
+        "slackApi": {
+          "id": "KeRz8uv4jvr2vGMf",
+          "name": "Slack#A-Imagen"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "text": "=\"Analiza la imagen de un estante de cosméticos en un supermercado.\nTu tarea es:\n\nIdentificar los productos visibles (nombre del producto o tipo: esmalte, rubor, máscara, labial, delineador, toallitas desmaquillantes, etc.).\n\nClasificarlos en categorías (ej. maquillaje de labios, ojos, rostro, uñas, accesorios, cuidado facial, higiene femenina, etc.).\n\nExtraer los precios asociados a cada producto y relacionarlos correctamente.\n\nDetectar si existen diferentes tonos, presentaciones o formatos del mismo producto (ej. varios colores de esmalte o labiales).\n\nIdentificar productos en cajas abiertas o colocados en el suelo como inventario extra.\n\nSeñalar espacios vacíos en el estante que indiquen productos agotados.\n\nEntregar la información en formato JSON con la siguiente estructura:\n\n{\n  \"categoria\": \"Nombre de la categoría\",\n  \"productos\": [\n    {\n      \"nombre\": \"Nombre del producto o tipo\",\n      \"precio\": \"Precio identificado\",\n      \"presentacion\": \"tono, color, tamaño si aplica\",\n      \"observaciones\": \"ej. varias versiones, espacio vacío, inventario en piso\"\n    }\n  ]\n}\n\n\nConcéntrate en que el análisis sea claro, estructurado y útil para un inventario de cosméticos.\"",
+        "inputType": "base64",
+        "options": {
+          "detail": "high",
+          "maxTokens": 10000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        864,
+        -112
+      ],
+      "id": "218322ff-0234-4bfc-928d-b280d9895184",
+      "name": "Analyze image1",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-pro",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-pro"
+        },
+        "text": "=\"Analiza la imagen de un estante de un supermercado.\nTu tarea es:\n\nIdentificar los productos visibles en el estante (nombre del producto o marca cuando sea legible).\n\nClasificarlos por categorías (ej. analgésicos, antiácidos, electrolitos, alcohol, algodón, enjuague bucal, etc.).\n\nExtraer los precios asociados a cada producto y relacionarlos correctamente.\n\nRecorrer estante por estante producto por producto y no omitir ninguno.\n\nSeñalar si hay productos repetidos o en diferentes presentaciones (ej. diferentes sabores, tamaños o versiones del mismo medicamento).\n\nDetectar espacios vacíos en el estante que indiquen productos agotados.\n\nOrganizar el resultado en formato JSON con la siguiente estructura:\n\n{\n  \"categoria\": \"Nombre de la categoría\",\n  \"productos\": [\n    {\n      \"nombre\": \"Nombre del producto\",\n      \"precio\": \"Precio identificado\",\n      \"presentacion\": \"si aplica\",\n      \"observaciones\": \"ej. espacio vacío, varias versiones, etc.\"\n    }\n  ]\n}\n\n\nEnfócate en que el análisis sea claro, organizado y útil para un inventario.\"",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -112
+      ],
+      "id": "dd9922b6-e380-4ae7-8582-79b69ee7a699",
+      "name": "Analyze image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "8oeByDM6tvSZbm94",
+          "name": "Google Gemini Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Intentamos capturar el texto desde distintas rutas comunes\nlet extractedText = $input.first().json.text \n  || $input.first().json.content?.parts?.[0]?.text \n  || \"\";\n\n// Verificamos que realmente tengamos texto\nif (!extractedText || extractedText.trim() === \"\") {\n  throw new Error(\"No se encontró texto válido en la entrada.\");\n}\n\n// Buscar el bloque de JSON entre ```json y ```\nconst jsonMatch = extractedText.match(/```json([\\s\\S]*?)```/);\n\nlet products = [];\n\nif (jsonMatch) {\n  try {\n    // Parsear el JSON extraído\n    const parsed = JSON.parse(jsonMatch[1]);\n\n    // Recorremos categorías y productos\n    for (const category of parsed) {\n      for (const product of category.productos) {\n        products.push({\n          categoria: category.categoria,\n          nombre: product.nombre,\n          precio: product.precio,\n          presentacion: product.presentacion,\n          observaciones: product.observaciones\n        });\n      }\n    }\n  } catch (e) {\n    throw new Error(\"Error al parsear JSON: \" + e.message);\n  }\n} else {\n  throw new Error(\"No se encontró un bloque JSON en el texto extraído.\");\n}\n\nreturn [{ json: { products } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        -112
+      ],
+      "id": "61dacdf5-1a6d-43ef-9640-b3775554536e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "sqlQuery": "SELECT *\nFROM `neto-cloud.agente_eva.catalogo_articulos_neto`\nWHERE UPPER(`Nombre de artículo`) IN ('{{ $json.products[0].nombre }}') AND `Tiendas asigandas` IN (1164);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 2.1,
+      "position": [
+        640,
+        -112
+      ],
+      "id": "6f4a31e2-2999-4583-aa65-aa904cf2086b",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "url": "https://files.slack.com/files-pri/T9XJE11PE-F09FVMQS7M2/img_6575.jpg",
+          "userId": "U091B7WDXJ4"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Download Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image": {
+      "main": [
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze image": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Analyze image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "36fcc37a-06e5-4c5f-99d6-26a6c4671a49",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "OWZjsw82Yp4xEDQ3",
+  "tags": []
+}

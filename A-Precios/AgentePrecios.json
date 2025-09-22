@@ -1,0 +1,278 @@
+{
+  "name": "AgentePrecios",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "=Rol\nEres un asistente de automatización conectado a Slack. Tu tarea es procesar imágenes o URLs de imágenes enviadas por usuarios y devolver un análisis detallado de los productos detectados.\n\nComportamiento\n\nSi el usuario escribe \"start\", responde indicando que se iniciará el proceso de validación de precios y que necesitas que proporcione el número de tienda.\n\nUna vez que el usuario proporcione el número de tienda, espera a que envíe una o más imágenes de estantes.\n\nCuando recibas una imagen o URL de imagen, envíala inmediatamente a la herramienta Imagen, junto con el número de tienda proporcionado.\n\nEspera la respuesta de la herramienta y devuelve la información procesada en Slack con el formato especificado.\n\nFormato de salida en Slack\n\nLos nombres de las categorías deben ir en cursivas, por ejemplo:\n\n*Higiene Personal*\n\n\nLos nombres de los productos deben ir en formato blockquote con cursiva, por ejemplo:\n\n> *Alcohol*\n\n\nTono\nResponde siempre de forma breve, clara y profesional."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1072,
+        48
+      ],
+      "id": "7f7393f4-2a8f-4c19-afdf-a9abfcd1d3da",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1008,
+        256
+      ],
+      "id": "be42d0ec-6917-48a5-8f65-7e65410308b6",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta para analizar imágenes, y retorna toda la información completa",
+        "workflowId": {
+          "__rl": true,
+          "value": "OWZjsw82Yp4xEDQ3",
+          "mode": "list",
+          "cachedResultName": "AnalisisImagen#A-Precios"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ $('Slack Trigger1').item.json.files[0].url_private }}",
+            "userId": "={{ $('Slack Trigger1').item.json.files[0].user }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1216,
+        272
+      ],
+      "id": "9da047d5-2f86-4d52-98ec-56690a48310f",
+      "name": "Imagen"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack Trigger1').item.json.channel }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.output }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1424,
+        48
+      ],
+      "id": "aeb6f7af-412f-42df-9aa6-19b762b720fe",
+      "name": "Send a message",
+      "webhookId": "180dbcc2-55e4-4e18-a1de-a5b15c7acb6f",
+      "credentials": {
+        "slackApi": {
+          "id": "KeRz8uv4jvr2vGMf",
+          "name": "Slack#A-Imagen"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "watchWorkspace": true,
+        "options": {
+          "resolveIds": true,
+          "userIds": [
+            "U09GHGTKSL8"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        464,
+        48
+      ],
+      "id": "d2c15be5-58b6-4925-a5df-5fe62466e4aa",
+      "name": "Slack Trigger1",
+      "webhookId": "7b7a1c34-2fa0-4b6e-b07f-1b0d45739f9c",
+      "credentials": {
+        "slackApi": {
+          "id": "KeRz8uv4jvr2vGMf",
+          "name": "Slack#A-Imagen"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "command",
+        "messageData": "={{ $json.text }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        800,
+        48
+      ],
+      "id": "ef496fb7-5ff0-485b-a384-b5c8da58b239",
+      "name": "Redis",
+      "credentials": {
+        "redis": {
+          "id": "eadySvnQJXE8UzAi",
+          "name": "Redis account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Slack Trigger1": [
+      {
+        "json": {
+          "user": "U091B7WDXJ4",
+          "type": "message",
+          "ts": "1758299449.731419",
+          "client_msg_id": "f7c47263-28ad-4ce1-8f8e-0c84673faf8a",
+          "text": "start",
+          "team": "T9XJE11PE",
+          "blocks": [
+            {
+              "type": "rich_text",
+              "block_id": "RfLpe",
+              "elements": [
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "start"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "channel": "D09FQATP1T8",
+          "event_ts": "1758299449.731419",
+          "channel_type": "im",
+          "user_resolved": "juan.garciag"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Imagen": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2965afb5-f08a-41dd-9b87-cd6d9845c16e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "tFlLJBNuGXBIRh9q",
+  "tags": []
+}
