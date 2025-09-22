@@ -1,0 +1,88 @@
+{
+  "name": "CreacionVideos",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            },
+            {
+              "name": "usuarioId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "72e96e7a-f70e-43b9-a5c4-888de1bde924",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "modelId": {
+          "__rl": true,
+          "value": "models/veo-2.0-generate-001",
+          "mode": "list",
+          "cachedResultName": "models/veo-2.0-generate-001"
+        },
+        "prompt": "={{ $json.query }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "6419a8bc-e118-47b6-9cfc-69fcb0c67d58",
+      "name": "Generate a video",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "8oeByDM6tvSZbm94",
+          "name": "Google Gemini Key"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "query": "Crea un video de un ardilla en moto con su mascota",
+          "usuarioId": "U091B7WDXJ4"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Generate a video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "223a9629-9603-4b49-af85-13600155c0bc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "NrNpauE94lPZEyhq",
+  "tags": []
+}

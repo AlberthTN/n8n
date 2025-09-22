@@ -1,0 +1,185 @@
+{
+  "name": "GenerarImagenGemini",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            },
+            {
+              "name": "ChanelID"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -128,
+        -16
+      ],
+      "id": "23c01f11-e8a3-4020-9725-8bd25d90bf10",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "options": {
+          "channelId": "C095CT4D3D3",
+          "fileName": "img.png",
+          "title": "=img-{{ $now.format('yyyy-MM-dd HH:mm')}}"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        368,
+        -16
+      ],
+      "id": "a490acbc-47a1-4956-8a00-2c442bbc928a",
+      "name": "Upload a file",
+      "webhookId": "482b13c6-4c2f-410a-86a8-3f56277b98ac",
+      "credentials": {
+        "slackApi": {
+          "id": "k6FSHdRrXaiVb1DD",
+          "name": "Slack #A-Gemini"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        816,
+        -16
+      ],
+      "id": "10858f6f-4ca2-43a3-81df-15fd3e7200ca",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "U0950KQEB7H",
+          "mode": "list",
+          "cachedResultName": "agemini"
+        },
+        "text": "={{ $json.permalink }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        592,
+        -16
+      ],
+      "id": "6066150a-5976-4908-995c-70f6526dd1aa",
+      "name": "Send a message",
+      "webhookId": "c16739f2-7e4f-4e92-8c51-fa8ae06618bf",
+      "credentials": {
+        "slackApi": {
+          "id": "xCZIGSMFuKU1NJmo",
+          "name": "Slack account #A-Gemini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "models/imagen-4.0-ultra-generate-preview-06-06",
+          "mode": "list",
+          "cachedResultName": "models/imagen-4.0-ultra-generate-preview-06-06"
+        },
+        "prompt": "={{ $json.query }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        128,
+        -16
+      ],
+      "id": "f9a840b1-4d5d-4c6f-aa5f-926330d9157c",
+      "name": "Generate an image1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "8oeByDM6tvSZbm94",
+          "name": "Google Gemini Key"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "query": "Crea una imagen de un mundo post apocaliptico centrándose en el Ángel de la Independencia, con un estilo sombrío, ruinas alrededor, cielo oscuro y nubes de polvo, mostrando un ambiente desolado y melancólico",
+          "ChanelID": "D09629ZR47J"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Generate an image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload a file": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image1": {
+      "main": [
+        [
+          {
+            "node": "Upload a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6ab4ee54-ba32-49aa-b4eb-bf6c5be30947",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "RBswp4UrzTqepmfL",
+  "tags": []
+}

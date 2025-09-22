@@ -1,0 +1,490 @@
+{
+  "name": "ToolsGemini",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "c7a4432c-0f3c-44bf-83b3-854df37a7020"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4c79a686-06f2-41da-aed6-d9bfad9f0353",
+      "name": "MCP Server Trigger",
+      "webhookId": "c7a4432c-0f3c-44bf-83b3-854df37a7020"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        272
+      ],
+      "id": "77213b40-1123-4628-9ca2-ff74bc31b988",
+      "name": "Calculadora"
+    },
+    {
+      "parameters": {
+        "description": "utiliza esta herramienta si recibes una imagen",
+        "workflowId": {
+          "__rl": true,
+          "value": "yY8LqN633voywbxe",
+          "mode": "list",
+          "cachedResultName": "AnalisisImagenGemini"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ $('Slack Trigger').item.json.files[0].url_private_download }}"
+          },
+          "matchingColumns": [
+            "url"
+          ],
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -256,
+        272
+      ],
+      "id": "f84256e6-a30c-4d11-908b-e9f0b27332b8",
+      "name": "AnalisisImagen"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "RBswp4UrzTqepmfL",
+          "mode": "list",
+          "cachedResultName": "GenerarImagenGemini"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $fromAI('query', ``, 'string') }}",
+            "ChanelID": "={{ $('Slack Trigger').item.json.channel }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "ChanelID",
+              "displayName": "ChanelID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -96,
+        272
+      ],
+      "id": "fb5267f1-90d6-44d6-b370-efa5ee0195a3",
+      "name": "GenerarImagen"
+    },
+    {
+      "parameters": {
+        "description": "Usala cuando recibas enlaces de documentos PDF, xls, word, pokerpoint, etc.",
+        "workflowId": {
+          "__rl": true,
+          "value": "rIVfF9JYta2U80f0",
+          "mode": "list",
+          "cachedResultName": "AnalisisDocuemntosGemini"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ $('Slack Trigger').item.json?.files?.[0]?.url_private_download || ''}} {{ $fromAI('query') }}",
+            "UserID": "={{ $('Slack Trigger').item.json.user }}"
+          },
+          "matchingColumns": [
+            "url"
+          ],
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "UserID",
+              "displayName": "UserID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        80,
+        272
+      ],
+      "id": "66c0ddbd-9b49-42c1-9f6a-537d6dbf2049",
+      "name": "AnalisisDocumentos",
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta en cada ejecución,.",
+        "workflowId": {
+          "__rl": true,
+          "value": "vRXftCqw9dfybsTH",
+          "mode": "list",
+          "cachedResultName": "LogsGemini"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "usuarioId": "={{ $('Slack Trigger').item.json.user }}",
+            "query": "={{ $('Slack Trigger').item.json.text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "usuarioId",
+              "displayName": "usuarioId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        272
+      ],
+      "id": "35ca6ea8-7b88-4b4d-9468-cc83d7600ba7",
+      "name": "Logs"
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta cuando no tengas información.",
+        "workflowId": {
+          "__rl": true,
+          "value": "mTJVZ01Ilo9FpLKt",
+          "mode": "list",
+          "cachedResultName": "WEBGemini"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        272
+      ],
+      "id": "3e478dc7-f800-4b84-a33c-6b8432e8ccc3",
+      "name": "WEB"
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta cuando ocupes cualquier tema de desarrollo.",
+        "workflowId": {
+          "__rl": true,
+          "value": "tcyRiJ0mmhJWuC0s",
+          "mode": "list",
+          "cachedResultName": "DesarrolloGemini"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $('Slack Trigger').item.json.blocks[0].elements[0].elements[0].text }}",
+            "userId": "={{ $('Slack Trigger').item.json.user }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        272
+      ],
+      "id": "145bed42-aeb2-417b-b0eb-def64163b317",
+      "name": "Desarrollo"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "FTsldQREFMVEksgA",
+          "mode": "list",
+          "cachedResultName": "GraficaGPT"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Type": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Type', ``, 'string') }}",
+            "Label": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Label', ``, 'string') }}",
+            "Data": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Data', ``, 'string') }}",
+            "Channel": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Channel', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Label",
+              "displayName": "Label",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Data",
+              "displayName": "Data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Channel",
+              "displayName": "Channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        640,
+        272
+      ],
+      "id": "e07da817-8504-4d0d-a537-2c06d76bd447",
+      "name": "Graficar"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Calculadora": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AnalisisImagen": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GenerarImagen": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AnalisisDocumentos": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Logs": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WEB": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Desarrollo": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Graficar": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6323abc9-f249-4d1d-8f4a-e6f1f85e1fc5",
+  "meta": {
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "mCnGYksJtyOa3lOc",
+  "tags": []
+}
