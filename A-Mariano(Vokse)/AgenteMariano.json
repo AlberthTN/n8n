@@ -1,0 +1,390 @@
+{
+  "name": "AgenteMariano",
+  "nodes": [
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "watchWorkspace": true,
+        "options": {
+          "resolveIds": true,
+          "userIds": [
+            "U09EXTW8H6V"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        0
+      ],
+      "id": "af9c6d03-00a3-4c20-a541-fcab94880d4f",
+      "name": "Slack Trigger",
+      "webhookId": "7ecaab37-f8c8-4da3-9510-63fd3517317e",
+      "credentials": {
+        "slackApi": {
+          "id": "mXoZoQVpbfd59Pcw",
+          "name": "Slack account #Mariano"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Slack Trigger').item.json.text }}",
+        "options": {
+          "systemMessage": "=Rol y Objetivo\nEres un agente inteligente que recibe peticiones de usuarios a través de Slack y las redirige a la herramienta adecuada dentro del ecosistema n8n. Tu responsabilidad principal es interpretar las solicitudes, seleccionar la herramienta correcta, procesar la respuesta y formatearla apropiadamente para Slack.\n\nInstrucciones de Formato Slack\nPara énfasis utiliza un solo asterisco: texto en lugar de texto\n\nPara títulos o encabezados, usa el formato de bloque de cita: >Título del documento\n\nPara ejemplos de documentos, preséntalos dentro de cuadros listos para copiar y pegar usando bloques de código\n\nUtiliza adecuadamente estos formatos:\n\ntexto con asteriscos para énfasis\ntexto con guiones bajos para otro tipo de énfasis\ntexto con acentos graves para código o elementos técnicos\n\ntexto con cuña para citas o bloques destacados\ntexto con triple acento grave para bloques de código extensos\n\nElementos de lista con asterisco\n\nElementos de lista numerada\n\nFlujo de Trabajo\nRecibir y analizar la petición del usuario\n\nIdentificar la herramienta adecuada según el tipo de solicitud\n\nProcesar la solicitud con la herramienta correspondiente\n\nFormatear la respuesta según las directrices de Slack\n\nProporcionar una respuesta natural y comprensible\n\nEjemplos de Respuestas\nPara solicitudes de documentos:\nEjemplo de carta de renuncia formal\n\nA continuación te comparto un ejemplo listo para usar:\n\ntext\n[Fecha]\n\n[Nombre del destinatario]\n[Cargo del destinatario]\n[Nombre de la empresa]\n[Dirección de la empresa]\n\nEstimado/a [Nombre del destinatario]:\n\nPor medio de la presente comunico mi decisión de renunciar al puesto de [tu cargo] en [nombre de la empresa], efectiva a partir de [fecha de último día laboral, generalmente dos semanas después].\n\nAgradezco las oportunidades de crecimiento profesional y personal que me han brindado durante mi tiempo en la empresa.\n\nQuedo a disposición para facilitar la transición durante este período.\n\nAtentamente,\n\n[Tu nombre completo]\n[Tu cargo actual]\n¿Necesitas que personalice algún detalle específico de esta carta?\n\nPara consultas informativas:\nInformación sobre políticas de teletrabajo\n\nLas políticas de teletrabajo generalmente incluyen:\n\nDisponibilidad horaria: Se espera que estés conectado durante el horario laboral establecido\n\nComunicación: Debes mantenerte disponible a través de los canales oficiales\n\nHerramientas técnicas: La empresa proporcionará el equipo necesario o compensará por el uso del personal\n\nRecuerda que cada empresa tiene sus propias normativas, te sugiero consultar el manual específico de tu organización.\n\nPara respuestas técnicas:\nEl error que mencionas en la integración de API通常 se resuelve verificando:\n\nLos tokens de autenticación\n\nLos endpoints correctos\n\nLos formatos de datos esperados\n\njson\n{\n  \"api_key\": \"tu_clave_actualizada\",\n  \"endpoint\": \"https://api.ejemplo.com/v2/endpoint\",\n  \"timeout\": 5000\n}\n¿Has verificado que estos parámetros estén configurados correctamente?\n\nConsideraciones Finales\nSiempre mantén un tono amable y profesional\n\nAdapta el lenguaje técnico al nivel del usuario\n\nVerifica que la herramienta seleccionada sea la más adecuada para cada solicitud\n\nAsegúrate de que el formato sea compatible con Slack y visualmente atractivo\n\nProporciona respuestas completas pero concisas"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e526961f-2238-421c-bca2-4fb5cfa95fe1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        208
+      ],
+      "id": "f58549d4-717a-4117-aac5-76ad580df649",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta cuando te soliciten consultar la base de datos.",
+        "workflowId": {
+          "__rl": true,
+          "value": "usCf2BAM2Io9EnJU",
+          "mode": "list",
+          "cachedResultName": "ConsultaDB#Mariano"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "consulta": "={{ $('Slack Trigger').item.json.text }}",
+            "userId": "={{ $('Slack Trigger').item.json.user }}"
+          },
+          "matchingColumns": [
+            "consulta"
+          ],
+          "schema": [
+            {
+              "id": "consulta",
+              "displayName": "consulta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        256
+      ],
+      "id": "b022d38c-efae-4b0b-8fad-928e92bf2a56",
+      "name": "ConsultaDB"
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.channel }}",
+          "mode": "id"
+        },
+        "timestamp": "={{ $json.ts }}",
+        "name": "eyes"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        32,
+        0
+      ],
+      "id": "cd7a76da-d45d-463c-8c49-ad622c768bb1",
+      "name": "Add a reaction",
+      "webhookId": "b6124d2f-7e1b-4d7c-9f7b-8f74e4332568",
+      "alwaysOutputData": false,
+      "credentials": {
+        "slackApi": {
+          "id": "mXoZoQVpbfd59Pcw",
+          "name": "Slack account #Mariano"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        -16
+      ],
+      "id": "ea0ab80a-6de4-432d-b266-e33a38799c06",
+      "name": "No Operation, do nothing2"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack Trigger').item.json.channel }}",
+          "mode": "id"
+        },
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        992,
+        0
+      ],
+      "id": "668bfa78-775e-4bcb-b047-47026ff40f00",
+      "name": "Send a message1",
+      "webhookId": "7f2256c8-c748-46bf-9d15-e5463cfa87d5",
+      "credentials": {
+        "slackApi": {
+          "id": "mXoZoQVpbfd59Pcw",
+          "name": "Slack account #Mariano"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "operation": "remove",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack Trigger').item.json.channel }}",
+          "mode": "id"
+        },
+        "timestamp": "={{ $('Slack Trigger').item.json.ts }}",
+        "name": "eyes"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        544,
+        0
+      ],
+      "id": "08a5bc59-a975-403b-a759-9098c31bd0f4",
+      "name": "Remove a reaction",
+      "webhookId": "affe813f-a664-4e83-a636-9612d73bcc92",
+      "credentials": {
+        "slackApi": {
+          "id": "mXoZoQVpbfd59Pcw",
+          "name": "Slack account #Mariano"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack Trigger').item.json.channel }}",
+          "mode": "id"
+        },
+        "timestamp": "={{ $('Slack Trigger').item.json.ts }}",
+        "name": "white_check_mark"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        784,
+        0
+      ],
+      "id": "af354890-2d86-436e-8294-dd81f1304fc8",
+      "name": "Add a reaction1",
+      "webhookId": "66b31c78-7070-4c44-90b4-f72e7fb6d478",
+      "credentials": {
+        "slackApi": {
+          "id": "mXoZoQVpbfd59Pcw",
+          "name": "Slack account #Mariano"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Slack Trigger": [
+      {
+        "json": {
+          "user": "U091B7WDXJ4",
+          "type": "message",
+          "ts": "1757519491.266129",
+          "client_msg_id": "ac550e2e-d513-402a-be91-0d20f8740f60",
+          "text": "Podrías indicarme que zonas hay en la base de datos?",
+          "team": "T9XJE11PE",
+          "blocks": [
+            {
+              "type": "rich_text",
+              "block_id": "DO1hb",
+              "elements": [
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "Podrías indicarme que zonas hay en la base de datos?"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "channel": "D09EEDJPREF",
+          "event_ts": "1757519491.266129",
+          "channel_type": "im",
+          "user_resolved": "juan.garciag"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "Add a reaction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ConsultaDB": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add a reaction": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove a reaction": {
+      "main": [
+        [
+          {
+            "node": "Add a reaction1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add a reaction1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Remove a reaction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "94458c27-f9b7-4653-bd2d-75d2b4aef247",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "1JfYhN19OzbAtWvP",
+  "tags": []
+}

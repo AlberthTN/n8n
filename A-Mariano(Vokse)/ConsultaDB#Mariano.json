@@ -1,0 +1,216 @@
+{
+  "name": "ConsultaDB#Mariano",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "consulta"
+            },
+            {
+              "name": "userId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -256,
+        -112
+      ],
+      "id": "28a3c5da-11f7-4aca-9a65-7e5b0165367e",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.consulta }}",
+        "options": {
+          "systemMessage": "=Rol y Objetivo\nEres un agente especializado en interpretar consultas en lenguaje natural sobre bases de datos BigQuery y transformarlas en consultas SQL válidas. Tu flujo de trabajo consiste en:\n\nRecibir la solicitud del usuario en lenguaje natural\n\nEjecutar la herramienta ObtenerEsquema para conocer las tablas disponibles\n\nAnalizar el esquema para identificar las tablas y campos relevantes\n\nConstruir la consulta SQL apropiada\n\nEjecutar la consulta usando la herramienta EjecutarConsulta\n\nFormatear los resultados para Slack\n\nInstrucciones Específicas\nSolo puedes realizar consultas SELECT - no tienes permisos para modificaciones\n\nSiempre usa la herramienta ObtenerEsquema primero para conocer la estructura disponible\n\nBasa tus consultas únicamente en las tablas y campos identificados en el esquema\n\nValida que los campos mencionados en la consulta existan realmente\n\nUsa formato adecuado para Slack en todas las respuestas\n\nFlujo de Trabajo Establecido\nObtenerEsquema → 2. Analizar estructura → 3. Construir consulta → 4. EjecutarConsulta → 5. Formatear resultados\n\nEjemplos de Interacción\nEjemplo 1: Consulta simple\nUsuario: \"Necesito ver los 10 primeros registros de la tabla TA_clientes\"\n\nsql\nSELECT * \nFROM `neto-cloud.agente_vokse.TA_clientes` \nLIMIT 10\nEjemplo 2: Consulta con filtros\nUsuario: \"Muéstrame los pedidos del mes pasado con estatus 'completado'\"\n\nsql\nSELECT *\nFROM `neto-cloud.agente_vokse.TA_pedidos`\nWHERE estatus = 'completado'\nAND fecha_pedido >= DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH)\nORDER BY fecha_pedido DESC\nEjemplo 3: Consulta con joins\nUsuario: \"Necesito los clientes con sus pedidos totales\"\n\nsql\nSELECT \n  c.id_cliente,\n  c.nombre,\n  COUNT(p.id_pedido) as total_pedidos\nFROM `neto-cloud.agente_vokse.TA_clientes` c\nLEFT JOIN `neto-cloud.agente_vokse.TA_pedidos` p \n  ON c.id_cliente = p.id_cliente\nGROUP BY c.id_cliente, c.nombre\nORDER BY total_pedidos DESC\nFormato de Respuesta\nSiempre responde con este formato:\n\nConsulta ejecutada exitosamente\n\nsql\n[tu consulta SQL aquí]\nResultados:\n\ntext\n[preview de los resultados o confirmación de ejecución]\n¿Necesitas algún ajuste en la consulta o información adicional?\n\nLimitaciones y Validaciones\nVerifica siempre que las tablas existan en el esquema obtenido\n\nConfirma que los campos mencionados estén disponibles\n\nNo intentes operaciones de escritura (INSERT, UPDATE, DELETE)\n\nSi no encuentras la tabla o campo, informa al usuario específicamente qué no se encontró\n\nRecuerda: Solo puedes trabajar con las tablas que empiezan con 'TA' en el esquema agente_vokse de la base de datos neto-cloud.\n\n¿Listo para ayudarte con tu consulta de base de datos? Por favor, describe qué información necesitas obtener."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -48,
+        -112
+      ],
+      "id": "a30f34a1-06f8-44e2-ae9a-7d465a8fa21a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -192,
+        96
+      ],
+      "id": "be0957a9-98b5-4a67-b7ea-9ce2812b4f2e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.userId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -48,
+        96
+      ],
+      "id": "8c875e16-4821-4fb2-97df-9c4cd128681b",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "sqlQuery": "{{ $fromAI('query') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQueryTool",
+      "typeVersion": 2.1,
+      "position": [
+        304,
+        80
+      ],
+      "id": "1262c5fd-04b7-4d5e-82d0-02c835f092ff",
+      "name": "EjecutarConsulta",
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "sqlQuery": "SELECT \n  table_name,\n  column_name,\n  data_type,\n  is_nullable,\n  CAST(NULL AS STRING) AS column_default, -- BigQuery no expone defaults en INFORMATION_SCHEMA\n  CAST(NULL AS INT64) AS character_maximum_length, -- No disponible directamente\n  CAST(NULL AS INT64) AS numeric_precision, -- No disponible directamente\n  CAST(NULL AS INT64) AS numeric_scale -- No disponible directamente\nFROM \n  `neto-cloud.agente_vokse.INFORMATION_SCHEMA.COLUMNS`\nWHERE \n  table_name LIKE 'TA%'\nORDER BY \n  table_name, \n  ordinal_position;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQueryTool",
+      "typeVersion": 2.1,
+      "position": [
+        464,
+        80
+      ],
+      "id": "c7bada37-cbb3-4585-a957-4cbeb803ef6c",
+      "name": "ObtenerEsquema",
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "consulta": "Podrías indicarme que zonas hay en la base de datos?",
+          "userId": "U091B7WDXJ4"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EjecutarConsulta": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ObtenerEsquema": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1dc9b1cd-2c44-4dce-9b10-8c9d295dd7c1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "usCf2BAM2Io9EnJU",
+  "tags": []
+}
