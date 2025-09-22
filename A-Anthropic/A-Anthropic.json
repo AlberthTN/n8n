@@ -1,0 +1,1050 @@
+{
+  "name": "A-Anthropic",
+  "nodes": [
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.files[0].mimetype }}",
+                    "rightValue": "audio/mp4",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "16fa1d83-9a8f-433d-b6ac-1850e61ef1e5"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9b21d775-5854-4440-a627-51774c5afa42",
+                    "leftValue": "={{ $json.blocks[0].elements[0].elements[1].type }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "57075f88-6db1-49c3-92ca-724e114281db",
+                    "leftValue": "={{ $json.files[0].mimetype }}",
+                    "rightValue": "video/mp4",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "video"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b5933fa2-328f-4b32-b0dd-354d73c616c4",
+                    "leftValue": "={{ $json.files[0].mimetype }}",
+                    "rightValue": "image/",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "imagen"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a720a28c-bb73-4d67-bffd-7f039f197cfc",
+                    "leftValue": "={{ $json.subtype }}",
+                    "rightValue": "file_share",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "archivo"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -2576,
+        0
+      ],
+      "id": "ba457fdd-5a9a-4f0e-b370-ac7ea5a30ae1",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}{{ $json.files[0].mimetype }}{{ $json.files[0].url_private }}\n\n# Comportamiento  \nRespondes en lenguaje natural, con un tono amable, profesional y directo, pero con un toque de humor.  \nEres claro, eficiente y vas al grano. Si falta contexto, lo pides sin rodeos pero con estilo. Eres un Agente Mexicano, asi que responde con ese acento, pero formal y no digas grocerias.\n\npara enfatizar solo usa un * en lugar de **, ejemolo:\n**Prepárate** usa mejor *Prepárate*\n\nNo conteste de esta forma los titulos:\n### Ejemplo de carta de renuncia formal usa mejor >*Ejemplo de carta de renuncia formal.*\n\nSiempre que sugieras ejemplo de documentos constesta dentro de un cuadro listo para copiar y pegar.\n\npara dar un mejor formato considera lo siguiente:\nColoca asteriscos al comienzo y al final del texto: \n*tu texto*\nColoca guiones bajos al comienzo y al final del texto:\n_tu texto_\nColoca virgulillas al comienzo y al final del texto:\n~tu texto~\nColoca acentos graves al comienzo y al final del texto:\n`tu texto`\nAgrega una cuña delante del texto:\n>tu texto\nAgrega tres acentos graves delante del texto:\n```tu texto\nAgrega el número uno y, luego, pulsa  delante del texto:\n1. tu texto\nAgrega un asterisco y, luego, pulsa espacio  delante del texto:\n* tu texto\n\nPara aplicar sangría a una línea, pulsa tab\n-Cuando te envien un documento, necesito que guardes la informacion en memoria por que despues te atacare con preguntas del mismo docuemento hasta que te indique que termine.\n\n-Cuando recibas cualquier peticion de Desarrollo, codigo, funciones, clases etc. Utiliza la herramienta `Desarrollo`\n\n-Siempre que respondas ejecuta la herramienta `Logs`\n-Si el resultado es muy grande no mandes error ni truenes divide la respuesta en los mensajes que sean necesarios para mostrar la información.\n-No uses **Texto** usa siempre *Texto*",
+        "options": {
+          "systemMessage": "=Rol\nEres un agente de IA multifuncional integrado en n8n, especializado en:\n✅ Análisis de imágenes/documentos\n✅ Generación de imágenes\n✅ Cálculos matemáticos\n✅ Revisión lógica y verificación de datos\n\nRegistro obligatorio: Todas las interacciones deben quedar registradas en el sistema.\n\nFecha y hora actual\n{{ $now }} (actualizado automáticamente)\n\nEstilo de respuesta\nLenguaje: Natural, claro y conciso.\n\nTono: Profesional pero cercano. Humor/sarcasmo opcionales (solo si aportan valor).\n\nPrioridad: Precisión > Velocidad. Verifica siempre antes de responder.\n\nHerramientas y reglas de uso\n🔹 Usa SIEMPRE la herramienta adecuada según el tipo de archivo o solicitud:\n\nHerramienta\tUso\tParámetros obligatorios\n##Calculadora\tCálculos matemáticos, estadísticas o conversiones.\t{{ $json.text }} (ej: \"5+3*2\")\n##WEB\tBusquedas en Internet (ej: \"¿Quien es Leonel Messi?\")\n##Think\tValidar lógica de respuestas (antes de enviar).\t{{ $json.text }} (pregunta a verificar)\n##AnalisisImagen\tAnalizar imágenes (descripción, detección de objetos, etc.).\t{{ $json.files[0].url_private }}\n##GenerarImagen\tCrear imágenes desde texto.\t{{ $json.channel }} + {{ $json.text }}\n##AnalisisDocumentos\tProcesar PDFs, Word, Excel (extraer texto, tablas, etc.) la herramienta te regresa un json guarda la informacion que viene en texto en memoria y si preguntan algo del archivo toma la informacion de ahi.\t{{ $json.files[0].url_private }}\n##Logs Esta herramienta se usa siempre al contestar para llevar el control de las solicitudes.\nReglas críticas:\nSi el usuario envía un archivo:\n\n📄 PDF/Word/Excel → ##AnalisisDocumentos\n\n🖼️ Imagen (JPG/PNG) → ##AnalisisImagen\n\nSi piden generar una imagen: → ##GenerarImagen + prompt en {{ $json.text }}.\n\nAntes de responder: Usa ##Think para validar coherencia (ej: cálculos complejos).\n\nEjemplos de uso correcto\nUsuario sube un PDF:\n\ntext\nAcción: ##AnalisisDocumentos  \nInput: {{ $json.files[0].url_private }}\nPiden calcular \"√25+2\":\n\ntext\nAcción: ##Calculadora  \nInput: {{ \"sqrt(25)+2\" }}  \nSolicitan una imagen de un bosque:\n\ntext\nAcción: ##GenerarImagen  \nInput: Canal: {{ $json.channel }}, Prompt: \"Bosque al atardecer, estilo realista\"  \nCorrecciones aplicadas\n🛠️ Estructura clara: Separado en secciones lógicas.\n\n🎯 Instrucciones específicas: Elimina ambigüedades en el uso de herramientas.\n\n🔄 Variables compatibles: Usa { } correctamente para n8n.\n\n⚠️ Validación explícita: Añadida regla de verificación con ##Think."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -1248,
+        48
+      ],
+      "id": "df4a3bf6-676f-4580-aac6-8b6e8dd5a1ee",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "description": "Asegurate que el agente principal use las herramientas correctas:\nEjemplo si recibes un PDF o un Archivo de texto envialo con AnalisisDocumentos"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        -1456,
+        272
+      ],
+      "id": "e662b2c9-72e8-47fa-8267-0311a8b06de6",
+      "name": "Think"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        -1344,
+        272
+      ],
+      "id": "c707a0c7-cab1-4220-b593-0af391dba2e4",
+      "name": "Calculadora"
+    },
+    {
+      "parameters": {
+        "description": "utiliza esta herramienta si recibes una imagen",
+        "workflowId": {
+          "__rl": true,
+          "value": "xnI7DWxVMp1drT58",
+          "mode": "list",
+          "cachedResultName": "AnalisisImagenAnthropic"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('url', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "url"
+          ],
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -1216,
+        272
+      ],
+      "id": "f6e11c59-16cf-4146-ba1a-95d816527b15",
+      "name": "AnalisisImagen"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "gnf8GAq0Qu0cHtmi",
+          "mode": "list",
+          "cachedResultName": "GenerarImagenAnthropic"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $('Slack Trigger').item.json.blocks[0].elements[0].elements[1].text }}",
+            "ChanelID": "={{ $('Slack Trigger').item.json.user }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "ChanelID",
+              "displayName": "ChanelID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -1104,
+        272
+      ],
+      "id": "f2a6fad6-1481-4241-8cad-9986470b7d93",
+      "name": "GenerarImagen"
+    },
+    {
+      "parameters": {
+        "description": "Usala cuando recibas enlaces de documentos PDF, xls, word, pokerpoint, etc.",
+        "workflowId": {
+          "__rl": true,
+          "value": "SYcmKD7HOPbS73gV",
+          "mode": "list",
+          "cachedResultName": "AnalisisDocumentosAnthropic"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('url', ``, 'string') }}",
+            "UserID": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('UserID', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "UserID",
+              "displayName": "UserID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -976,
+        272
+      ],
+      "id": "c184dfd4-dc94-4550-91c7-b99d6d538975",
+      "name": "AnalisisDocumentos"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "W1Axa8OzQDBhEgMx",
+          "mode": "list",
+          "cachedResultName": "LogsAnthropic"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
+            "usuarioId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('usuarioId', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "usuarioId",
+              "displayName": "usuarioId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -864,
+        272
+      ],
+      "id": "bca912a6-2c67-4b99-84d5-f72d1919f0b8",
+      "name": "Logs"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ec069102-81cf-4668-ac7c-89f4dc2e2682",
+              "name": "text",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1920,
+        -48
+      ],
+      "id": "394fcc5d-207e-4cc0-be94-248365e51f1e",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.files[0].url_private }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2368,
+        -48
+      ],
+      "id": "04823484-be31-456e-b196-8d902471703f",
+      "name": "HTTP Request5",
+      "credentials": {
+        "slackApi": {
+          "id": "WPl1Iv7WmYbtplFW",
+          "name": "Slack #A-GPT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -2144,
+        -48
+      ],
+      "id": "502c9ac6-e173-45b3-b9ea-dcfd7e184907",
+      "name": "Transcribe a recording1",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.user }}",
+        "tableName": "n8n_chat_histories_antrhropic"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -1584,
+        272
+      ],
+      "id": "4ddae73e-833b-491f-8c17-a3b0835260b9",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "B1lVzRYnGkK7saFa",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta cuando no tengas información.",
+        "workflowId": {
+          "__rl": true,
+          "value": "Gjs6WtWTt0BPNudW",
+          "mode": "list",
+          "cachedResultName": "WEBAnthropic"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -736,
+        272
+      ],
+      "id": "e3023fc4-8e10-4d9d-97f1-45a7239e564e",
+      "name": "WEB"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0b3e6f04-8dd3-4283-89eb-2b0ecbd94883",
+              "leftValue": "={{ $json.blocks?.[0]?.elements?.[0]?.elements?.[1]?.type || '' }}\n",
+              "rightValue": "audio",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -416,
+        48
+      ],
+      "id": "d6fe97fc-5cc2-40a4-bbea-e39475b6c54b",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "input": "={{ $json.output }}",
+        "voice": "onyx",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -208,
+        -64
+      ],
+      "id": "97e8deb7-7d8a-45f0-943d-f9b475a916fb",
+      "name": "Generate audio",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "options": {
+          "channelId": "={{ $('Slack Trigger1').item.json.channel }}",
+          "fileName": "=audio{{$now.format('yyyy-MM-dd')}}.mp3"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        32,
+        -64
+      ],
+      "id": "a1f14869-814b-4174-b383-e9f308f8ca0f",
+      "name": "Upload a file",
+      "webhookId": "f39a8908-c1d7-4757-9336-c42d7f5dfdf5",
+      "credentials": {
+        "slackApi": {
+          "id": "n7wD8vDIIrYxWjM9",
+          "name": "Slack account #A-Anthropic"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "={{ $('Switch').item.json.user }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.output }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -208,
+        144
+      ],
+      "id": "f2bc2561-deee-47e6-95b8-eb92090b267e",
+      "name": "Send a message",
+      "webhookId": "ff8a4dfe-78ea-4e90-8843-cf6c8ed5e788",
+      "credentials": {
+        "slackApi": {
+          "id": "n7wD8vDIIrYxWjM9",
+          "name": "Slack account #A-Anthropic"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        32,
+        144
+      ],
+      "id": "d4bcfc97-b324-496c-b876-e12ef1713cf4",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        240,
+        -64
+      ],
+      "id": "fae17be0-e1f3-4a3b-a90d-724bdd42c3ee",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta cuando ocupes cualquier tema de desarrollo.",
+        "workflowId": {
+          "__rl": true,
+          "value": "CbIltd1ojPrOWZAr",
+          "mode": "list",
+          "cachedResultName": "DesarrolloAnthropic"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
+            "userId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('userId', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -624,
+        272
+      ],
+      "id": "163f02a6-24d7-4e68-b17a-b59776c73314",
+      "name": "Desarrollo"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -1728,
+        272
+      ],
+      "id": "02543654-69b2-4103-926f-0d618655a3f0",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "kUo1SOAWh5QhxVKs",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "watchWorkspace": true,
+        "options": {
+          "resolveIds": true,
+          "userIds": [
+            "U092PV9H89Z",
+            "U096A428R1P",
+            "U094J0YT023",
+            "U093J104TA4",
+            "U093XJ4EY5A",
+            "U0950KQEB7H",
+            "U0968SYAHKP",
+            "U09368HTC5T"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2784,
+        48
+      ],
+      "id": "55953347-ff28-4791-b53a-2f5d188dd9f5",
+      "name": "Slack Trigger",
+      "webhookId": "e7a4c7ad-c293-481a-a6c1-afd46893f7c9",
+      "credentials": {
+        "slackApi": {
+          "id": "n7wD8vDIIrYxWjM9",
+          "name": "Slack account #A-Anthropic"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Slack Trigger": [
+      {
+        "json": {
+          "user": "U091B7WDXJ4",
+          "type": "message",
+          "ts": "1752781821.479979",
+          "client_msg_id": "e721a8d5-0c06-4f39-b960-5a17c33b2e72",
+          "text": "<@U0968SYAHKP> Por favor genérame una imagen de un rinoceronte vestido estilo buchon",
+          "team": "T9XJE11PE",
+          "blocks": [
+            {
+              "type": "rich_text",
+              "block_id": "EY8aq",
+              "elements": [
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "user",
+                      "user_id": "U0968SYAHKP"
+                    },
+                    {
+                      "type": "text",
+                      "text": " Por favor genérame una imagen de un rinoceronte vestido estilo buchon"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "channel": "C095WAC1087",
+          "event_ts": "1752781821.479979",
+          "channel_type": "channel",
+          "user_resolved": "juan.garciag",
+          "channel_resolved": "a-anthropic"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculadora": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AnalisisImagen": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GenerarImagen": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AnalisisDocumentos": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Logs": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WEB": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Generate audio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate audio": {
+      "main": [
+        [
+          {
+            "node": "Upload a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload a file": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Desarrollo": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "576b1b02-792e-493c-8052-37118d4b31f0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "Wu8elXzAD85yBOhN",
+  "tags": []
+}

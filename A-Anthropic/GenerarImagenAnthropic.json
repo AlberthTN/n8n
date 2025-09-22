@@ -1,0 +1,177 @@
+{
+  "name": "GenerarImagenAnthropic",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            },
+            {
+              "name": "ChanelID"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        -16
+      ],
+      "id": "997c9377-b865-41af-999c-16ed9f5d81e3",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "={{ $json.query }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -16,
+        -16
+      ],
+      "id": "7166c809-11cc-4334-9d46-47df055325a5",
+      "name": "Generate an image",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "options": {
+          "channelId": "C095WAC1087",
+          "fileName": "img.png",
+          "title": "=img-{{ $now.format('yyyy-MM-dd HH:mm')}}"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        -16
+      ],
+      "id": "df87582b-0792-4826-a344-794a52da5a94",
+      "name": "Upload a file",
+      "webhookId": "482b13c6-4c2f-410a-86a8-3f56277b98ac",
+      "credentials": {
+        "slackApi": {
+          "id": "n7wD8vDIIrYxWjM9",
+          "name": "Slack account #A-Anthropic"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -16
+      ],
+      "id": "2187126f-8c8d-4efa-b669-06d95cda0988",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "={{ $('When Executed by Another Workflow').item.json.ChanelID }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.permalink }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        432,
+        -16
+      ],
+      "id": "ad893244-61df-466c-824a-013dea92b9b1",
+      "name": "Send a message",
+      "webhookId": "c16739f2-7e4f-4e92-8c51-fa8ae06618bf",
+      "credentials": {
+        "slackApi": {
+          "id": "n7wD8vDIIrYxWjM9",
+          "name": "Slack account #A-Anthropic"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "query": " Por favor genérame una imagen de un rinoceronte vestido estilo buchon",
+          "ChanelID": "U091B7WDXJ4"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Generate an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image": {
+      "main": [
+        [
+          {
+            "node": "Upload a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload a file": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "43868a1a-3a3f-4e1f-b121-bfc5fce97d2d",
+  "meta": {
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "gnf8GAq0Qu0cHtmi",
+  "tags": []
+}
