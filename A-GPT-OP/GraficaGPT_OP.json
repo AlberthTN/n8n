@@ -1,0 +1,469 @@
+{
+  "name": "GraficaGPT_OP",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Type"
+            },
+            {
+              "name": "Label"
+            },
+            {
+              "name": "Data"
+            },
+            {
+              "name": "Channel"
+            },
+            {
+              "name": "thread_ts"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -384,
+        320
+      ],
+      "id": "6cfbb8d3-72f0-4628-820c-1d83b3674ade",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "function processAIData() {\n  const rawLabels = $input.first().json.Label;\n  const rawData = $input.first().json.Data;\n\n  // Para labels (texto)\n  const processStringArray = (str) => {\n    if (!str || typeof str !== 'string') return [];\n    return str.split(',')\n      .map(item => item.trim())\n      .filter(item => item !== '');\n  };\n\n  // Para data (números)\n  const processNumberArray = (str) => {\n    if (!str || typeof str !== 'string') return [];\n    return str.split(',')\n      .map(item => item.trim())\n      .filter(item => item !== '')\n      .map(item => Number(item))\n      .filter(num => !isNaN(num)); // Filtra NaN por si acaso\n  };\n\n  return {\n    type: $input.first().json.Type,\n    labels: processStringArray(rawLabels),\n    data: processNumberArray(rawData),\n    userId: $input.first().json.user\n  };\n}\n\nreturn processAIData();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -304,
+        -16
+      ],
+      "id": "171b6984-0362-43d5-a0f7-3a77c1aa11e9",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "chartType": "={{ $json.type }}",
+        "labelsMode": "array",
+        "labelsArray": "={{ $json.labels }}",
+        "data": "={{ $json.data }}",
+        "chartOptions": {
+          "format": "png"
+        },
+        "datasetOptions": {
+          "label": "={{ $('When Executed by Another Workflow').item.json.Labels }}"
+        }
+      },
+      "type": "n8n-nodes-base.quickChart",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -16
+      ],
+      "id": "cd0d423b-d8a5-435a-bfa1-700956aa5129",
+      "name": "QuickChart1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        128,
+        -16
+      ],
+      "id": "7804fa42-5e73-4d1a-b66e-f4c720de1a3e",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        352,
+        -16
+      ],
+      "id": "c28ac1b6-938e-4e3b-81e7-4f8c62456c25",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "options": {
+          "channelId": "={{ $('When Executed by Another Workflow').item.json.Channel }}",
+          "fileName": "=grafica-{{ $('When Executed by Another Workflow').item.json.Type}}-{{ $now.format('yyyy-mm-dd HH:mm:ss a') }}.png",
+          "threadTs": "={{ $('When Executed by Another Workflow').item.json.thread_ts }}",
+          "title": "={{ $('When Executed by Another Workflow').item.json.Type}}-{{ $now.format('yyyy-mm-dd HH:mm:ss a') }}.png"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        560,
+        -16
+      ],
+      "id": "3ff9aa48-2d0b-416d-957f-f610a3fb13b7",
+      "name": "Upload a file",
+      "webhookId": "6157d4ee-8173-43ea-8d46-0d506ff2f845",
+      "alwaysOutputData": true,
+      "credentials": {
+        "slackApi": {
+          "id": "0gIpN1ByfQqRZC5m",
+          "name": "Slack account #A-GPT_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('When Executed by Another Workflow').item.json.Channel }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.permalink }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        816,
+        -16
+      ],
+      "id": "3c514faf-94a8-406c-9ff8-4d9104c4f0b4",
+      "name": "Send a message",
+      "webhookId": "799b0c51-3e2e-49bc-a41b-a2df0eb0d63a",
+      "credentials": {
+        "slackApi": {
+          "id": "0gIpN1ByfQqRZC5m",
+          "name": "Slack account #A-GPT_OP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.Type }}{{ $json.Label }}{{ $json.Data }}{{ $json?.Nombre || '' }}",
+        "options": {
+          "systemMessage": "=Eres un experto en generar gráficas, recibes los datos de la grafica analizas interpretas y con código JavaScript generas graficas en formato .png y la envías como salida.\nSolo mandas de salida el código JavaScript en una sola línea sin agregar nada mas.\n\n##Usa esta estructura de ejemplo: \nconst canvas = document.createElement('canvas'); canvas.width = 800; canvas.height = 600; const ctx = canvas.getContext('2d'); ctx.fillStyle = '#f8f9fa'; ctx.fillRect(0, 0, 800, 600); const data = [2174377767, 2094229325, 2546481043, 2706659922, 2459272581, 2428287225, 2333787145, 549099611]; const labels = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto']; const maxValue = Math.max(...data); const chartWidth = 600; const chartHeight = 400; const chartX = 100; const chartY = 50; const barWidth = chartWidth / data.length * 0.8; const barSpacing = chartWidth / data.length * 0.2; ctx.fillStyle = '#333'; ctx.font = '20px Arial'; ctx.textAlign = 'center'; ctx.fillText('Ventas totales por mes 2025', 400, 30); ctx.strokeStyle = '#ddd'; ctx.lineWidth = 1; for(let i = 0; i <= 5; i++) { const y = chartY + chartHeight - (i * chartHeight / 5); ctx.beginPath(); ctx.moveTo(chartX, y); ctx.lineTo(chartX + chartWidth, y); ctx.stroke(); ctx.fillStyle = '#666'; ctx.font = '12px Arial'; ctx.textAlign = 'right'; ctx.fillText((maxValue * i / 5 / 1000000).toFixed(0) + 'M', chartX - 10, y + 4); } ctx.strokeStyle = '#333'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(chartX, chartY); ctx.lineTo(chartX, chartY + chartHeight); ctx.lineTo(chartX + chartWidth, chartY + chartHeight); ctx.stroke(); data.forEach((value, index) => { const barHeight = (value / maxValue) * chartHeight; const x = chartX + (index * chartWidth / data.length) + (barSpacing / 2); const y = chartY + chartHeight - barHeight; ctx.fillStyle = `hsl(${200 + index * 20}, 70%, 50%)`; ctx.fillRect(x, y, barWidth, barHeight); ctx.fillStyle = '#333'; ctx.font = '10px Arial'; ctx.textAlign = 'center'; ctx.save(); ctx.translate(x + barWidth/2, chartY + chartHeight + 15); ctx.rotate(-Math.PI/4); ctx.fillText(labels[index], 0, 0); ctx.restore(); ctx.fillStyle = '#000'; ctx.font = '10px Arial'; ctx.textAlign = 'center'; ctx.fillText((value/1000000).toFixed(0) + 'M', x + barWidth/2, y - 5); }); const link = document.createElement('a'); link.download = 'ventas_mensuales_2025.png'; link.href = canvas.toDataURL(); link.click();\n\n-Pon el labels en negitas , tambien el titulo y el o los data"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -48,
+        320
+      ],
+      "id": "2c975cce-e484-4fdc-9943-7519fb4fd2e5",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -176,
+        528
+      ],
+      "id": "09bacbff-599f-4627-80dd-f2bb1502176d",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "kUo1SOAWh5QhxVKs",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d2eea7cb-e2ec-449f-bcac-812a2dec13d9",
+              "name": "output",
+              "value": "={{ $json.output.split('\\n')[1].split('```')[0] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        304,
+        320
+      ],
+      "id": "a881158a-ab61-49f9-b1df-75da0705ed81",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tnrender.tiendasnetows.com/render",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "format",
+              "value": "png"
+            },
+            {
+              "name": "code",
+              "value": "=output\n{{ $('AI Agent').item.json.output }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "salida.png"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        512,
+        320
+      ],
+      "id": "e3945cf2-1239-4bea-aa4b-7eb342e6598a",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "binaryPropertyName": "salida.png",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        864,
+        320
+      ],
+      "id": "c74b8740-ce93-4fc9-a1f4-3d9aaabbb780",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1152,
+        320
+      ],
+      "id": "b8378237-a46f-4661-8153-69c22edf669f",
+      "name": "Convert to File1"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "options": {
+          "channelId": "={{ $('When Executed by Another Workflow').item.json.Channel }}",
+          "fileName": "=grafica-{{ $('When Executed by Another Workflow').item.json.Type}}-{{ $now.format('yyyy-mm-dd HH:mm:ss a') }}.png",
+          "title": "={{ $('When Executed by Another Workflow').item.json.Type}}-{{ $now.format('yyyy-mm-dd HH:mm:ss a') }}.png"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1408,
+        320
+      ],
+      "id": "0d52558e-e3ac-4669-a150-3b12b7794f86",
+      "name": "Upload a file1",
+      "webhookId": "6157d4ee-8173-43ea-8d46-0d506ff2f845",
+      "alwaysOutputData": true,
+      "credentials": {
+        "slackApi": {
+          "id": "0gIpN1ByfQqRZC5m",
+          "name": "Slack account #A-GPT_OP"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "Type": "bar",
+          "Label": "Ventas mensuales de insumos",
+          "Data": "Enero:5,Febrero:15,Marzo:10,Abril:20,Mayo:12,Junio:18",
+          "Channel": "D09738VM5L7"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "QuickChart1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "QuickChart1": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Upload a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload a file": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File1": {
+      "main": [
+        [
+          {
+            "node": "Upload a file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "81c62732-8ff7-4025-bbd8-c7ce9b84225b",
+  "meta": {
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "MNn5ih7evNwiPn2j",
+  "tags": []
+}
