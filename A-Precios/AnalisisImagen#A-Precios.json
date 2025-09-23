@@ -10,6 +10,9 @@
             },
             {
               "name": "userId"
+            },
+            {
+              "name": "tienda"
             }
           ]
         }
@@ -65,7 +68,7 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        864,
+        1696,
         -112
       ],
       "id": "218322ff-0234-4bfc-928d-b280d9895184",
@@ -88,7 +91,7 @@
           "mode": "list",
           "cachedResultName": "models/gemini-2.5-pro"
         },
-        "text": "=\"Analiza la imagen de un estante de un supermercado.\nTu tarea es:\n\nIdentificar los productos visibles en el estante (nombre del producto o marca cuando sea legible).\n\nClasificarlos por categorías (ej. analgésicos, antiácidos, electrolitos, alcohol, algodón, enjuague bucal, etc.).\n\nExtraer los precios asociados a cada producto y relacionarlos correctamente.\n\nRecorrer estante por estante producto por producto y no omitir ninguno.\n\nSeñalar si hay productos repetidos o en diferentes presentaciones (ej. diferentes sabores, tamaños o versiones del mismo medicamento).\n\nDetectar espacios vacíos en el estante que indiquen productos agotados.\n\nOrganizar el resultado en formato JSON con la siguiente estructura:\n\n{\n  \"categoria\": \"Nombre de la categoría\",\n  \"productos\": [\n    {\n      \"nombre\": \"Nombre del producto\",\n      \"precio\": \"Precio identificado\",\n      \"presentacion\": \"si aplica\",\n      \"observaciones\": \"ej. espacio vacío, varias versiones, etc.\"\n    }\n  ]\n}\n\n\nEnfócate en que el análisis sea claro, organizado y útil para un inventario.\"",
+        "text": "=\"Analiza la imagen de un estante de un supermercado.\nTu tarea es:\n\nIdentificar los productos visibles en el estante (nombre del producto o marca cuando sea legible).\n\nClasificarlos por categorías (ej. analgésicos, antiácidos, electrolitos, alcohol, algodón, enjuague bucal, etc.).\n\nExtraer los precios asociados a cada producto y relacionarlos correctamente.\n\nRecorrer estante por estante producto por producto y no omitir ninguno.\n\nSeñalar si hay productos repetidos o en diferentes presentaciones (ej. diferentes sabores, tamaños o versiones del mismo medicamento).\n\nDetectar espacios vacíos en el estante que indiquen productos agotados.\n\nOrganizar el resultado en formato JSON con la siguiente estructura:\n\n{\n  \"categoria\": \"Nombre de la categoría\",\n  \"productos\": [\n    {\n      \"nombre\": \"Nombre del producto\",\n      \"precio\": \"Precio identificado\",\n      \"presentacion\": \"si aplica\",\n      \"observaciones\": \"ej. espacio vacío, varias versiones, etc.\"\n    }\n  ]\n}\n\n\nEnfócate en que el análisis sea claro, organizado y útil para un inventario.\"\n\nSolo retorna el JSON puto no regreses nada mas y mucho menos saltos de linea.\n\nnunca coloques ```json al inicio ni ``` al final y no uses \\n, solo pon en json puro.",
         "inputType": "binary",
         "options": {}
       },
@@ -114,7 +117,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        432,
+        1216,
         -112
       ],
       "id": "61dacdf5-1a6d-43ef-9640-b3775554536e",
@@ -137,7 +140,7 @@
       "type": "n8n-nodes-base.googleBigQuery",
       "typeVersion": 2.1,
       "position": [
-        640,
+        1536,
         -112
       ],
       "id": "6f4a31e2-2999-4583-aa65-aa904cf2086b",
@@ -149,18 +152,121 @@
         }
       },
       "disabled": true
-    }
-  ],
-  "pinData": {
-    "When Executed by Another Workflow": [
-      {
-        "json": {
-          "url": "https://files.slack.com/files-pri/T9XJE11PE-F09GR1FNN0N/img_6575.jpg",
-          "userId": "U091B7WDXJ4"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Importar crypto\nconst crypto = require('crypto');\n\n// 1. Obtenemos el texto JSON que viene dentro de content.parts[0].text\nconst rawText = items[0].json.content.parts[0].text;\n\n// 2. Parseamos el string a objeto\nconst data = JSON.parse(rawText);\n\n// 3. Preparamos la salida \"aplanada\"\nconst salida = [];\n\nfor (const seccion of data) { // La data ya viene como array de secciones\n  if (!seccion.productos) continue; // Saltar secciones sin productos\n  for (const producto of seccion.productos) {\n    salida.push({\n      json: {\n        categoria: seccion.categoria,\n        nombre: producto.nombre,\n        precio: producto.precio === \"No visible\" ? null : producto.precio, // manejar precios no visibles\n        presentacion: producto.presentacion,\n        observaciones: producto.observaciones,\n        tienda: $('When Executed by Another Workflow').first().json.tienda,\n        userid: $('When Executed by Another Workflow').first().json.userId,\n        imagenAnalizada: $('When Executed by Another Workflow').first().json.url,\n        id_producto: crypto.randomUUID() // UUID único para cada producto\n      }\n    });\n  }\n}\n\nreturn salida;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        -112
+      ],
+      "id": "ee9d1e4f-6650-4991-8202-f91112d63e11",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "insert",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "datasetId": {
+          "__rl": true,
+          "value": "agente_precios",
+          "mode": "list",
+          "cachedResultName": "agente_precios"
+        },
+        "tableId": {
+          "__rl": true,
+          "value": "productos_precios",
+          "mode": "list",
+          "cachedResultName": "productos_precios"
+        },
+        "dataMode": "define",
+        "fieldsUi": {
+          "values": [
+            {
+              "fieldId": "id_producto",
+              "fieldValue": "={{ $json.id_producto }}"
+            },
+            {
+              "fieldId": "categoria",
+              "fieldValue": "={{ $json.categoria }}"
+            },
+            {
+              "fieldId": "nombre",
+              "fieldValue": "={{ $json.nombre }}"
+            },
+            {
+              "fieldId": "presentacion",
+              "fieldValue": "={{ $json.presentacion }}"
+            },
+            {
+              "fieldId": "precio_observado",
+              "fieldValue": "={{ $json.precio }}"
+            },
+            {
+              "fieldId": "tienda",
+              "fieldValue": "={{ $json.tienda }}"
+            },
+            {
+              "fieldId": "usuario",
+              "fieldValue": "={{ $json.userid }}"
+            },
+            {
+              "fieldId": "urlFoto",
+              "fieldValue": "={{ $json.imagenAnalizada }}"
+            },
+            {
+              "fieldId": "estatus",
+              "fieldValue": "pendiente"
+            },
+            {
+              "fieldId": "fecha_reporte",
+              "fieldValue": "={{ $now }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 2.1,
+      "position": [
+        640,
+        -112
+      ],
+      "id": "b5e6f1e2-3426-460a-a402-5ee598935808",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
         }
       }
-    ]
-  },
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        848,
+        -112
+      ],
+      "id": "ad1f2788-d4e4-4c30-afa3-0d4025c03634",
+      "name": "Wait",
+      "webhookId": "7360f138-9306-47d2-a29b-1dcb3640f0b5"
+    }
+  ],
+  "pinData": {},
   "connections": {
     "When Executed by Another Workflow": {
       "main": [
@@ -188,7 +294,7 @@
       "main": [
         [
           {
-            "node": "Code in JavaScript",
+            "node": "Code in JavaScript1",
             "type": "main",
             "index": 0
           }
@@ -216,13 +322,46 @@
           }
         ]
       ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "f73e8f0e-c526-45bf-ad60-bb1d520e3497",
+  "versionId": "92f2c66a-d134-4bd4-a4b1-ac4e15520114",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
