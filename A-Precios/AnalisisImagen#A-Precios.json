@@ -40,8 +40,8 @@
       "name": "Download Image",
       "credentials": {
         "slackApi": {
-          "id": "KeRz8uv4jvr2vGMf",
-          "name": "Slack#A-Imagen"
+          "id": "VMKl7PQWY7SJPP58",
+          "name": "Slack account #A-Precios"
         }
       }
     },
@@ -118,7 +118,8 @@
         -112
       ],
       "id": "61dacdf5-1a6d-43ef-9640-b3775554536e",
-      "name": "Code in JavaScript"
+      "name": "Code in JavaScript",
+      "disabled": true
     },
     {
       "parameters": {
@@ -146,14 +147,15 @@
           "id": "BrAyOfCNy2JTszLb",
           "name": "Google Service Account account"
         }
-      }
+      },
+      "disabled": true
     }
   ],
   "pinData": {
     "When Executed by Another Workflow": [
       {
         "json": {
-          "url": "https://files.slack.com/files-pri/T9XJE11PE-F09FVMQS7M2/img_6575.jpg",
+          "url": "https://files.slack.com/files-pri/T9XJE11PE-F09GR1FNN0N/img_6575.jpg",
           "userId": "U091B7WDXJ4"
         }
       }
@@ -220,7 +222,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "36fcc37a-06e5-4c5f-99d6-26a6c4671a49",
+  "versionId": "f73e8f0e-c526-45bf-ad60-bb1d520e3497",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"

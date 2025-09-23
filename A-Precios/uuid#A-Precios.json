@@ -1,0 +1,55 @@
+{
+  "name": "uuid#A-Precios",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "872b692e-b08f-46bb-aa2c-3a03db412f34",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "function generarUUID() {\n  const timestamp = Date.now(); // milisegundos desde 1970\n  const random = Math.floor(Math.random() * 1e9); // número aleatorio grande\n  return `${timestamp}-${random}`;\n}\n\n// Retornar en formato válido para n8n\nreturn [\n  {\n    json: {\n      uuid: generarUUID(),\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "6eb7a801-f2da-4221-9479-a1503d88649a",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d999ee95-814f-41b1-aa83-f34f1de459d0",
+  "meta": {
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "D5LxxphpWPFdg6dg",
+  "tags": []
+}
