@@ -1,0 +1,164 @@
+{
+  "name": "EnviarMensajesGeneralesCompleto",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c79d7ba8-422c-41be-9109-2be4ee273c76",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Construimos el mensaje destacando las capacidades de ChatGPT\nconst mensajeChatGPT = `\nHola 👋,\n\nTe presento a ChatGPT, tu asistente de inteligencia artificial que puede ayudarte con múltiples tareas:\n\n- ✉️ **Redacción de correos**: Genera correos profesionales, persuasivos y claros en segundos.\n- 🖼️ **Análisis de imágenes**: Comprende el contenido de imágenes y ofrece resúmenes precisos.\n- 🎨 **Creación de imágenes**: Genera ilustraciones, diagramas o arte a partir de descripciones textuales.\n- 🌐 **Investigación en internet**: Busca información actualizada y confiable sobre cualquier tema, resumida y lista para usar.\n\nChatGPT está diseñado para ahorrar tiempo, aumentar tu productividad y potenciar tu creatividad. 🚀\n`;\n\n// Retornamos como un array de objetos, cada uno con la propiedad json\nreturn [\n  {\n    json: {\n      mensaje: mensajeChatGPT\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        16
+      ],
+      "id": "1524e92c-f9f3-422a-8fbd-275f598b51a9",
+      "name": "mensaje"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        400,
+        0
+      ],
+      "id": "e5002849-580b-44d0-ab8e-6a3a85bf70e2",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "={{ $('Loop Over Items').item.json.id }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.mensaje }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        912,
+        16
+      ],
+      "id": "585c76ab-ec4e-4816-8140-5d6118e41aac",
+      "name": "Send a message",
+      "webhookId": "6f36dd3c-752b-41c1-948c-7634e48b9205",
+      "credentials": {
+        "slackApi": {
+          "id": "WPl1Iv7WmYbtplFW",
+          "name": "Slack #A-GPT"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "user",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "94475e25-7bf5-44da-8589-f41e9acf002c",
+      "name": "Get many users",
+      "webhookId": "aaf4aae9-2d8a-4e85-b950-5ed3c9e2125a",
+      "credentials": {
+        "slackApi": {
+          "id": "WPl1Iv7WmYbtplFW",
+          "name": "Slack #A-GPT"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get many users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "mensaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mensaje": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many users": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f9acc0ee-253a-4485-9419-668345325a48",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "bJP4lXpFEijK9hmK",
+  "tags": []
+}
