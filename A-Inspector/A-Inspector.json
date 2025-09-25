@@ -1,0 +1,247 @@
+{
+  "name": "A-Inspector",
+  "nodes": [
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "watchWorkspace": true,
+        "options": {
+          "resolveIds": true,
+          "userIds": [
+            "U09GHGTKSL8"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        656,
+        -48
+      ],
+      "id": "3aa9d87d-0371-43b7-84c0-b3db0bc6e0fd",
+      "name": "Slack Trigger",
+      "webhookId": "7b7a1c34-2fa0-4b6e-b07f-1b0d45739f9c",
+      "credentials": {
+        "slackApi": {
+          "id": "KeRz8uv4jvr2vGMf",
+          "name": "Slack#A-Imagen"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.files[0].url_private }}\n{{ $json.text }}",
+        "options": {
+          "systemMessage": "=Prompt Ajustado\n\nRol\nEres un asistente de automatización conectado a Slack. Te comportas como un clon de ChatGPT, respondiendo normalmente a cualquier consulta en lenguaje natural.\n\nComportamiento General\n\nResponde siempre de forma clara, útil y profesional.\n\nPuedes mantener conversaciones normales, responder preguntas y ayudar como un asistente de IA general.\n\nFlujo Especial de Carga de Artículos\n\nSi recibes el mensaje \"start\", interpreta que el usuario quiere iniciar un proceso de carga de artículos.\n\nResponde solicitando el nombre de la competencia.\nUna vez que obtienes el Nombre de la competencia en el formato empresa: nombre de la empresa. Lo guardas en memoria y sigues con el flujo.\n\nEspera a que el usuario envíe una o varias imágenes o URLs de imágenes.\n\nAlmacena todas esas URLs/imágenes en memoria, pero no las proceses aún.\n\nSi el usuario envía el comando \"end\":\n\nInterpreta que el proceso ha concluido.\n\nEnvía una por una todas las URLs almacenadas a la herramienta Imagen para su análisis.\n\nDevuelve al usuario en Slack los resultados de la herramienta siguiendo el formato establecido.\n\nFormato de Respuesta para Imágenes\n\nListado de productos detectados:\n• Producto: [Nombre] — Precio: $[Precio] (o null si no está visible)\n• Producto: [Nombre] — Precio: $[Precio]\n...\n\nCalificación: [Nota]\nJustificación: [Explicación breve]\nÁreas de mejora:\n• [Punto 1]\n• [Punto 2]\n• [Punto 3]\n\nRestricciones\n\nNunca omitas productos, aunque su precio sea null.\n\nSiempre incluye las secciones de Calificación, Justificación y Áreas de mejora.\n\nDurante el flujo especial, no inventes URLs ni proceses imágenes antes del comando end.\n\nSi no se detecta un URL o imagen válida cuando se espera una, pide al usuario que proporcione una entrada válida.\n\n\n##Formato de Respuesta\n\npara enfatizar solo usa un * en lugar de **, ejemplo:\n**Prepárate** usa mejor *Prepárate*\n\nNo conteste de esta forma los títulos:\n### Ejemplo de carta de renuncia formal usa mejor >*Ejemplo de carta de renuncia formal. *\n\nSiempre que sugieras ejemplo de documentos contesta dentro de un cuadro listo para copiar y pegar.\n\npara dar un mejor formato considera lo siguiente:\nColoca asteriscos al comienzo y al final del texto: \n*tu texto*\nColoca guiones bajos al comienzo y al final del texto:\n_tu texto_\nColoca acentos graves al comienzo y al final del texto:\n`tu texto`\nAgrega una cuña delante del texto:\n>tu texto\nAgrega tres acentos graves delante del texto:\n```tu texto\nAgrega el número uno y, luego, pulsa delante del texto:\n1. tu texto\nAgrega un asterisco y, luego, pulsa espacio delante del texto:\n* tu texto\n\nPara aplicar sangría a una línea, pulsa Tab"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        -48
+      ],
+      "id": "dbe8e2b7-44ee-4dce-baad-76dcd584fdbe",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        784,
+        128
+      ],
+      "id": "b706aa6c-3ad5-44b0-8b05-02cda7f12ebf",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "fKavKBDAFMDMeKJR",
+          "name": "OpenAi Neto"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta para analizar imágenes, y retorna toda la información completa",
+        "workflowId": {
+          "__rl": true,
+          "value": "afvGWEJPx2vX1TrB",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/afvGWEJPx2vX1TrB",
+          "cachedResultName": "Imagen#A-Imagen"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ $fromAI('query') }}",
+            "userId": "={{ $('Slack Trigger').item.json.files[0].user }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1104,
+        176
+      ],
+      "id": "f6db1775-77e3-4f7a-97f4-c62a4dddf7e7",
+      "name": "Imagen"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack Trigger').item.json.channel }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.output }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1232,
+        -48
+      ],
+      "id": "80787b6e-3fd1-45d9-b6d4-495dc767f77c",
+      "name": "Send a message",
+      "webhookId": "180dbcc2-55e4-4e18-a1de-a5b15c7acb6f",
+      "credentials": {
+        "slackApi": {
+          "id": "KeRz8uv4jvr2vGMf",
+          "name": "Slack#A-Imagen"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Slack Trigger": [
+      {
+        "json": {
+          "user": "U091B7WDXJ4",
+          "type": "message",
+          "ts": "1758750258.133159",
+          "client_msg_id": "2ed0cb7f-9e9f-464c-8ceb-7d3f6f622a14",
+          "text": "hola",
+          "team": "T9XJE11PE",
+          "blocks": [
+            {
+              "type": "rich_text",
+              "block_id": "6OA3U",
+              "elements": [
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "hola"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "channel": "D09FQATP1T8",
+          "event_ts": "1758750258.133159",
+          "channel_type": "im",
+          "user_resolved": "juan.garciag"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Imagen": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e7310651-9648-4494-ac38-f0decb97fabf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "c6kUD9vhgFNBVBxf",
+  "tags": []
+}

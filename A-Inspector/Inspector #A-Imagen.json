@@ -1,5 +1,5 @@
 {
-  "name": "Imagen#A-Imagen",
+  "name": "Inspector #A-Imagen",
   "nodes": [
     {
       "parameters": {
@@ -65,7 +65,7 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        688,
+        752,
         0
       ],
       "id": "eb9c27d8-c520-439a-905a-822f8ce6277a",
@@ -157,7 +157,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "23498d47-db53-47f4-8aa8-7ce40d318c31",
+  "versionId": "fc96f23b-b64c-46b5-9db4-be4192b32f0d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
