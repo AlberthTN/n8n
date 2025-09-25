@@ -6,24 +6,46 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        0,
+        -192,
         0
       ],
       "id": "c79d7ba8-422c-41be-9109-2be4ee273c76",
-      "name": "When clicking ‘Execute workflow’"
+      "name": "EjecutarProceso"
     },
     {
       "parameters": {
-        "jsCode": "// Construimos el mensaje destacando las capacidades de ChatGPT\nconst mensajeChatGPT = `\nHola 👋,\n\nTe presento a ChatGPT, tu asistente de inteligencia artificial que puede ayudarte con múltiples tareas:\n\n- ✉️ **Redacción de correos**: Genera correos profesionales, persuasivos y claros en segundos.\n- 🖼️ **Análisis de imágenes**: Comprende el contenido de imágenes y ofrece resúmenes precisos.\n- 🎨 **Creación de imágenes**: Genera ilustraciones, diagramas o arte a partir de descripciones textuales.\n- 🌐 **Investigación en internet**: Busca información actualizada y confiable sobre cualquier tema, resumida y lista para usar.\n\nChatGPT está diseñado para ahorrar tiempo, aumentar tu productividad y potenciar tu creatividad. 🚀\n`;\n\n// Retornamos como un array de objetos, cada uno con la propiedad json\nreturn [\n  {\n    json: {\n      mensaje: mensajeChatGPT\n    }\n  }\n];\n"
+        "resource": "user",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "94475e25-7bf5-44da-8589-f41e9acf002c",
+      "name": "ObtenerUsuariosSlack",
+      "webhookId": "aaf4aae9-2d8a-4e85-b950-5ed3c9e2125a",
+      "credentials": {
+        "slackApi": {
+          "id": "WPl1Iv7WmYbtplFW",
+          "name": "Slack #A-GPT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// items = [{ json: { ...usuarioSlack } }, ...]\nconst EXCLUDE = new Set([\n  'a-chatgpt','aabogada','aanthropic','agemini','aimagen',\n  'aeva','rebeca','aprecios','aricardo','slackbot'\n]);\n\nreturn items.filter(({ json }) => {\n  const p = json.profile || {};\n  const display = (p.display_name_normalized || '').toLowerCase();\n  const real    = (p.real_name_normalized || '').toLowerCase();\n  const name    = (json.name || '').toLowerCase();\n\n  // Quitar usuarios borrados o bots reales (opcional)\n  if (json.deleted || json.is_bot === true) return false;\n\n  // Mantener solo los que NO estén en la lista de exclusión\n  return !EXCLUDE.has(display) && !EXCLUDE.has(real) && !EXCLUDE.has(name);\n});\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        704,
-        16
+        192,
+        0
       ],
-      "id": "1524e92c-f9f3-422a-8fbd-275f598b51a9",
-      "name": "mensaje"
+      "id": "bc26dea5-c391-41ba-b4c3-a75f3c3d6b00",
+      "name": "FiltrarAgentes"
     },
     {
       "parameters": {
@@ -36,14 +58,27 @@
         0
       ],
       "id": "e5002849-580b-44d0-ab8e-6a3a85bf70e2",
-      "name": "Loop Over Items"
+      "name": "Loop"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Construimos el mensaje destacando las capacidades de @A-GPT\nconst mensajeChatGPT = `\n:wave: ¡Hola! Soy @A-ChatGPT en Slack  \n\nSoy tu asistente de inteligencia artificial, diseñado para facilitar tus tareas y mejorar tu productividad en el día a día.  \n\nAquí te recuerdo cómo puedo ayudarte:  \n:white_check_mark: Redacción de correos y mensajes profesionales en segundos.  \n:white_check_mark: Resúmenes claros de documentos, minutas y reportes.  \n:white_check_mark: Generación de ideas y propuestas para presentaciones o proyectos.  \n:white_check_mark: Investigación rápida con información confiable y resumida.  \n:white_check_mark: Organización de información en listas y pasos concretos.  \n:white_check_mark: Ahorro de tiempo en tareas repetitivas, aumentando la calidad de tu trabajo.  \n\n:sparkles: Ejemplos útiles para tu día a día en Neto:  \n“@A-ChatGPT redacta un correo para solicitar una cotización a un proveedor”  \n“@A-ChatGPT resume esta reunión en 5 puntos clave”  \n“@A-ChatGPT dame ideas para mejorar la presentación de resultados”  \n\n:point_right: Ponme a prueba hoy y descubre cómo puedo hacer tu trabajo más fácil, rápido y de mayor impacto.  \n\n`;\n\n// Retornamos como un array de objetos, cada uno con la propiedad json\nreturn [\n  {\n    json: {\n      mensaje: mensajeChatGPT\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        16
+      ],
+      "id": "1524e92c-f9f3-422a-8fbd-275f598b51a9",
+      "name": "Mensaje"
     },
     {
       "parameters": {
         "select": "user",
         "user": {
           "__rl": true,
-          "value": "={{ $('Loop Over Items').item.json.id }}",
+          "value": "={{ $('Loop').item.json.id }}",
           "mode": "id"
         },
         "text": "={{ $json.mensaje }}",
@@ -58,7 +93,7 @@
         16
       ],
       "id": "585c76ab-ec4e-4816-8140-5d6118e41aac",
-      "name": "Send a message",
+      "name": "EnviarMensaje",
       "webhookId": "6f36dd3c-752b-41c1-948c-7634e48b9205",
       "credentials": {
         "slackApi": {
@@ -70,79 +105,93 @@
     },
     {
       "parameters": {
-        "resource": "user",
-        "operation": "getAll",
-        "returnAll": true
+        "amount": 2
       },
-      "type": "n8n-nodes-base.slack",
-      "typeVersion": 2.3,
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
       "position": [
-        208,
-        0
+        1120,
+        16
       ],
-      "id": "94475e25-7bf5-44da-8589-f41e9acf002c",
-      "name": "Get many users",
-      "webhookId": "aaf4aae9-2d8a-4e85-b950-5ed3c9e2125a",
-      "credentials": {
-        "slackApi": {
-          "id": "WPl1Iv7WmYbtplFW",
-          "name": "Slack #A-GPT"
-        }
-      }
+      "id": "e524d95d-aacd-4fab-8400-d0e590d9ed85",
+      "name": "Esperar",
+      "webhookId": "3411c4d6-4602-496e-9063-950be1127cd4"
     }
   ],
   "pinData": {},
   "connections": {
-    "When clicking ‘Execute workflow’": {
+    "EjecutarProceso": {
       "main": [
         [
           {
-            "node": "Get many users",
+            "node": "ObtenerUsuariosSlack",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Loop Over Items": {
+    "ObtenerUsuariosSlack": {
+      "main": [
+        [
+          {
+            "node": "FiltrarAgentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FiltrarAgentes": {
+      "main": [
+        [
+          {
+            "node": "Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop": {
       "main": [
         [],
         [
           {
-            "node": "mensaje",
+            "node": "Mensaje",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "mensaje": {
+    "Mensaje": {
       "main": [
         [
           {
-            "node": "Send a message",
+            "node": "EnviarMensaje",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Send a message": {
+    "EnviarMensaje": {
       "main": [
         [
           {
-            "node": "Loop Over Items",
+            "node": "Esperar",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Get many users": {
+    "Esperar": {
       "main": [
         [
           {
-            "node": "Loop Over Items",
+            "node": "Loop",
             "type": "main",
             "index": 0
           }
@@ -154,7 +203,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "f9acc0ee-253a-4485-9419-668345325a48",
+  "versionId": "66db5e9c-149e-4b79-8ec6-0f5be2c668ba",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"

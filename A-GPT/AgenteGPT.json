@@ -114,7 +114,7 @@
                 "conditions": [
                   {
                     "id": "a720a28c-bb73-4d67-bffd-7f039f197cfc",
-                    "leftValue": "={{ $json.subtype }}",
+                    "leftValue": "={{ $('Slack Trigger1').item.json.subtype }}",
                     "rightValue": "file_share",
                     "operator": {
                       "type": "string",
@@ -1030,7 +1030,15 @@
         "options": {
           "resolveIds": true,
           "userIds": [
-            "U093XJ4EY5A"
+            "U093XJ4EY5A",
+            "U099C6HKQJY",
+            "U0968SYAHKP",
+            "U0950KQEB7H",
+            "U09GHGTKSL8",
+            "U096A428R1P",
+            "U092PV9H89Z",
+            "U09GZHNV8UQ",
+            "U09EHRBGHQR"
           ]
         }
       },
@@ -1080,39 +1088,6 @@
         "json": {
           "query": "Dame una receta de pasta",
           "userId": "A-REBECA"
-        }
-      }
-    ],
-    "Slack Trigger1": [
-      {
-        "json": {
-          "user": "U091B7WDXJ4",
-          "type": "message",
-          "ts": "1758551871.541249",
-          "client_msg_id": "bc2c7144-d77f-44ab-a2de-ce8292533686",
-          "text": "dame una receta para pan casero",
-          "team": "T9XJE11PE",
-          "blocks": [
-            {
-              "type": "rich_text",
-              "block_id": "wwVz2",
-              "elements": [
-                {
-                  "type": "rich_text_section",
-                  "elements": [
-                    {
-                      "type": "text",
-                      "text": "dame una receta para pan casero"
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          "channel": "D09497Y7URF",
-          "event_ts": "1758551871.541249",
-          "channel_type": "im",
-          "user_resolved": "juan.garciag"
         }
       }
     ]
@@ -1454,7 +1429,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "6e4de35e-44f4-4013-9482-3d84779673ad",
+  "versionId": "eed72c3b-b040-4745-baab-b74ace0f5ecd",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
