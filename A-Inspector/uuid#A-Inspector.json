@@ -1,0 +1,55 @@
+{
+  "name": "uuid#A-Inspector",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ab995bea-2aba-462f-be11-ecff47684d11",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "function generarUUID() {\n  const timestamp = Date.now(); // milisegundos desde 1970\n  const random = Math.floor(Math.random() * 1e9); // número aleatorio grande\n  return `${timestamp}-${random}`;\n}\n\n// Retornar en formato válido para n8n\nreturn [\n  {\n    json: {\n      uuid: generarUUID(),\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "3964669b-32a1-4cdc-8301-f3dd3c7288f3",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e4bc91f9-a8e6-47cc-8bc7-969eaf2aae85",
+  "meta": {
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "wb0qDLa6ORtFOchH",
+  "tags": []
+}

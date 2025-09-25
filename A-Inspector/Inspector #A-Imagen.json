@@ -10,6 +10,12 @@
             },
             {
               "name": "userId"
+            },
+            {
+              "name": "empresa"
+            },
+            {
+              "name": "id_sesion"
             }
           ]
         }
@@ -41,42 +47,9 @@
       "credentials": {
         "slackApi": {
           "id": "KeRz8uv4jvr2vGMf",
-          "name": "Slack#A-Imagen"
+          "name": "Slack#A-Inspector"
         }
       }
-    },
-    {
-      "parameters": {
-        "resource": "image",
-        "operation": "analyze",
-        "modelId": {
-          "__rl": true,
-          "value": "gpt-4o-2024-11-20",
-          "mode": "list",
-          "cachedResultName": "GPT-4O-2024-11-20"
-        },
-        "text": "=Analiza cuidadosamente la imagen completa de un estante.  \nRecorre de arriba hacia abajo y de izquierda a derecha, identificando todos los productos visibles, incluso si son de la misma marca pero diferente presentación, sabor, tamaño o variante.  \nExtrae el nombre exacto que aparece en la caja, frasco, empaque o etiqueta frontal y el precio que corresponda en la etiqueta debajo o frente al producto.  \n\nReglas importantes:\n- Devuelve la salida en un listado de texto (no en JSON).  \n- Cada línea debe tener el formato:  \n  • Producto: [Nombre exacto] — Precio: [precio detectado o \"null\"]  \n- Si un precio no es legible o no aparece, escribe \"Precio: null\".  \n- No repitas productos idénticos, pero sí incluye presentaciones diferentes (por ejemplo, distintos sabores de una bebida, tamaños de un detergente, etc.).  \n- Asegúrate de devolver todos los productos visibles, aunque sean más de 100.  \n\n⚠️ IMPORTANTE: Después del listado de productos, AGREGA SIEMPRE estas tres secciones obligatorias:  \n\n**Calificación:**  \nIndica un número del 1 al 10 (puede incluir decimales como 8.7).  \n\n**Justificación:**  \nExplica brevemente tu calificación considerando:  \n- Estantes completos (sin faltantes visibles).  \n- Claridad y visibilidad de los precios.  \n- Correspondencia entre producto y etiqueta de precio.  \n- Orden y estética general del exhibidor.  \n- Otros parámetros relevantes que observes.  \n\n**Áreas de mejora:**  \nIndica qué aspectos deben optimizarse (ejemplo: falta de producto, etiquetas mal colocadas, precios poco visibles, orden, limpieza, variedad, etc.).  \n\nNO OMITAS NINGUNA DE ESTAS TRES SECCIONES.  \n",
-        "inputType": "base64",
-        "options": {
-          "detail": "high",
-          "maxTokens": 10000
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.openAi",
-      "typeVersion": 1.8,
-      "position": [
-        752,
-        0
-      ],
-      "id": "eb9c27d8-c520-439a-905a-822f8ce6277a",
-      "name": "Analyze image1",
-      "credentials": {
-        "openAiApi": {
-          "id": "fKavKBDAFMDMeKJR",
-          "name": "OpenAi Neto"
-        }
-      },
-      "disabled": true
     },
     {
       "parameters": {
@@ -88,7 +61,7 @@
           "mode": "list",
           "cachedResultName": "models/gemini-2.5-pro"
         },
-        "text": "=Analiza cuidadosamente la imagen completa de un estante.  \nRecorre de arriba hacia abajo y de izquierda a derecha, identificando todos los productos visibles, incluso si son de la misma marca pero diferente presentación, sabor, tamaño o variante.  \nExtrae el nombre exacto que aparece en la caja, frasco, empaque o etiqueta frontal y el precio que corresponda en la etiqueta debajo o frente al producto.  \n\nReglas importantes:\n- Devuelve la salida en un listado de texto (no en JSON).  \n- Cada línea debe tener el formato:  \n  • Producto: [Nombre exacto] — Precio: [precio detectado o \"null\"]  \n- Si un precio no es legible o no aparece, escribe \"Precio: null\".  \n- No repitas productos idénticos, pero sí incluye presentaciones diferentes (por ejemplo, distintos sabores de una bebida, tamaños de un detergente, etc.).  \n- Asegúrate de devolver todos los productos visibles, aunque sean más de 100.  \n\n⚠️ IMPORTANTE: Después del listado de productos, AGREGA SIEMPRE estas tres secciones obligatorias:  \n\n**Calificación:**  \nIndica un número del 1 al 10 (puede incluir decimales como 8.7).  \n\n**Justificación:**  \nExplica brevemente tu calificación considerando:  \n- Estantes completos (sin faltantes visibles).  \n- Claridad y visibilidad de los precios.  \n- Correspondencia entre producto y etiqueta de precio.  \n- Orden y estética general del exhibidor.  \n- Otros parámetros relevantes que observes.  \n\n**Áreas de mejora:**  \nIndica qué aspectos deben optimizarse (ejemplo: falta de producto, etiquetas mal colocadas, precios poco visibles, orden, limpieza, variedad, etc.).  \n\nNO OMITAS NINGUNA DE ESTAS TRES SECCIONES.  \n",
+        "text": "=\"Analiza la imagen de un estante de un supermercado.\nTu tarea es:\n\nIdentificar los productos visibles en el estante (nombre del producto o marca cuando sea legible).\n\nClasificarlos por categorías (ej. analgésicos, antiácidos, electrolitos, alcohol, algodón, enjuague bucal, etc.).\n\nExtraer los precios asociados a cada producto y relacionarlos correctamente.\n\nRecorrer estante por estante producto por producto y no omitir ninguno.\n\nSeñalar si hay productos repetidos o en diferentes presentaciones (ej. diferentes sabores, tamaños o versiones del mismo medicamento).\n\nDetectar espacios vacíos en el estante que indiquen productos agotados.\n\nOrganizar el resultado en formato JSON con la siguiente estructura:\n\n{\n  \"categoria\": \"Nombre de la categoría\",\n  \"productos\": [\n    {\n      \"nombre\": \"Nombre del producto\",\n      \"precio\": \"Precio identificado\",\n      \"presentacion\": \"si aplica\",\n      \"observaciones\": \"ej. espacio vacío, varias versiones, etc.\"\n    }\n  ]\n}\n\n\nEnfócate en que el análisis sea claro, organizado y útil para un inventario.\"\n\nSolo retorna el JSON puto no regreses nada mas y mucho menos saltos de linea.\n\nnunca coloques ```json al inicio ni ``` al final y no uses \\n, solo pon en json puro.",
         "inputType": "binary",
         "options": {}
       },
@@ -106,14 +79,198 @@
           "name": "Google Gemini Key"
         }
       }
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\n\n// Obtener el JSON crudo\nconst rawText = items?.[0]?.json?.content?.parts?.[0]?.text \n  || $input?.first()?.json?.content?.parts?.[0]?.text\n  || '[]'; // fallback si no hay nada\n\n// Parsear el JSON\nlet data;\ntry {\n  data = JSON.parse(rawText);\n  if (!Array.isArray(data)) data = []; // asegurar que sea array\n} catch (err) {\n  console.warn('Error al parsear JSON:', err, rawText);\n  data = [];\n}\n\n// Datos comunes\nconst tienda = $('When Executed by Another Workflow').first().json.tienda;\nconst userid = $('When Executed by Another Workflow').first().json.userId;\nconst imagenAnalizada = $('When Executed by Another Workflow').first().json.url;\n\n// Preparar la salida\nconst salida = [];\n\n// Iterar por cada sección\nfor (const seccion of data) {\n  const categoria = seccion.categoria || null;\n  const productos = seccion.productos || [];\n  \n  for (const producto of productos) {\n    let precio = producto.precio;\n    if (!precio || precio.toLowerCase() === 'null' || precio.toLowerCase() === 'no visible') {\n      precio = null;\n    }\n\n    salida.push({\n      json: {\n        categoria,\n        nombre: producto.nombre || null,\n        precio,\n        presentacion: producto.presentacion || null,\n        observaciones: producto.observaciones || null,\n        tienda,\n        userid,\n        imagenAnalizada,\n        id_producto: crypto.randomUUID()\n      }\n    });\n  }\n}\n\nreturn salida;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        0
+      ],
+      "id": "d040ba87-c594-4c4f-b56f-7485799fc9d2",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "insert",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "datasetId": {
+          "__rl": true,
+          "value": "agente_inspector",
+          "mode": "list",
+          "cachedResultName": "agente_inspector"
+        },
+        "tableId": {
+          "__rl": true,
+          "value": "productos_precios",
+          "mode": "list",
+          "cachedResultName": "productos_precios"
+        },
+        "dataMode": "define",
+        "fieldsUi": {
+          "values": [
+            {
+              "fieldId": "id_producto",
+              "fieldValue": "={{ $json.id_producto }}"
+            },
+            {
+              "fieldId": "categoria",
+              "fieldValue": "={{ $json.categoria }}"
+            },
+            {
+              "fieldId": "nombre",
+              "fieldValue": "={{ $json.nombre }}"
+            },
+            {
+              "fieldId": "presentacion",
+              "fieldValue": "={{ $json.presentacion }}"
+            },
+            {
+              "fieldId": "precio_observado",
+              "fieldValue": "={{ $json.precio }}"
+            },
+            {
+              "fieldId": "competencia",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json.empresa }}"
+            },
+            {
+              "fieldId": "usuario",
+              "fieldValue": "={{ $json.userid }}"
+            },
+            {
+              "fieldId": "urlFoto",
+              "fieldValue": "={{ $json.imagenAnalizada }}"
+            },
+            {
+              "fieldId": "estatus",
+              "fieldValue": "pendiente"
+            },
+            {
+              "fieldId": "fecha_reporte",
+              "fieldValue": "={{ $now }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 2.1,
+      "position": [
+        848,
+        0
+      ],
+      "id": "b8d329e2-56ac-4cd8-82d7-aa63d5919be3",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1888,
+        0
+      ],
+      "id": "7871fb67-6214-46b4-8594-5a365f184244",
+      "name": "Wait",
+      "webhookId": "7360f138-9306-47d2-a29b-1dcb3640f0b5"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "sqlQuery": "SELECT *\nFROM `neto-cloud.agente_inspector.productos_precios`\nWHERE DATE(fecha_reporte) = CURRENT_DATE()\n  AND estatus = 'pendiente'\n  AND usuario = '{{ $('When Executed by Another Workflow').item.json.userId }}'\n  AND competencia = '{{ $('When Executed by Another Workflow').item.json.empresa }}'\nLIMIT 1000;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 2.1,
+      "position": [
+        1568,
+        0
+      ],
+      "id": "a260365a-bb63-431f-8afa-d8051c6f88d8",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "sqlQuery": "UPDATE `neto-cloud.agente_inspector.imagenes_analisis`\nSET \n  estado_procesamiento = 'Procesado',\n  fecha_procesamiento = CURRENT_TIMESTAMP(),\n  resultados_analisis = '{{ $json.resultados_analisis_escaped }}'\nWHERE DATE(fecha_recepcion) = CURRENT_DATE()\n  AND estado_procesamiento = 'en_proceso'\n  AND id_sesion = '{{ $('When Executed by Another Workflow').item.json.id_sesion }}'\n  AND url_imagen = '{{ $('When Executed by Another Workflow').item.json.url }}';\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 2.1,
+      "position": [
+        1280,
+        0
+      ],
+      "id": "38130fba-4405-42dd-8df9-1b6f3e742726",
+      "name": "ActualizaEstado",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener el texto de Analyze image\nlet resultadosTexto = $('Analyze image').item.json.content.parts[0].text || '';\n\n// Escapar comillas simples para SQL\nresultadosTexto = resultadosTexto.replace(/'/g, \"\\\\'\");\n\n// Retornar un solo item para n8n\nreturn [\n  {\n    json: {\n      resultados_analisis_escaped: resultadosTexto\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        0
+      ],
+      "id": "cf52994f-d835-445f-b7a7-f503ed622073",
+      "name": "ConvertirString"
     }
   ],
   "pinData": {
     "When Executed by Another Workflow": [
       {
         "json": {
-          "url": "https://files.slack.com/files-pri/T9XJE11PE-F09FVMQS7M2/img_6575.jpg",
-          "userId": "U091B7WDXJ4"
+          "url": "https://files.slack.com/files-pri/T9XJE11PE-F09H68SEVM4/img_6576.jpg",
+          "userId": "U091B7WDXJ4",
+          "empresa": "Aurera Express",
+          "id_sesion": "1758829232559-449472275"
         }
       }
     ]
@@ -145,7 +302,62 @@
       "main": [
         [
           {
-            "node": "Analyze image1",
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table": {
+      "main": [
+        [
+          {
+            "node": "ConvertirString",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ActualizaEstado": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ConvertirString": {
+      "main": [
+        [
+          {
+            "node": "ActualizaEstado",
             "type": "main",
             "index": 0
           }
@@ -157,7 +369,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "fc96f23b-b64c-46b5-9db4-be4192b32f0d",
+  "versionId": "50e3d93c-5217-4b74-8562-3d723143153d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"

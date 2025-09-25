@@ -26,16 +26,16 @@
       "credentials": {
         "slackApi": {
           "id": "KeRz8uv4jvr2vGMf",
-          "name": "Slack#A-Imagen"
+          "name": "Slack#A-Inspector"
         }
       }
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "={{ $json.files[0].url_private }}\n{{ $json.text }}",
+        "text": "={{ $json.text }}\n{{ $json.files[0].mimetype }}",
         "options": {
-          "systemMessage": "=Prompt Ajustado\n\nRol\nEres un asistente de automatización conectado a Slack. Te comportas como un clon de ChatGPT, respondiendo normalmente a cualquier consulta en lenguaje natural.\n\nComportamiento General\n\nResponde siempre de forma clara, útil y profesional.\n\nPuedes mantener conversaciones normales, responder preguntas y ayudar como un asistente de IA general.\n\nFlujo Especial de Carga de Artículos\n\nSi recibes el mensaje \"start\", interpreta que el usuario quiere iniciar un proceso de carga de artículos.\n\nResponde solicitando el nombre de la competencia.\nUna vez que obtienes el Nombre de la competencia en el formato empresa: nombre de la empresa. Lo guardas en memoria y sigues con el flujo.\n\nEspera a que el usuario envíe una o varias imágenes o URLs de imágenes.\n\nAlmacena todas esas URLs/imágenes en memoria, pero no las proceses aún.\n\nSi el usuario envía el comando \"end\":\n\nInterpreta que el proceso ha concluido.\n\nEnvía una por una todas las URLs almacenadas a la herramienta Imagen para su análisis.\n\nDevuelve al usuario en Slack los resultados de la herramienta siguiendo el formato establecido.\n\nFormato de Respuesta para Imágenes\n\nListado de productos detectados:\n• Producto: [Nombre] — Precio: $[Precio] (o null si no está visible)\n• Producto: [Nombre] — Precio: $[Precio]\n...\n\nCalificación: [Nota]\nJustificación: [Explicación breve]\nÁreas de mejora:\n• [Punto 1]\n• [Punto 2]\n• [Punto 3]\n\nRestricciones\n\nNunca omitas productos, aunque su precio sea null.\n\nSiempre incluye las secciones de Calificación, Justificación y Áreas de mejora.\n\nDurante el flujo especial, no inventes URLs ni proceses imágenes antes del comando end.\n\nSi no se detecta un URL o imagen válida cuando se espera una, pide al usuario que proporcione una entrada válida.\n\n\n##Formato de Respuesta\n\npara enfatizar solo usa un * en lugar de **, ejemplo:\n**Prepárate** usa mejor *Prepárate*\n\nNo conteste de esta forma los títulos:\n### Ejemplo de carta de renuncia formal usa mejor >*Ejemplo de carta de renuncia formal. *\n\nSiempre que sugieras ejemplo de documentos contesta dentro de un cuadro listo para copiar y pegar.\n\npara dar un mejor formato considera lo siguiente:\nColoca asteriscos al comienzo y al final del texto: \n*tu texto*\nColoca guiones bajos al comienzo y al final del texto:\n_tu texto_\nColoca acentos graves al comienzo y al final del texto:\n`tu texto`\nAgrega una cuña delante del texto:\n>tu texto\nAgrega tres acentos graves delante del texto:\n```tu texto\nAgrega el número uno y, luego, pulsa delante del texto:\n1. tu texto\nAgrega un asterisco y, luego, pulsa espacio delante del texto:\n* tu texto\n\nPara aplicar sangría a una línea, pulsa Tab"
+          "systemMessage": "=Rol\nEres un asistente de automatización conectado a Slack. Tu tarea es procesar imagenes y extraer productos y precios.\n\nComportamiento\nComando \"start\"\nCuando el usuario escriba \"start\":\n\nVerificar existencia de registro: Usa ExecuteQuery para consultar si existe un registro en neto-cloud.agente_inspector.sesiones_analisis donde user_id = {{ $json.user }} y DATE(fecha_inicio) = DATE({{ $now }}) y que el estado_sesion = 'esperando_competencia'\n\nSi NO existe registro:\n\nGenera un UUID único usando la herramienta uuid\n\nObtén el real_name del usuario con ObtenerDatosUsuario\n\nInserta un nuevo registro con ExecuteQuery usando estos valores:\n\nid_sesion: UUID generado\n\nuser_id: {{ $json.user }}\n\nnombre_usuario: real_name obtenido\n\nestado_sesion: \"esperando_competencia\"\n\nimagenes_recibidas: 0\n\nfecha_inicio: {{ $now }}\n\nfecha_actualizacion: {{ $now }}\n\nSi EXISTE registro:\n\nConsulta el último registro con estado_sesion = \"esperando_tienda\" para recuperar el id_sesion\n\nComando \"empresa: [string]\"\nCuando el usuario envíe \"empresa: [string]\" (ej: \"empresa: 3B\"):\n\nConsultar registro pendiente: Usa ExecuteQuery para obtener el último registro de neto-cloud.agente_inspector.sesiones_analisis donde user_id = {{ $json.user }} y estado_sesion = \"esperando_competencia\"\n\nActualizar registro: Usa ExecuteQuery para actualizar:\n\ncompetencia: nombre de la empresa de competencia\n\nestado_sesion: \"esperando_imagenes\"\n\nfecha_actualizacion: {{ $now }}\n\nDetección de imágenes\nCuando se reciba un mensaje con archivos adjuntos (detectado por la presencia de files en el JSON o {{ $json.files[0].mimetype }} inicie con 'image/'):\n\nPaso 1: Actualizar sesión\nConsultar sesión activa: Usa ExecuteQuery para obtener el último registro donde user_id = {{ $json.user }} y estado_sesion = esperando_imagenes\n\nActualizar sesión: Usa ExecuteQuery para actualizar:\n\nestado_sesion: \"esperando_fin\"\n\nimagenes_recibidas: {{ $json.files.length }}\n\nfecha_actualizacion: {{ $now }}\n\n\n\n\nInsertar registros de imagenes: Usa `ExecuteQuery` para insertar en `neto-cloud.agente_inspector.imagenes_analisis`\n\nid_imagen: uuid unico e irrepetible usa la herramienta `uuid`\n\nid_sesion: id_sesion obtenido del paso anterior\n\nurl_imagen: {{ $json.files[0].url_private }}\n\nestado_procesamiento: \"en_proceso\"\n\nfecha_recepcion: {{ $now }}\n\nCondiciones de detección mejoradas\nEl agente debe detectar imágenes cuando:\n\n{{ $json.files }} existe y no está vacío O\n\n{{ $json.files[0].mimetype }} contiene \"image/\" O\n\nHay presencia de campos como url_private, thumb_80, thumb_360, permalink que indican archivo adjunto\n\nReglas importantes\nVerifica primero si el mensaje contiene archivos antes de procesar como imágenes\n\nPara contar imágenes, verifica que mimetype comience con \"image/\"\n\nUsa el campo url_private para obtener la URL de la imagen\n\nEjecuta las herramientas en el orden secuencial correcto\n\nEjecuta un insert para cada imagen que se insertara en `neto-cloud.agente_inspector.imagenes_analisis` y asegurate de ir cambiando {{ $json.files[0].url_private }}, {{ $json.files[1].url_private }}, {{ $json.files[2].url_private }}, etc.\n\nComando \"end\"\nCuando el usuario escriba \"end\":\n\nConsulta el ultimo registro con user_id = {{ $json.files[1].user }}, estado_sesion = esperando_fin y recupera su id_sesion y competencia, para ello usa la herramienta `ExecuteQuery`\n\nActualiza el estado_sesion = Procesado de la tabla `neto-cloud.agente_precios.sesiones_analisis`, utiliza la herramienta `ExecuteQuery`, con el id_sesion que se recupero antes.\n\nConsulta las url_imagen de la tabla `neto-cloud.agente_inspector.imagenes_analisis` cuando el id_sesion sea el mismo que el anterior y el estado_procesamiento = en_proceso utiliza la herramienta `ExecuteQuery`, para ejecutar el query.\n\nEnvia la primera url a la herramienta `Imagen` junto con el competencia, espera a que el la herramienta `Imagen` termine de procesar la primer imagen, despues espera y envia la siguiente y asi hasta terminar con todas las imagenes una vez que tengas la informacion de todas las imagenes.\n\nEspera el resultado de todas las imagenes analizadas y retornalo por slack en formato de lista, separando los resultados por imagenes.\n"
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -80,13 +80,15 @@
           "value": "afvGWEJPx2vX1TrB",
           "mode": "list",
           "cachedResultUrl": "/workflow/afvGWEJPx2vX1TrB",
-          "cachedResultName": "Imagen#A-Imagen"
+          "cachedResultName": "Inspector #A-Imagen"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
             "url": "={{ $fromAI('query') }}",
-            "userId": "={{ $('Slack Trigger').item.json.files[0].user }}"
+            "userId": "={{ $json.user }}",
+            "empresa": "={{ $fromAI('empresa') }}",
+            "id_sesion": "={{ $fromAI('id_sesion') }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -107,6 +109,26 @@
               "display": true,
               "canBeUsedToMatch": true,
               "type": "string"
+            },
+            {
+              "id": "empresa",
+              "displayName": "empresa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_sesion",
+              "displayName": "id_sesion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -147,9 +169,107 @@
       "credentials": {
         "slackApi": {
           "id": "KeRz8uv4jvr2vGMf",
-          "name": "Slack#A-Imagen"
+          "name": "Slack#A-Inspector"
         }
       }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "sqlQuery": "{{ $fromAI('query') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQueryTool",
+      "typeVersion": 2.1,
+      "position": [
+        1520,
+        160
+      ],
+      "id": "27bcd495-e05d-497f-a129-6744fd4a64a0",
+      "name": "ExecuteQuery",
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta cuando necesites un uuid univoco e irrepetible",
+        "workflowId": {
+          "__rl": true,
+          "value": "wb0qDLa6ORtFOchH",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/wb0qDLa6ORtFOchH",
+          "cachedResultName": "uuid#A-Inspector"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1216,
+        176
+      ],
+      "id": "b62c904b-b17e-4814-98f1-a47a8a9fbad1",
+      "name": "uuid"
+    },
+    {
+      "parameters": {
+        "description": "Usa esta herramienta para obtener los datos del usuario.",
+        "workflowId": {
+          "__rl": true,
+          "value": "x5qvhAv1LGc8y2t5",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/x5qvhAv1LGc8y2t5",
+          "cachedResultName": "ObtenerDatosUsuario#A-Inspector"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userId": "={{ $json.user }}"
+          },
+          "matchingColumns": [
+            "userId"
+          ],
+          "schema": [
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        176
+      ],
+      "id": "deeba7d1-78e9-4b9a-ad0c-f8d7191b9062",
+      "name": "ObtenerDatosUsuario"
     }
   ],
   "pinData": {
@@ -158,21 +278,21 @@
         "json": {
           "user": "U091B7WDXJ4",
           "type": "message",
-          "ts": "1758750258.133159",
-          "client_msg_id": "2ed0cb7f-9e9f-464c-8ceb-7d3f6f622a14",
-          "text": "hola",
+          "ts": "1758826093.921399",
+          "client_msg_id": "c7eae63e-4751-493a-a1b7-60a083cb7e49",
+          "text": "end",
           "team": "T9XJE11PE",
           "blocks": [
             {
               "type": "rich_text",
-              "block_id": "6OA3U",
+              "block_id": "5RU/2",
               "elements": [
                 {
                   "type": "rich_text_section",
                   "elements": [
                     {
                       "type": "text",
-                      "text": "hola"
+                      "text": "end"
                     }
                   ]
                 }
@@ -180,7 +300,7 @@
             }
           ],
           "channel": "D09FQATP1T8",
-          "event_ts": "1758750258.133159",
+          "event_ts": "1758826093.921399",
           "channel_type": "im",
           "user_resolved": "juan.garciag"
         }
@@ -231,13 +351,46 @@
           }
         ]
       ]
+    },
+    "ExecuteQuery": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "uuid": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ObtenerDatosUsuario": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "e7310651-9648-4494-ac38-f0decb97fabf",
+  "versionId": "78fffa75-ba03-4600-9cac-8c8adb6f3fd4",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
