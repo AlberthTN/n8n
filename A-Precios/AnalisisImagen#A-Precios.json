@@ -75,8 +75,7 @@
           "id": "8oeByDM6tvSZbm94",
           "name": "Google Gemini Key"
         }
-      },
-      "disabled": true
+      }
     },
     {
       "parameters": {
@@ -420,97 +419,6 @@
     },
     {
       "parameters": {
-        "rules": {
-          "values": [
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 2
-                },
-                "conditions": [
-                  {
-                    "leftValue": "={{ $json.data[0].output }}",
-                    "rightValue": "Producto No Encontrado",
-                    "operator": {
-                      "type": "string",
-                      "operation": "contains"
-                    },
-                    "id": "15b6ee45-29b0-49ca-9ec1-1f9b901fee42"
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "NoEncontrado"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 2
-                },
-                "conditions": [
-                  {
-                    "id": "a9cf70a7-a7c9-453b-99cf-9a97869e6409",
-                    "leftValue": "={{ JSON.parse($json.data[0].output)?.precio.toInt() }}",
-                    "rightValue": "={{ JSON.parse($json.data[0].output)?.FNPRECIO.toInt() }}",
-                    "operator": {
-                      "type": "number",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Correcto"
-            },
-            {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 2
-                },
-                "conditions": [
-                  {
-                    "id": "84f3846b-7f61-4cec-9d34-7c6a1044b789",
-                    "leftValue": "={{ JSON.parse($json.data[0].output)?.precio.toInt() }}",
-                    "rightValue": "={{ JSON.parse($json.data[0].output)?.FNPRECIO.toInt() }}",
-                    "operator": {
-                      "type": "number",
-                      "operation": "notEquals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              },
-              "renameOutput": true,
-              "outputKey": "Diferencia"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3.3,
-      "position": [
-        2656,
-        -496
-      ],
-      "id": "19cfe151-613c-47b5-940c-c514cd7550b1",
-      "name": "SepararResultados1",
-      "alwaysOutputData": true,
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
         "aggregate": "aggregateAllItemData",
         "options": {}
       },
@@ -522,72 +430,6 @@
       ],
       "id": "91ffedf3-00b3-4f17-8fc9-70944712304d",
       "name": "Aggregate1"
-    },
-    {
-      "parameters": {
-        "fieldsToAggregate": {
-          "fieldToAggregate": [
-            {
-              "fieldToAggregate": "output",
-              "renameField": true,
-              "outputFieldName": "NoEncontrado"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.aggregate",
-      "typeVersion": 1,
-      "position": [
-        3024,
-        -640
-      ],
-      "id": "7a772d86-5ca3-4da0-a9fa-a746236b4062",
-      "name": "NoEncontrado2"
-    },
-    {
-      "parameters": {
-        "fieldsToAggregate": {
-          "fieldToAggregate": [
-            {
-              "fieldToAggregate": "output",
-              "renameField": true,
-              "outputFieldName": "Correcto"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.aggregate",
-      "typeVersion": 1,
-      "position": [
-        3024,
-        -480
-      ],
-      "id": "1349116f-6d63-4b0f-a757-d6365e66b18b",
-      "name": "Correcto2"
-    },
-    {
-      "parameters": {
-        "fieldsToAggregate": {
-          "fieldToAggregate": [
-            {
-              "fieldToAggregate": "output",
-              "renameField": true,
-              "outputFieldName": "Diferencia"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.aggregate",
-      "typeVersion": 1,
-      "position": [
-        3024,
-        -320
-      ],
-      "id": "0fea1a8e-d354-481d-9c01-51534fa23f91",
-      "name": "Diferencia2"
     },
     {
       "parameters": {
@@ -638,14 +480,15 @@
           "id": "4h09LPG13CceGfdt",
           "name": "OpenAi Tadeo"
         }
-      }
+      },
+      "disabled": true
     }
   ],
   "pinData": {
     "When Executed by Another Workflow": [
       {
         "json": {
-          "url": "https://files.slack.com/files-pri/T9XJE11PE-F09J5801HLH/whatsapp_image_2025-09-24_at_07.59.20.jpeg",
+          "url": "https://files.slack.com/files-pri/T9XJE11PE-F09HNJGB8G5/whatsapp_image_2025-09-24_at_07.59.20.jpeg",
           "userId": "U091B7WDXJ4",
           "tienda": 109
         }
@@ -819,46 +662,6 @@
         ]
       ]
     },
-    "SepararResultados1": {
-      "main": [
-        [
-          {
-            "node": "NoEncontrado2",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Correcto2",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Diferencia2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "NoEncontrado2": {
-      "main": [
-        []
-      ]
-    },
-    "Correcto2": {
-      "main": [
-        []
-      ]
-    },
-    "Diferencia2": {
-      "main": [
-        []
-      ]
-    },
     "Aggregate1": {
       "main": [
         [
@@ -886,7 +689,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "af33454c-17a5-4251-bb26-2afa71430d42",
+  "versionId": "74aa1871-3299-4fde-a80b-686a0e0cfcd8",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
