@@ -54,39 +54,6 @@
         "operation": "analyze",
         "modelId": {
           "__rl": true,
-          "value": "gpt-4o",
-          "mode": "list",
-          "cachedResultName": "GPT-4O"
-        },
-        "text": "=\"Analiza la imagen de un estante de cosméticos en un supermercado.\nTu tarea es:\n\nIdentificar los productos visibles (nombre del producto o tipo: esmalte, rubor, máscara, labial, delineador, toallitas desmaquillantes, etc.).\n\nClasificarlos en categorías (ej. maquillaje de labios, ojos, rostro, uñas, accesorios, cuidado facial, higiene femenina, etc.).\n\nExtraer los precios asociados a cada producto y relacionarlos correctamente.\n\nDetectar si existen diferentes tonos, presentaciones o formatos del mismo producto (ej. varios colores de esmalte o labiales).\n\nIdentificar productos en cajas abiertas o colocados en el suelo como inventario extra.\n\nSeñalar espacios vacíos en el estante que indiquen productos agotados.\n\nEntregar la información en formato JSON con la siguiente estructura:\n\n{\n  \"categoria\": \"Nombre de la categoría\",\n  \"productos\": [\n    {\n      \"nombre\": \"Nombre del producto o tipo\",\n      \"precio\": \"Precio identificado\",\n      \"presentacion\": \"tono, color, tamaño si aplica\",\n      \"observaciones\": \"ej. varias versiones, espacio vacío, inventario en piso\"\n    }\n  ]\n}\n\n\nConcéntrate en que el análisis sea claro, estructurado y útil para un inventario de cosméticos.\"",
-        "inputType": "base64",
-        "options": {
-          "detail": "high",
-          "maxTokens": 10000
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.openAi",
-      "typeVersion": 1.8,
-      "position": [
-        1696,
-        -112
-      ],
-      "id": "218322ff-0234-4bfc-928d-b280d9895184",
-      "name": "Analyze image1",
-      "credentials": {
-        "openAiApi": {
-          "id": "fKavKBDAFMDMeKJR",
-          "name": "OpenAi Neto"
-        }
-      },
-      "disabled": true
-    },
-    {
-      "parameters": {
-        "resource": "image",
-        "operation": "analyze",
-        "modelId": {
-          "__rl": true,
           "value": "models/gemini-2.5-pro",
           "mode": "list",
           "cachedResultName": "models/gemini-2.5-pro"
@@ -98,7 +65,7 @@
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1,
       "position": [
-        224,
+        432,
         -112
       ],
       "id": "dd9922b6-e380-4ae7-8582-79b69ee7a699",
@@ -108,59 +75,17 @@
           "id": "8oeByDM6tvSZbm94",
           "name": "Google Gemini Key"
         }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "// Intentamos capturar el texto desde distintas rutas comunes\nlet extractedText = $input.first().json.text \n  || $input.first().json.content?.parts?.[0]?.text \n  || \"\";\n\n// Verificamos que realmente tengamos texto\nif (!extractedText || extractedText.trim() === \"\") {\n  throw new Error(\"No se encontró texto válido en la entrada.\");\n}\n\n// Buscar el bloque de JSON entre ```json y ```\nconst jsonMatch = extractedText.match(/```json([\\s\\S]*?)```/);\n\nlet products = [];\n\nif (jsonMatch) {\n  try {\n    // Parsear el JSON extraído\n    const parsed = JSON.parse(jsonMatch[1]);\n\n    // Recorremos categorías y productos\n    for (const category of parsed) {\n      for (const product of category.productos) {\n        products.push({\n          categoria: category.categoria,\n          nombre: product.nombre,\n          precio: product.precio,\n          presentacion: product.presentacion,\n          observaciones: product.observaciones\n        });\n      }\n    }\n  } catch (e) {\n    throw new Error(\"Error al parsear JSON: \" + e.message);\n  }\n} else {\n  throw new Error(\"No se encontró un bloque JSON en el texto extraído.\");\n}\n\nreturn [{ json: { products } }];\n"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1216,
-        -112
-      ],
-      "id": "61dacdf5-1a6d-43ef-9640-b3775554536e",
-      "name": "Code in JavaScript",
-      "disabled": true
-    },
-    {
-      "parameters": {
-        "authentication": "serviceAccount",
-        "projectId": {
-          "__rl": true,
-          "value": "neto-cloud",
-          "mode": "list",
-          "cachedResultName": "Neto-Cloud",
-          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
-        },
-        "sqlQuery": "SELECT *\nFROM `neto-cloud.agente_eva.catalogo_articulos_neto`\nWHERE UPPER(`Nombre de artículo`) IN ('{{ $json.products[0].nombre }}') AND `Tiendas asigandas` IN (1164);",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleBigQuery",
-      "typeVersion": 2.1,
-      "position": [
-        1536,
-        -112
-      ],
-      "id": "6f4a31e2-2999-4583-aa65-aa904cf2086b",
-      "name": "Execute a SQL query",
-      "credentials": {
-        "googleApi": {
-          "id": "BrAyOfCNy2JTszLb",
-          "name": "Google Service Account account"
-        }
       },
       "disabled": true
     },
     {
       "parameters": {
-        "jsCode": "// Importar crypto\nconst crypto = require('crypto');\n\n// 1. Obtenemos el texto JSON que viene dentro de content.parts[0].text\nconst rawText = items[0].json.content.parts[0].text;\n\n// 2. Parseamos el string a objeto\nconst data = JSON.parse(rawText);\n\n// 3. Preparamos la salida \"aplanada\"\nconst salida = [];\n\nfor (const seccion of data) { // La data ya viene como array de secciones\n  if (!seccion.productos) continue; // Saltar secciones sin productos\n  for (const producto of seccion.productos) {\n    salida.push({\n      json: {\n        categoria: seccion.categoria,\n        nombre: producto.nombre,\n        precio: producto.precio === \"No visible\" ? null : producto.precio, // manejar precios no visibles\n        presentacion: producto.presentacion,\n        observaciones: producto.observaciones,\n        tienda: $('When Executed by Another Workflow').first().json.tienda,\n        userid: $('When Executed by Another Workflow').first().json.userId,\n        imagenAnalizada: $('When Executed by Another Workflow').first().json.url,\n        id_producto: crypto.randomUUID() // UUID único para cada producto\n      }\n    });\n  }\n}\n\nreturn salida;\n"
+        "jsCode": "// Importar crypto\nconst crypto = require('crypto');\n\n// 1. Obtenemos el texto JSON que viene dentro de content.parts[0].text\nconst rawText = items?.[0]?.json?.content?.parts?.[0]?.text \n  || $input?.first()?.json?.content?.parts?.[0]?.text\n  || '[]';\n\n// 2. Parseamos el string a objeto\nlet data;\ntry {\n  data = JSON.parse(rawText);\n} catch (err) {\n  console.error(\"Error al parsear JSON:\", err);\n  data = [];\n}\n\n// 2.1 Normalizar: si no es array, lo convertimos en uno\nif (!Array.isArray(data)) {\n  data = [data];\n}\n\n// 3. Preparamos la salida \"aplanada\"\nconst salida = [];\n\nfor (const seccion of data) { \n  if (!seccion.productos) continue; \n  for (const producto of seccion.productos) {\n    salida.push({\n      json: {\n        categoria: seccion.categoria,\n        nombre: producto.nombre,\n        precio: producto.precio === \"No visible\" ? null : producto.precio,\n        presentacion: producto.presentacion,\n        observaciones: producto.observaciones,\n        tienda: $('When Executed by Another Workflow').first().json.tienda,\n        userid: $('When Executed by Another Workflow').first().json.userId,\n        imagenAnalizada: $('When Executed by Another Workflow').first().json.url,\n        id_producto: crypto.randomUUID()\n      }\n    });\n  }\n}\n\nreturn salida;\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        432,
+        640,
         -112
       ],
       "id": "ee9d1e4f-6650-4991-8202-f91112d63e11",
@@ -239,7 +164,7 @@
       "type": "n8n-nodes-base.googleBigQuery",
       "typeVersion": 2.1,
       "position": [
-        640,
+        848,
         -112
       ],
       "id": "b5e6f1e2-3426-460a-a402-5ee598935808",
@@ -249,7 +174,8 @@
           "id": "BrAyOfCNy2JTszLb",
           "name": "Google Service Account account"
         }
-      }
+      },
+      "disabled": true
     },
     {
       "parameters": {
@@ -258,15 +184,474 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        848,
+        1056,
         -112
       ],
       "id": "ad1f2788-d4e4-4c30-afa3-0d4025c03634",
       "name": "Wait",
-      "webhookId": "7360f138-9306-47d2-a29b-1dcb3640f0b5"
+      "webhookId": "7360f138-9306-47d2-a29b-1dcb3640f0b5",
+      "alwaysOutputData": true,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "sqlQuery": "SELECT * FROM `neto-cloud.agente_precios.productos_precios` WHERE TIMESTAMP_TRUNC(fecha_reporte, DAY) = TIMESTAMP('{{$now.format('yyyy-MM-dd')}}') AND tienda = '100';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 2.1,
+      "position": [
+        1264,
+        -112
+      ],
+      "id": "3bed9888-b751-4ee2-9788-ea1bf64b3b2c",
+      "name": "Execute a SQL query1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1472,
+        -112
+      ],
+      "id": "79fae854-5d05-48cf-a6c8-392187564eea",
+      "name": "Loop Over Items",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "sqlQuery": "SELECT *\nFROM `neto-cloud.agente_rebeca.tiendas_articulos_precio`\nWHERE FITIENDAID = 100\n  AND UPPER(FCARTICULO) LIKE '%' || UPPER('{{ $json.nombre }}') || '%';\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 2.1,
+      "position": [
+        2352,
+        -96
+      ],
+      "id": "4ebe0295-83ae-4c47-acb9-71c36ab1fa54",
+      "name": "Execute a SQL query",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      },
+      "disabled": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2352,
+        112
+      ],
+      "id": "4f59e6f5-6720-4f1b-9ca4-134946c22c94",
+      "name": "Code in JavaScript",
+      "disabled": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=FCARTICULO  = {{ $json.nombre }} \nFNPRECIO = {{ $json.precio }}\nFITIENDAID = {{ $json.tienda }}\nimagenAnalizada = {{ $json.imagenAnalizada }}\npresentacion = {{ $json.presentacion }} \nobservaciones = {{ $json.observaciones }}\nprecio = {{ $json.precio }}",
+        "options": {
+          "systemMessage": "=Eres un agente especialista en Productos.\n\nTu trabajo es encontrar el producto recibido en la tabla neto-cloud.agente_rebeca.tiendas_articulos_precio.\n\nDebes seguir estrictamente este proceso:\n\n🧾 Entrada\n\nRecibirás un objeto con los siguientes campos:\n\nnombre: Nombre del producto. Corresponde al campo FCARTICULO en la tabla.\n\ntienda: ID de la tienda. Corresponde al campo FITIENDAID en la tabla.\n\nprecio: Precio del producto. Corresponde al campo FNPRECIO en la tabla.\n\n🔁 Normalización\n\nConvierte todos los valores recibidos (nombre, tienda, precio) a MAYÚSCULAS antes de usarlos en cualquier búsqueda o comparación.\n\n🔎 Filtros de búsqueda\n\nCuando armes tus consultas, usa simultáneamente los siguientes filtros:\n\nFCARTICULO: debe hacer coincidencia parcial o similar con el valor de nombre (usa LIKE o similar).\n\nFITIENDAID: debe coincidir exactamente con el valor de tienda.\n\nFNPRECIO: debe estar dentro de un rango de ±40% respecto al precio recibido.\n\nTambién puedes usar FNPRECIOBASE como respaldo si FNPRECIO no está disponible.\n\n⛔ Limitación de resultados\n\nCada consulta que ejecutes debe devolver como máximo 100 registros, usando LIMIT 100.\n\n⚙️ Ejecución de consultas\n\nUsa siempre la herramienta EjecutarConsulta para construir y ejecutar tus queries.\n\nPuedes llamar a EjecutarConsulta hasta 20 veces en total si es necesario para encontrar el producto correcto.\n\n✅ Resultado esperado\n\nSi encuentras un producto que coincide, retorna la información más precisa y relevante del registro encontrado y agrega un campo extra el de precio que es el que viene desde la solicitud.\n\nSi después de 20 intentos no encuentras el producto, retorna la información original recibida categoria, nombre, precio, presentacion, observaciones, tienda, userid e imagenAnalizada y agrega un campo adicional llamada proceso con la lellenda \"Producto No Encontrado\" :\n\n📌 Campos disponibles en la tabla\nCampo\tSignificado\nFITIENDAID\tID de la tienda (usa este campo para \"tienda\" recibida)\nFCTIENDA\tNombre de la tienda (solo informativo)\nFIARTICULOID\tID del producto\nFCARTICULO\tNombre del producto (usa este campo para \"nombre\" recibida)\nFNCOSTO\tCosto real del producto\nFNPRECIO\tPrecio del producto (usa este campo para \"precio\" recibida)\nFNPRECIOBASE\tPrecio base del producto (respaldo si no hay FNPRECIO)\n❌ Errores comunes que debes evitar\n\nNo confundas FITIENDAID (ID de tienda) con FCTIENDA (nombre de tienda).\n\nNo compares el valor recibido en tienda contra FCTIENDA. Siempre úsalo contra FITIENDAID.\n\nNo construyas consultas sin respetar la equivalencia de campos explicada arriba.\n\nNo Respondas con nada de informacion adicional solo responde con el resultado en formato json nunca agregues ```json al inicio del json ni ``` al final del json y tampoco pongas \\n, solo pon el json puro.",
+          "maxIterations": 20
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1936,
+        -96
+      ],
+      "id": "7409ac0d-2ec7-4a60-8983-c59e4dafb728",
+      "name": "AI Agent",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1824,
+        48
+      ],
+      "id": "4ee9d330-fe2e-44fc-a294-a6dfe918f61e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "4h09LPG13CceGfdt",
+          "name": "OpenAi Tadeo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "sqlQuery": "{{ $fromAI('query') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQueryTool",
+      "typeVersion": 2.1,
+      "position": [
+        2176,
+        48
+      ],
+      "id": "1f1f3a14-cd83-476e-961d-89278f949cd4",
+      "name": "EjecutarConsulta",
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e742403f-8f6a-4276-95a2-7690f7666829",
+              "name": "categoria",
+              "value": "={{ $('Wait').item.json.categoria }}",
+              "type": "string"
+            },
+            {
+              "id": "f6b81404-dccf-4b98-9345-b6bc0e6d42e6",
+              "name": "nombre",
+              "value": "={{ $('Wait').item.json.nombre }}",
+              "type": "string"
+            },
+            {
+              "id": "a27778a3-e396-432a-8111-d93f4fc8c128",
+              "name": "precio",
+              "value": "={{ $('Wait').item.json.precio }}",
+              "type": "string"
+            },
+            {
+              "id": "96fc5001-80ab-4550-815a-e675a6638f6e",
+              "name": "presentacion",
+              "value": "={{ $('Wait').item.json.presentacion }}",
+              "type": "string"
+            },
+            {
+              "id": "1e109253-3eb9-40c2-8e92-e8232b512eb6",
+              "name": "observaciones",
+              "value": "={{ $('Wait').item.json.observaciones }}",
+              "type": "string"
+            },
+            {
+              "id": "2073e5b5-4e60-426a-8b71-30ab50dd2715",
+              "name": "tienda",
+              "value": "={{ $('Wait').item.json.tienda }}",
+              "type": "string"
+            },
+            {
+              "id": "9017b578-5a23-4e45-99d3-c954a7060bbc",
+              "name": "userid",
+              "value": "={{ $('Wait').item.json.userid }}",
+              "type": "string"
+            },
+            {
+              "id": "fbb19d17-828c-49c7-96f0-c1331d7e0e13",
+              "name": "imagenAnalizada",
+              "value": "={{ $('Wait').item.json.imagenAnalizada }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1696,
+        -96
+      ],
+      "id": "b7e3747c-4e68-4cce-871d-f97d41ea699c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.data[0].output }}",
+                    "rightValue": "Producto No Encontrado",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "15b6ee45-29b0-49ca-9ec1-1f9b901fee42"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NoEncontrado"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a9cf70a7-a7c9-453b-99cf-9a97869e6409",
+                    "leftValue": "={{ JSON.parse($json.data[0].output)?.precio.toInt() }}",
+                    "rightValue": "={{ JSON.parse($json.data[0].output)?.FNPRECIO.toInt() }}",
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Correcto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "84f3846b-7f61-4cec-9d34-7c6a1044b789",
+                    "leftValue": "={{ JSON.parse($json.data[0].output)?.precio.toInt() }}",
+                    "rightValue": "={{ JSON.parse($json.data[0].output)?.FNPRECIO.toInt() }}",
+                    "operator": {
+                      "type": "number",
+                      "operation": "notEquals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Diferencia"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        2656,
+        -496
+      ],
+      "id": "19cfe151-613c-47b5-940c-c514cd7550b1",
+      "name": "SepararResultados1",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1808,
+        -496
+      ],
+      "id": "91ffedf3-00b3-4f17-8fc9-70944712304d",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "output",
+              "renameField": true,
+              "outputFieldName": "NoEncontrado"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3024,
+        -640
+      ],
+      "id": "7a772d86-5ca3-4da0-a9fa-a746236b4062",
+      "name": "NoEncontrado2"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "output",
+              "renameField": true,
+              "outputFieldName": "Correcto"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3024,
+        -480
+      ],
+      "id": "1349116f-6d63-4b0f-a757-d6365e66b18b",
+      "name": "Correcto2"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "output",
+              "renameField": true,
+              "outputFieldName": "Diferencia"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3024,
+        -320
+      ],
+      "id": "0fea1a8e-d354-481d-9c01-51534fa23f91",
+      "name": "Diferencia2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Eres un experto en analisis de datos y tu tarea es hacer un resumen de la informacion recibida con el siguiente formatro de salida: \n\n> :x: *Productos no encontrados:*\n* Producto 1 solo el nombre.\n* Producto 2 solo el nombre.\n* Producto n solo el nombre.\n> :white_check_mark: *Productos correctos:*\n* Producto 1 solo el nombre.\n* Producto 2 solo el nombre.\n* Producto n solo el nombre.\n> :warning: *Productos con diferencia de precio:*\n* Producto 1 El nombre, el precio y el FNPRECIO y la diferencia\n* Producto 1 El nombre, el precio y el FNPRECIO y la diferencia\n* Producto 3 El nombre, el precio y el FNPRECIO y la diferencia\n\nReglas:\n1) Productos no encontrados: Son todos lo que contengan la frace \"Producto No Encontrado\"\n2) Productos correctos: Son todos los que el nombre que en este caso es FCARTICULO exista y cuyo Precio Observadi que es igual a precio es igual a Precio Real que es igual a FNPRECIO\n3)Productos con diferencia de precio: Son todos los que el nombre que en este caso es FCARTICULO exista y cuyo Precio Observadi que es igual a precio es igual a Precio Real que es diretente a FNPRECIO, y la Direrencia es igual al Precio Real menos Precio Observado.\n\n-Solo incliye los campos que apliquen me refiero a Productos no encontrados, Productos Correctos y Productos con diferencia de precio.\n\nPon Precio Real en lugar de poner FNPRECIO."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        2016,
+        -496
+      ],
+      "id": "0ec3cb39-8efa-439e-b716-d21483fee29c",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "text": "=\"Analiza la imagen de un estante de un supermercado.\nTu tarea es:\n\nIdentificar los productos visibles en el estante (nombre del producto o marca cuando sea legible).\n\nClasificarlos por categorías (ej. analgésicos, antiácidos, electrolitos, alcohol, algodón, enjuague bucal, etc.).\n\nExtraer los precios asociados a cada producto y relacionarlos correctamente.\n\nRecorrer estante por estante producto por producto y no omitir ninguno.\n\nSeñalar si hay productos repetidos o en diferentes presentaciones (ej. diferentes sabores, tamaños o versiones del mismo medicamento).\n\nDetectar espacios vacíos en el estante que indiquen productos agotados.\n\nOrganizar el resultado en formato JSON con la siguiente estructura:\n\n{\n  \"categoria\": \"Nombre de la categoría\",\n  \"productos\": [\n    {\n      \"nombre\": \"Nombre del producto\",\n      \"precio\": \"Precio identificado\",\n      \"presentacion\": \"si aplica\",\n      \"observaciones\": \"ej. espacio vacío, varias versiones, etc.\"\n    }\n  ]\n}\n\n\nEnfócate en que el análisis sea claro, organizado y útil para un inventario.\"\n\nSolo retorna el JSON puto no regreses nada mas y mucho menos saltos de linea.\n\nnunca coloques ```json al inicio ni ``` al final y no uses \\n, solo pon en json puro.",
+        "inputType": "base64",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        224,
+        -112
+      ],
+      "id": "80baef89-d438-4f27-bdf5-c4e118bfc563",
+      "name": "Analyze image1",
+      "credentials": {
+        "openAiApi": {
+          "id": "4h09LPG13CceGfdt",
+          "name": "OpenAi Tadeo"
+        }
+      }
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "url": "https://files.slack.com/files-pri/T9XJE11PE-F09J5801HLH/whatsapp_image_2025-09-24_at_07.59.20.jpeg",
+          "userId": "U091B7WDXJ4",
+          "tienda": 109
+        }
+      }
+    ]
+  },
   "connections": {
     "When Executed by Another Workflow": {
       "main": [
@@ -283,7 +668,7 @@
       "main": [
         [
           {
-            "node": "Analyze image",
+            "node": "Analyze image1",
             "type": "main",
             "index": 0
           }
@@ -295,28 +680,6 @@
         [
           {
             "node": "Code in JavaScript1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Code in JavaScript": {
-      "main": [
-        [
-          {
-            "node": "Execute a SQL query",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Execute a SQL query": {
-      "main": [
-        [
-          {
-            "node": "Analyze image1",
             "type": "main",
             "index": 0
           }
@@ -349,7 +712,169 @@
       "main": [
         [
           {
+            "node": "Execute a SQL query1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
             "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EjecutarConsulta": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SepararResultados1": {
+      "main": [
+        [
+          {
+            "node": "NoEncontrado2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Correcto2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Diferencia2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NoEncontrado2": {
+      "main": [
+        []
+      ]
+    },
+    "Correcto2": {
+      "main": [
+        []
+      ]
+    },
+    "Diferencia2": {
+      "main": [
+        []
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze image1": {
+      "main": [
+        [
+          {
+            "node": "Analyze image",
             "type": "main",
             "index": 0
           }
@@ -361,7 +886,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "92f2c66a-d134-4bd4-a4b1-ac4e15520114",
+  "versionId": "af33454c-17a5-4251-bb26-2afa71430d42",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
