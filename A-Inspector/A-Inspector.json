@@ -3,48 +3,19 @@
   "nodes": [
     {
       "parameters": {
-        "trigger": [
-          "message"
-        ],
-        "watchWorkspace": true,
-        "options": {
-          "resolveIds": true,
-          "userIds": [
-            "U09GHGTKSL8"
-          ]
-        }
-      },
-      "type": "n8n-nodes-base.slackTrigger",
-      "typeVersion": 1,
-      "position": [
-        656,
-        -48
-      ],
-      "id": "3aa9d87d-0371-43b7-84c0-b3db0bc6e0fd",
-      "name": "Slack Trigger",
-      "webhookId": "7b7a1c34-2fa0-4b6e-b07f-1b0d45739f9c",
-      "credentials": {
-        "slackApi": {
-          "id": "KeRz8uv4jvr2vGMf",
-          "name": "Slack#A-Inspector"
-        }
-      }
-    },
-    {
-      "parameters": {
         "promptType": "define",
-        "text": "={{ $json.text }}\n{{ $json.files[0].mimetype }}",
+        "text": "={{ $('Slack Trigger').item.json.text }}\n{{ $('Slack Trigger').item.json.files[0].mimetype }}",
         "options": {
-          "systemMessage": "=Rol\nEres un asistente de automatización conectado a Slack. Tu tarea es procesar imagenes y extraer productos y precios.\n\nComportamiento\nComando \"start\"\nCuando el usuario escriba \"start\":\n\nVerificar existencia de registro: Usa ExecuteQuery para consultar si existe un registro en neto-cloud.agente_inspector.sesiones_analisis donde user_id = {{ $json.user }} y DATE(fecha_inicio) = DATE({{ $now }}) y que el estado_sesion = 'esperando_competencia'\n\nSi NO existe registro:\n\nGenera un UUID único usando la herramienta uuid\n\nObtén el real_name del usuario con ObtenerDatosUsuario\n\nInserta un nuevo registro con ExecuteQuery usando estos valores:\n\nid_sesion: UUID generado\n\nuser_id: {{ $json.user }}\n\nnombre_usuario: real_name obtenido\n\nestado_sesion: \"esperando_competencia\"\n\nimagenes_recibidas: 0\n\nfecha_inicio: {{ $now }}\n\nfecha_actualizacion: {{ $now }}\n\nSi EXISTE registro:\n\nConsulta el último registro con estado_sesion = \"esperando_tienda\" para recuperar el id_sesion\n\nComando \"empresa: [string]\"\nCuando el usuario envíe \"empresa: [string]\" (ej: \"empresa: 3B\"):\n\nConsultar registro pendiente: Usa ExecuteQuery para obtener el último registro de neto-cloud.agente_inspector.sesiones_analisis donde user_id = {{ $json.user }} y estado_sesion = \"esperando_competencia\"\n\nActualizar registro: Usa ExecuteQuery para actualizar:\n\ncompetencia: nombre de la empresa de competencia\n\nestado_sesion: \"esperando_imagenes\"\n\nfecha_actualizacion: {{ $now }}\n\nDetección de imágenes\nCuando se reciba un mensaje con archivos adjuntos (detectado por la presencia de files en el JSON o {{ $json.files[0].mimetype }} inicie con 'image/'):\n\nPaso 1: Actualizar sesión\nConsultar sesión activa: Usa ExecuteQuery para obtener el último registro donde user_id = {{ $json.user }} y estado_sesion = esperando_imagenes\n\nActualizar sesión: Usa ExecuteQuery para actualizar:\n\nestado_sesion: \"esperando_fin\"\n\nimagenes_recibidas: {{ $json.files.length }}\n\nfecha_actualizacion: {{ $now }}\n\n\n\n\nInsertar registros de imagenes: Usa `ExecuteQuery` para insertar en `neto-cloud.agente_inspector.imagenes_analisis`\n\nid_imagen: uuid unico e irrepetible usa la herramienta `uuid`\n\nid_sesion: id_sesion obtenido del paso anterior\n\nurl_imagen: {{ $json.files[0].url_private }}\n\nestado_procesamiento: \"en_proceso\"\n\nfecha_recepcion: {{ $now }}\n\nCondiciones de detección mejoradas\nEl agente debe detectar imágenes cuando:\n\n{{ $json.files }} existe y no está vacío O\n\n{{ $json.files[0].mimetype }} contiene \"image/\" O\n\nHay presencia de campos como url_private, thumb_80, thumb_360, permalink que indican archivo adjunto\n\nReglas importantes\nVerifica primero si el mensaje contiene archivos antes de procesar como imágenes\n\nPara contar imágenes, verifica que mimetype comience con \"image/\"\n\nUsa el campo url_private para obtener la URL de la imagen\n\nEjecuta las herramientas en el orden secuencial correcto\n\nEjecuta un insert para cada imagen que se insertara en `neto-cloud.agente_inspector.imagenes_analisis` y asegurate de ir cambiando {{ $json.files[0].url_private }}, {{ $json.files[1].url_private }}, {{ $json.files[2].url_private }}, etc.\n\nComando \"end\"\nCuando el usuario escriba \"end\":\n\nConsulta el ultimo registro con user_id = {{ $json.files[1].user }}, estado_sesion = esperando_fin y recupera su id_sesion y competencia, para ello usa la herramienta `ExecuteQuery`\n\nActualiza el estado_sesion = Procesado de la tabla `neto-cloud.agente_precios.sesiones_analisis`, utiliza la herramienta `ExecuteQuery`, con el id_sesion que se recupero antes.\n\nConsulta las url_imagen de la tabla `neto-cloud.agente_inspector.imagenes_analisis` cuando el id_sesion sea el mismo que el anterior y el estado_procesamiento = en_proceso utiliza la herramienta `ExecuteQuery`, para ejecutar el query.\n\nEnvia la primera url a la herramienta `Imagen` junto con el competencia, espera a que el la herramienta `Imagen` termine de procesar la primer imagen, despues espera y envia la siguiente y asi hasta terminar con todas las imagenes una vez que tengas la informacion de todas las imagenes.\n\nEspera el resultado de todas las imagenes analizadas y retornalo por slack en formato de lista, separando los resultados por imagenes.\n"
+          "systemMessage": "=Rol\nEres un asistente de automatización conectado a Slack. Tu tarea es analizar imagenes y extraer los precios de los productos, asi como los producto de las fotos de los estantes.\n\nPara ello utilizas la herramienta `Imagen` a la cual le enviaras la url {{ $('Slack Trigger').item.json.files[0].url_private }} de la imagen a anlizar y esperar a que te retorne el analisis.\n\nSi te saludan o te preguntan sobre tus cpacidades, responde con:\n¡Hola! 👋 Soy Lucía, tu asistente de análisis de productos. 🛍️\n\n¿Qué puedo hacer por ti?\n\n📸 EXTRACCIÓN DE PRODUCTOS POR IMAGEN\nPuedo analizar imágenes de estantes o productos para identificar y extraer toda la información relevante.\n\nEjemplos de solicitud:\n\"Por favor analiza los productos y precios de esta imagen de Tiendas 3B\"\n\"Extrae la información de los productos en esta foto de Aurrera Express\"\n\n📍 Importante: Siempre incluye el nombre de la tienda para que pueda contextualizar correctamente los productos.\n\n📋 Mi análisis incluye:\n• 🔍 Identificación del producto\n• 💰 Precio (cuando es visible en la imagen)\n• 🏷️ Categoría del producto\n• 📦 Presentación y formato\n• 🏪 Tienda de referencia\n\n¿Listo para analizar algunos productos? ¡Solo comparte tu imagen mencionando la tienda! 😊"
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.2,
       "position": [
-        880,
-        -48
+        -192,
+        0
       ],
-      "id": "dbe8e2b7-44ee-4dce-baad-76dcd584fdbe",
+      "id": "71a63bad-64be-41bf-be48-4e9d87e476b9",
       "name": "AI Agent"
     },
     {
@@ -60,15 +31,15 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        784,
-        128
+        -256,
+        208
       ],
-      "id": "b706aa6c-3ad5-44b0-8b05-02cda7f12ebf",
+      "id": "34f967de-3583-44e3-816a-ddcdbdc72032",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
-          "id": "fKavKBDAFMDMeKJR",
-          "name": "OpenAi Neto"
+          "id": "FAK9ncdTs0r5RJkd",
+          "name": "A-Lucia"
         }
       }
     },
@@ -85,10 +56,10 @@
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "url": "={{ $fromAI('query') }}",
-            "userId": "={{ $json.user }}",
-            "empresa": "={{ $fromAI('empresa') }}",
-            "id_sesion": "={{ $fromAI('id_sesion') }}"
+            "url": "={{ $('Slack Trigger').item.json.files[0].url_private }}",
+            "userId": "={{ $('Slack Trigger').item.json.files[0].user }}",
+            "empresa": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('empresa', ``, 'string') }}",
+            "id_sesion": "={{ $('Slack Trigger').item.json.ts }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -138,10 +109,10 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        1104,
-        176
+        48,
+        208
       ],
-      "id": "f6db1775-77e3-4f7a-97f4-c62a4dddf7e7",
+      "id": "d9d0a32f-fa1e-4d2b-8345-1fd64da4db38",
       "name": "Imagen"
     },
     {
@@ -152,7 +123,7 @@
           "value": "={{ $('Slack Trigger').item.json.channel }}",
           "mode": "id"
         },
-        "text": "={{ $json.output }}",
+        "text": "={{ $('AI Agent').item.json.output }}",
         "otherOptions": {
           "includeLinkToWorkflow": false
         }
@@ -160,10 +131,10 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        1232,
-        -48
+        368,
+        0
       ],
-      "id": "80787b6e-3fd1-45d9-b6d4-495dc767f77c",
+      "id": "8cf7b0ad-7e1a-42e7-9d23-c91bef4e5e12",
       "name": "Send a message",
       "webhookId": "180dbcc2-55e4-4e18-a1de-a5b15c7acb6f",
       "credentials": {
@@ -189,27 +160,28 @@
       "type": "n8n-nodes-base.googleBigQueryTool",
       "typeVersion": 2.1,
       "position": [
-        1520,
-        160
+        496,
+        208
       ],
-      "id": "27bcd495-e05d-497f-a129-6744fd4a64a0",
+      "id": "ac019c3c-4fe1-48d7-848a-f43dd9409e88",
       "name": "ExecuteQuery",
       "credentials": {
         "googleApi": {
           "id": "BrAyOfCNy2JTszLb",
           "name": "Google Service Account account"
         }
-      }
+      },
+      "disabled": true
     },
     {
       "parameters": {
         "description": "Usa esta herramienta cuando necesites un uuid univoco e irrepetible",
         "workflowId": {
           "__rl": true,
-          "value": "wb0qDLa6ORtFOchH",
+          "value": "D5LxxphpWPFdg6dg",
           "mode": "list",
-          "cachedResultUrl": "/workflow/wb0qDLa6ORtFOchH",
-          "cachedResultName": "uuid#A-Inspector"
+          "cachedResultUrl": "/workflow/D5LxxphpWPFdg6dg",
+          "cachedResultName": "uuid#A-Precios"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -223,26 +195,27 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        1216,
-        176
+        160,
+        208
       ],
-      "id": "b62c904b-b17e-4814-98f1-a47a8a9fbad1",
-      "name": "uuid"
+      "id": "0f0209df-1204-44fb-a754-5d3391cc8669",
+      "name": "uuid",
+      "disabled": true
     },
     {
       "parameters": {
         "description": "Usa esta herramienta para obtener los datos del usuario.",
         "workflowId": {
           "__rl": true,
-          "value": "x5qvhAv1LGc8y2t5",
+          "value": "j7iJeUrVWsLQTW9A",
           "mode": "list",
-          "cachedResultUrl": "/workflow/x5qvhAv1LGc8y2t5",
-          "cachedResultName": "ObtenerDatosUsuario#A-Inspector"
+          "cachedResultUrl": "/workflow/j7iJeUrVWsLQTW9A",
+          "cachedResultName": "ObtenerDatosUsuario#A-Precios"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "userId": "={{ $json.user }}"
+            "userId": "={{ $('Slack Trigger').item.json.user }}"
           },
           "matchingColumns": [
             "userId"
@@ -255,7 +228,8 @@
               "defaultMatch": false,
               "display": true,
               "canBeUsedToMatch": true,
-              "type": "string"
+              "type": "string",
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -265,42 +239,216 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        1344,
-        176
+        288,
+        208
       ],
-      "id": "deeba7d1-78e9-4b9a-ad0c-f8d7191b9062",
-      "name": "ObtenerDatosUsuario"
+      "id": "9d5083ae-c1ec-4841-888c-21f2c380efa3",
+      "name": "ObtenerDatosUsuario",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.channel }}",
+          "mode": "id"
+        },
+        "timestamp": "={{ $json.ts }}",
+        "name": "eyes"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -464,
+        0
+      ],
+      "id": "5f4b9745-a7b2-4f83-89bb-e5c1c584d1d9",
+      "name": "Add a reaction",
+      "webhookId": "2f0093d6-bb30-40f2-9c48-9f0b842f1522",
+      "credentials": {
+        "slackApi": {
+          "id": "KeRz8uv4jvr2vGMf",
+          "name": "Slack#A-Inspector"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "operation": "remove",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Slack Trigger').item.json.channel }}",
+          "mode": "id"
+        },
+        "timestamp": "={{ $('Slack Trigger').item.json.ts }}",
+        "name": "eyes"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        160,
+        0
+      ],
+      "id": "e3dfcefc-558f-48b0-b03f-2418769f016a",
+      "name": "Remove a reaction",
+      "webhookId": "83355261-73b1-491f-b1e6-b4ff7ad5cd7a",
+      "credentials": {
+        "slackApi": {
+          "id": "KeRz8uv4jvr2vGMf",
+          "name": "Slack#A-Inspector"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.channel }}",
+          "mode": "id"
+        },
+        "timestamp": "={{ $json.message.ts }}",
+        "name": "white_check_mark"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        576,
+        0
+      ],
+      "id": "7f2fedd6-ef2d-4f7d-813e-4d06d56f7674",
+      "name": "Add a reaction1",
+      "webhookId": "1e8e613e-a802-4aae-b93d-5c1698498eed",
+      "credentials": {
+        "slackApi": {
+          "id": "KeRz8uv4jvr2vGMf",
+          "name": "Slack#A-Inspector"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "watchWorkspace": true,
+        "options": {
+          "resolveIds": true,
+          "userIds": [
+            "U093XJ4EY5A",
+            "U09GHGTKSL8",
+            "U09GZHNV8UQ",
+            "U099C6HKQJY",
+            "U0950KQEB7H",
+            "U0968SYAHKP"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        0
+      ],
+      "id": "5af4e5e1-a038-453b-ae44-1bede14a652a",
+      "name": "Slack Trigger",
+      "webhookId": "030afa99-adb4-40ac-9bdc-3680e58bc724",
+      "credentials": {
+        "slackApi": {
+          "id": "KeRz8uv4jvr2vGMf",
+          "name": "Slack#A-Inspector"
+        }
+      }
     }
   ],
   "pinData": {
     "Slack Trigger": [
       {
         "json": {
-          "user": "U091B7WDXJ4",
           "type": "message",
-          "ts": "1758826093.921399",
-          "client_msg_id": "c7eae63e-4751-493a-a1b7-60a083cb7e49",
-          "text": "end",
-          "team": "T9XJE11PE",
+          "text": "Analiza los productos de la siguiente imagen de las tiendas 3B",
+          "files": [
+            {
+              "id": "F09TVGNHUDD",
+              "created": 1763669624,
+              "timestamp": 1763669624,
+              "name": "IMG_7030.jpeg",
+              "title": "IMG_7030.jpeg",
+              "mimetype": "image/jpeg",
+              "filetype": "jpg",
+              "pretty_type": "JPEG",
+              "user": "U091B7WDXJ4",
+              "user_team": "T9XJE11PE",
+              "editable": false,
+              "size": 5627921,
+              "mode": "hosted",
+              "is_external": false,
+              "external_type": "",
+              "is_public": false,
+              "public_url_shared": false,
+              "display_as_bot": false,
+              "username": "",
+              "url_private": "https://files.slack.com/files-pri/T9XJE11PE-F09TVGNHUDD/img_7030.jpeg",
+              "url_private_download": "https://files.slack.com/files-pri/T9XJE11PE-F09TVGNHUDD/download/img_7030.jpeg",
+              "media_display_type": "unknown",
+              "thumb_64": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_64.jpg",
+              "thumb_80": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_80.jpg",
+              "thumb_360": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_360.jpg",
+              "thumb_360_w": 270,
+              "thumb_360_h": 360,
+              "thumb_480": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_480.jpg",
+              "thumb_480_w": 360,
+              "thumb_480_h": 480,
+              "thumb_160": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_160.jpg",
+              "thumb_720": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_720.jpg",
+              "thumb_720_w": 540,
+              "thumb_720_h": 720,
+              "thumb_800": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_800.jpg",
+              "thumb_800_w": 800,
+              "thumb_800_h": 1067,
+              "thumb_960": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_960.jpg",
+              "thumb_960_w": 720,
+              "thumb_960_h": 960,
+              "thumb_1024": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_1024.jpg",
+              "thumb_1024_w": 768,
+              "thumb_1024_h": 1024,
+              "original_w": 4284,
+              "original_h": 5712,
+              "thumb_tiny": "AwAwACSZfnBKjIFP5C5IJJ55FQ+cyEtgv2PanrcI5Vnjw3rgVO47ChvUjHvRtySAOlBnB4KHae4PNEci5K4IBPUnp+NHoAeUTzxR5R9qryXb7zsyF7DFN+1S+p/L/wCtStIBgj2ZKPtPOe3GacyksdsqDjHuc/5FRyvIjkKVOOeFB96A0zNnJBPULxj3OKoByqcHMn1wM08wlgfnZgPVTTdrbl3Ox9mPH605okYkqAcdz3/pU31GCxh1B+0KPqf/AK9L5I/5+V/P/wCvSwOqoQvyjPTj/GpfN/2v0H+NUIqSuyS+Um0Y7+v1zSbZ5BhnYg9snFMGfPJ5ORz61OG5B6qeOR06/hSbARVEQBJVvbr/AJ/+vSEfKcA4xjpRIy5KjDc9uhoVGJzgD3PWkkxiAgdABn2o3fT8v/r08LEOoBPqRRiH+6PyqrBc/9k=",
+              "permalink": "https://tiendasnetocorpo.slack.com/files/U091B7WDXJ4/F09TVGNHUDD/img_7030.jpeg",
+              "permalink_public": "https://slack-files.com/T9XJE11PE-F09TVGNHUDD-4075028e64",
+              "skipped_shares": true,
+              "has_rich_preview": false,
+              "file_access": "visible"
+            }
+          ],
+          "upload": false,
+          "user": "U091B7WDXJ4",
+          "display_as_bot": false,
           "blocks": [
             {
               "type": "rich_text",
-              "block_id": "5RU/2",
+              "block_id": "HDYFs",
               "elements": [
                 {
                   "type": "rich_text_section",
                   "elements": [
                     {
                       "type": "text",
-                      "text": "end"
+                      "text": "Analiza los productos de la siguiente imagen de las tiendas 3B"
                     }
                   ]
                 }
               ]
             }
           ],
+          "ts": "1763669638.558139",
+          "client_msg_id": "ccdde4a8-0a24-4a13-bd68-6552375a7890",
           "channel": "D09FQATP1T8",
-          "event_ts": "1758826093.921399",
+          "subtype": "file_share",
+          "event_ts": "1763669638.558139",
           "channel_type": "im",
           "user_resolved": "juan.garciag"
         }
@@ -308,11 +456,11 @@
     ]
   },
   "connections": {
-    "Slack Trigger": {
+    "AI Agent": {
       "main": [
         [
           {
-            "node": "AI Agent",
+            "node": "Remove a reaction",
             "type": "main",
             "index": 0
           }
@@ -341,11 +489,11 @@
         ]
       ]
     },
-    "AI Agent": {
+    "Send a message": {
       "main": [
         [
           {
-            "node": "Send a message",
+            "node": "Add a reaction1",
             "type": "main",
             "index": 0
           }
@@ -384,13 +532,46 @@
           }
         ]
       ]
+    },
+    "Add a reaction": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove a reaction": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "Add a reaction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "78fffa75-ba03-4600-9cac-8c8adb6f3fd4",
+  "versionId": "04abdeb5-e3e6-486c-b8dd-3b3534c6112e",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
