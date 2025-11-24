@@ -342,6 +342,93 @@
           "name": "Slack account #A-Precios"
         }
       }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "0jVy3dajeP8yXj3D",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/0jVy3dajeP8yXj3D",
+          "cachedResultName": "Mandar logs a bquery"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "execution id": "={{ $execution.id }}",
+            "id slack": "={{ $('Slack Trigger').item.json.user }}",
+            "Nombre_agente": "A-Patricia",
+            "input": "={{ $('Slack Trigger').item.json.text }}",
+            "output_agente": "análisis"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "execution id",
+              "displayName": "execution id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id slack",
+              "displayName": "id slack",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Nombre_agente",
+              "displayName": "Nombre_agente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "input",
+              "displayName": "input",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "output_agente",
+              "displayName": "output_agente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2848,
+        48
+      ],
+      "id": "b07e085b-abee-446d-9767-506937663121",
+      "name": "Call 'Mandar logs a bquery'"
     }
   ],
   "pinData": {
@@ -549,7 +636,13 @@
     },
     "Add a reaction1": {
       "main": [
-        []
+        [
+          {
+            "node": "Call 'Mandar logs a bquery'",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },
@@ -557,7 +650,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "294be1ef-d57c-4cf8-95b2-798501b19473",
+  "versionId": "f02c526f-e61c-401b-ab53-e21ec2c0ff5b",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
