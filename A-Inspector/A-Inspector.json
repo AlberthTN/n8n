@@ -6,7 +6,7 @@
         "promptType": "define",
         "text": "={{ $('Slack Trigger').item.json.text }}\n{{ $('Slack Trigger').item.json.files[0].mimetype }}",
         "options": {
-          "systemMessage": "=Rol\nEres un asistente de automatización conectado a Slack. Tu tarea es analizar imagenes y extraer los precios de los productos, asi como los producto de las fotos de los estantes.\n\nPara ello utilizas la herramienta `Imagen` a la cual le enviaras la url {{ $('Slack Trigger').item.json.files[0].url_private }} de la imagen a anlizar y esperar a que te retorne el analisis.\n\nSi te saludan o te preguntan sobre tus cpacidades, responde con:\n¡Hola! 👋 Soy Lucía, tu asistente de análisis de productos. 🛍️\n\n¿Qué puedo hacer por ti?\n\n📸 EXTRACCIÓN DE PRODUCTOS POR IMAGEN\nPuedo analizar imágenes de estantes o productos para identificar y extraer toda la información relevante.\n\nEjemplos de solicitud:\n\"Por favor analiza los productos y precios de esta imagen de Tiendas 3B\"\n\"Extrae la información de los productos en esta foto de Aurrera Express\"\n\n📍 Importante: Siempre incluye el nombre de la tienda para que pueda contextualizar correctamente los productos.\n\n📋 Mi análisis incluye:\n• 🔍 Identificación del producto\n• 💰 Precio (cuando es visible en la imagen)\n• 🏷️ Categoría del producto\n• 📦 Presentación y formato\n• 🏪 Tienda de referencia\n\n¿Listo para analizar algunos productos? ¡Solo comparte tu imagen mencionando la tienda! 😊"
+          "systemMessage": "=Rol\nEres un asistente de automatización conectado a Slack. Tu tarea es analizar imagenes y extraer los precios de los productos, asi como los producto de las fotos de los estantes.\n\nPara ello utilizas la herramienta `Imagen` a la cual le enviaras la url {{ $('Slack Trigger').item.json.files[0].url_private }} de la imagen a anlizar, debes enviar todas las solicitudes que tengan adjuntos una imagen y esperar a que te retorne el analisis.\n\nSi te saludan o te preguntan sobre tus cpacidades, responde con:\n¡Hola! 👋 Soy Lucía, tu asistente de análisis de productos. 🛍️\n\n¿Qué puedo hacer por ti?\n\n📸 EXTRACCIÓN DE PRODUCTOS POR IMAGEN\nPuedo analizar imágenes de estantes o productos para identificar y extraer toda la información relevante.\n\nEjemplos de solicitud:\n\"Por favor analiza los productos y precios de esta imagen de Tiendas 3B\"\n\"Extrae la información de los productos en esta foto de Aurrera Express\"\n\n📍 Importante: Siempre incluye el nombre de la tienda para que pueda contextualizar correctamente los productos.\n\nRetorna la informacion en el siguiente formato dentro de una etiqueda de codigo de slack en formato tabla ejemplo:\n\n#   PRODUCTO                                   PRECIO FOTO    \n--------------------------------------------------------------\nNombre de la categoría                                  \n-------------------------------------------------------------- \n1   Nombre del producto                        $Precio del producto 0 NoEncontrado          \n2   Nombre del producto                        $Precio del producto 0 NoEncontrado         \n3   Nombre del producto                        $Precio del producto 0 NoEncontrado         \n4   Nombre del producto                        $Precio del producto 0 NoEncontrado        \n5   Nombre del producto                        $Precio del producto 0 NoEncontrado         \n6   Nombre del producto                        $Precio del producto 0 NoEncontrado   \n7   Nombre del producto                        $Precio del producto 0 NoEncontrado   \n8   Nombre del producto                        $Precio del producto 0 NoEncontrado   \n--------------------------------------------------------------\nNombre de la categoría                                                     \n--------------------------------------------------------------\n9   Nombre del producto                        $Precio del producto 0 NoEncontrado         \n10  Nombre del producto                        $Precio del producto 0 NoEncontrado        \n11  Nombre del producto                        $Precio del producto 0 NoEncontrado    \n--------------------------------------------------------------  \n\n¿Listo para analizar algunos productos? ¡Solo comparte tu imagen mencionando la tienda! 😊\n\n\nNunca pongas el termino slack dentro del componente codigo de slack como en este ejemplo:\n\nslack\n#   PRODUCTO                                    PRECIO FOTO    \n--------------------------------------------------------------\nCosméticos - Maquillaje                                  \n-------------------------------------------------------------- \n1   Ecco Bella Polvo Compacto Matificante          $35.00        \n2   Ecco Bella Rubor Compacto                      $35.00        \n3   Bausse Rubor Líquido                           $25.00        \n4   Bausse Sombras para ojos 'Lost in the desert'  $35.00        \n5   Ecco Bella Esmalte para uñas                   No Encontrado         \n6   Bausse Polvo Sellador Banana                   $45.00    \n7   Bausse Paleta Iluminadores                     $45.00    \n8   Ecco Bella Labial Larga Duración (Matte)       $29.00  \n--------------------------------------------------------------\nCuidado Personal y Accesorios                                                     \n-------------------------------------------------------------- \n9   Ecco Bella Esponja con Jabón Concha Nacar      $10.00        \n10  Ecco Bella Esponja con Jabón Facial Carbon     $10.00        \n11  Blender (Esponja de maquillaje)                No Encontrado    \n--------------------------------------------------------------  \nMedicamentos                                          \n-------------------------------------------------------------- \n12  Aspirina                                      $54.00        \n13  Cafiaspirina                                  No Encontrado       \n14  Ibuprofeno                                    $19.00        \n15  Ibuprofeno Fuerte                             $22.00        \n\ny coloca los productos NoEncontrados al final de cada categoría."
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -361,6 +361,93 @@
           "name": "Slack#A-Inspector"
         }
       }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "0jVy3dajeP8yXj3D",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/0jVy3dajeP8yXj3D",
+          "cachedResultName": "Mandar logs a bquery"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "execution id": "={{ $execution.id }}",
+            "id slack": "={{ $('Slack Trigger').item.json.user }}",
+            "Nombre_agente": "A-Lucía",
+            "input": "={{ $('Slack Trigger').item.json.text }}",
+            "output_agente": "análisis"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "execution id",
+              "displayName": "execution id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id slack",
+              "displayName": "id slack",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Nombre_agente",
+              "displayName": "Nombre_agente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "input",
+              "displayName": "input",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "output_agente",
+              "displayName": "output_agente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        768,
+        0
+      ],
+      "id": "13029c20-e7b1-4ba1-86d1-9dbe341be7a7",
+      "name": "Call 'Mandar logs a bquery'"
     }
   ],
   "pinData": {
@@ -371,18 +458,18 @@
           "text": "Analiza los productos de la siguiente imagen de las tiendas 3B",
           "files": [
             {
-              "id": "F09TVGNHUDD",
-              "created": 1763669624,
-              "timestamp": 1763669624,
-              "name": "IMG_7030.jpeg",
-              "title": "IMG_7030.jpeg",
+              "id": "F0A0ENAQ7NC",
+              "created": 1764020938,
+              "timestamp": 1764020938,
+              "name": "IMG_6576 (1).jpg",
+              "title": "IMG_6576 (1).jpg",
               "mimetype": "image/jpeg",
               "filetype": "jpg",
               "pretty_type": "JPEG",
               "user": "U091B7WDXJ4",
               "user_team": "T9XJE11PE",
               "editable": false,
-              "size": 5627921,
+              "size": 2826846,
               "mode": "hosted",
               "is_external": false,
               "external_type": "",
@@ -390,35 +477,35 @@
               "public_url_shared": false,
               "display_as_bot": false,
               "username": "",
-              "url_private": "https://files.slack.com/files-pri/T9XJE11PE-F09TVGNHUDD/img_7030.jpeg",
-              "url_private_download": "https://files.slack.com/files-pri/T9XJE11PE-F09TVGNHUDD/download/img_7030.jpeg",
+              "url_private": "https://files.slack.com/files-pri/T9XJE11PE-F0A0ENAQ7NC/img_6576__1_.jpg",
+              "url_private_download": "https://files.slack.com/files-pri/T9XJE11PE-F0A0ENAQ7NC/download/img_6576__1_.jpg",
               "media_display_type": "unknown",
-              "thumb_64": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_64.jpg",
-              "thumb_80": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_80.jpg",
-              "thumb_360": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_360.jpg",
+              "thumb_64": "https://files.slack.com/files-tmb/T9XJE11PE-F0A0ENAQ7NC-2d425fec4a/img_6576__1__64.jpg",
+              "thumb_80": "https://files.slack.com/files-tmb/T9XJE11PE-F0A0ENAQ7NC-2d425fec4a/img_6576__1__80.jpg",
+              "thumb_360": "https://files.slack.com/files-tmb/T9XJE11PE-F0A0ENAQ7NC-2d425fec4a/img_6576__1__360.jpg",
               "thumb_360_w": 270,
               "thumb_360_h": 360,
-              "thumb_480": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_480.jpg",
+              "thumb_480": "https://files.slack.com/files-tmb/T9XJE11PE-F0A0ENAQ7NC-2d425fec4a/img_6576__1__480.jpg",
               "thumb_480_w": 360,
               "thumb_480_h": 480,
-              "thumb_160": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_160.jpg",
-              "thumb_720": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_720.jpg",
+              "thumb_160": "https://files.slack.com/files-tmb/T9XJE11PE-F0A0ENAQ7NC-2d425fec4a/img_6576__1__160.jpg",
+              "thumb_720": "https://files.slack.com/files-tmb/T9XJE11PE-F0A0ENAQ7NC-2d425fec4a/img_6576__1__720.jpg",
               "thumb_720_w": 540,
               "thumb_720_h": 720,
-              "thumb_800": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_800.jpg",
+              "thumb_800": "https://files.slack.com/files-tmb/T9XJE11PE-F0A0ENAQ7NC-2d425fec4a/img_6576__1__800.jpg",
               "thumb_800_w": 800,
               "thumb_800_h": 1067,
-              "thumb_960": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_960.jpg",
+              "thumb_960": "https://files.slack.com/files-tmb/T9XJE11PE-F0A0ENAQ7NC-2d425fec4a/img_6576__1__960.jpg",
               "thumb_960_w": 720,
               "thumb_960_h": 960,
-              "thumb_1024": "https://files.slack.com/files-tmb/T9XJE11PE-F09TVGNHUDD-7d2130d8ba/img_7030_1024.jpg",
+              "thumb_1024": "https://files.slack.com/files-tmb/T9XJE11PE-F0A0ENAQ7NC-2d425fec4a/img_6576__1__1024.jpg",
               "thumb_1024_w": 768,
               "thumb_1024_h": 1024,
               "original_w": 4284,
               "original_h": 5712,
-              "thumb_tiny": "AwAwACSZfnBKjIFP5C5IJJ55FQ+cyEtgv2PanrcI5Vnjw3rgVO47ChvUjHvRtySAOlBnB4KHae4PNEci5K4IBPUnp+NHoAeUTzxR5R9qryXb7zsyF7DFN+1S+p/L/wCtStIBgj2ZKPtPOe3GacyksdsqDjHuc/5FRyvIjkKVOOeFB96A0zNnJBPULxj3OKoByqcHMn1wM08wlgfnZgPVTTdrbl3Ox9mPH605okYkqAcdz3/pU31GCxh1B+0KPqf/AK9L5I/5+V/P/wCvSwOqoQvyjPTj/GpfN/2v0H+NUIqSuyS+Um0Y7+v1zSbZ5BhnYg9snFMGfPJ5ORz61OG5B6qeOR06/hSbARVEQBJVvbr/AJ/+vSEfKcA4xjpRIy5KjDc9uhoVGJzgD3PWkkxiAgdABn2o3fT8v/r08LEOoBPqRRiH+6PyqrBc/9k=",
-              "permalink": "https://tiendasnetocorpo.slack.com/files/U091B7WDXJ4/F09TVGNHUDD/img_7030.jpeg",
-              "permalink_public": "https://slack-files.com/T9XJE11PE-F09TVGNHUDD-4075028e64",
+              "thumb_tiny": "AwAwACSS4ULHuXYoz12g/wCe1QRtliSyMuP7g6/l7U952Lny1O3gKSDye9IskvzA54HB25wf8/zpJDuSAsnYA45IAFMNy+0/PxuIyAP896C0qFd65Ddznj8qYshY5KheOzZ/madh3HeewJBlPBxkIDml+0H/AJ6t/wB+x/jTAszjKBiOmRxS+Vcf3W/OkVddioQzEElefRgKftiJOMEY43MAc05lQg72XeT15HH4ChzEu/DKd3TII7fT39qZA1kGcYUYHqv+NKIyW2rsGD2YEn9aB5aMQ3lsMYA5H64/z600KoYYYbsds+tAFh2ZWw0twCOuB/8AXpu//prc/wDfJ/xp6yoAMzzZ74J4pfOj/wCe8/5mgLsiiVxCSVB7DtSbWaURgYYjnB4/lT90pGMcAdDg0LvVQFXoMZzQIjdDF8m07TycHP8ASm/JvAKnrySf/rVLKJZDnOD7mm+S5I3Adc0AvMQSrjiOQ/R8f0o8xf8AnlL/AN/P/rVMYgesan8KPKX/AJ5p+VGoH//Z",
+              "permalink": "https://tiendasnetocorpo.slack.com/files/U091B7WDXJ4/F0A0ENAQ7NC/img_6576__1_.jpg",
+              "permalink_public": "https://slack-files.com/T9XJE11PE-F0A0ENAQ7NC-d73c6e9f91",
               "skipped_shares": true,
               "has_rich_preview": false,
               "file_access": "visible"
@@ -444,11 +531,11 @@
               ]
             }
           ],
-          "ts": "1763669638.558139",
-          "client_msg_id": "ccdde4a8-0a24-4a13-bd68-6552375a7890",
+          "ts": "1764020954.187319",
+          "client_msg_id": "0c3b2b15-991e-429e-b210-472f3e1fb213",
           "channel": "D09FQATP1T8",
           "subtype": "file_share",
-          "event_ts": "1763669638.558139",
+          "event_ts": "1764020954.187319",
           "channel_type": "im",
           "user_resolved": "juan.garciag"
         }
@@ -565,13 +652,24 @@
           }
         ]
       ]
+    },
+    "Add a reaction1": {
+      "main": [
+        [
+          {
+            "node": "Call 'Mandar logs a bquery'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "04abdeb5-e3e6-486c-b8dd-3b3534c6112e",
+  "versionId": "c60db28d-b8d1-4f4f-8428-2b0ebd7de941",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
