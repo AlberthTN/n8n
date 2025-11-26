@@ -1,0 +1,409 @@
+{
+  "name": "AnalisisImagenes#A-Patricia",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "url"
+            },
+            {
+              "name": "userId"
+            },
+            {
+              "name": "tienda"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1760,
+        304
+      ],
+      "id": "a934fd25-c36b-43db-a96f-0211355b4960",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        -1536,
+        304
+      ],
+      "id": "19d05fe5-97bb-4051-9eb7-8fe083f54176",
+      "name": "Download Image",
+      "credentials": {
+        "slackApi": {
+          "id": "tjFQOpXJsn6zPXuz",
+          "name": "Slack A-Patricia Operaciones"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-pro",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-pro"
+        },
+        "text": "=\"Analiza la imagen de un estante de un supermercado.\nTu tarea es:\n\nIdentificar los productos visibles en el estante (nombre del producto o marca cuando sea legible).\n\nClasificarlos por categorías (ej. analgésicos, antiácidos, electrolitos, alcohol, algodón, enjuague bucal, etc.).\n\nExtraer los precios asociados a cada producto y relacionarlos correctamente.\n\nRecorrer estante por estante producto por producto y no omitir ninguno.\n\nSeñalar si hay productos repetidos o en diferentes presentaciones (ej. diferentes sabores, tamaños o versiones del mismo medicamento).\n\nDetectar espacios vacíos en el estante que indiquen productos agotados.\n\nOrganizar el resultado en formato JSON con la siguiente estructura:\n\n{\n  \"categoria\": \"Nombre de la categoría\",\n  \"productos\": [\n    {\n      \"nombre\": \"Nombre del producto\",\n      \"precio\": \"Precio identificado\",\n      \"presentacion\": \"si aplica\",\n      \"observaciones\": \"ej. espacio vacío, varias versiones, etc.\"\n    }\n  ]\n}\n\n\nEnfócate en que el análisis sea claro, organizado y útil para un inventario.\"\n\nSolo retorna el JSON puto no regreses nada mas y mucho menos saltos de linea.\n\nnunca coloques ```json al inicio ni ``` al final y no uses \\n, solo pon en json puro.",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1296,
+        304
+      ],
+      "id": "c5cd1809-d471-49ec-9148-85d4c3735f61",
+      "name": "Analyze image",
+      "retryOnFail": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "NiywVujBNtgRCQG5",
+          "name": "Gemini A-PatriciaOperaciones"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Importar crypto\nconst crypto = require('crypto');\n\n// 1. Obtenemos el texto JSON que viene dentro de content.parts[0].text\nconst rawText = items?.[0]?.json?.content?.parts?.[0]?.text \n  || $input?.first()?.json?.content?.parts?.[0]?.text\n  || '[]';\n\n// 2. Parseamos el string a objeto\nlet data;\ntry {\n  data = JSON.parse(rawText);\n} catch (err) {\n  console.error(\"Error al parsear JSON:\", err);\n  data = [];\n}\n\n// 2.1 Normalizar: si no es array, lo convertimos en uno\nif (!Array.isArray(data)) {\n  data = [data];\n}\n\n// 3. Preparamos la salida \"aplanada\"\nconst salida = [];\n\nfor (const seccion of data) { \n  if (!seccion.productos) continue; \n  for (const producto of seccion.productos) {\n    salida.push({\n      json: {\n        categoria: seccion.categoria,\n        nombre: producto.nombre,\n        precio: producto.precio === \"No visible\" ? null : producto.precio,\n        presentacion: producto.presentacion,\n        observaciones: producto.observaciones,\n        tienda: $('When Executed by Another Workflow').first().json.tienda,\n        userid: $('When Executed by Another Workflow').first().json.userId,\n        imagenAnalizada: $('When Executed by Another Workflow').first().json.url,\n        id_producto: crypto.randomUUID()\n      }\n    });\n  }\n}\n\nreturn salida;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1072,
+        304
+      ],
+      "id": "e4a7a220-96a6-4d2b-b887-a2a8186779b5",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -448,
+        304
+      ],
+      "id": "f0a3fc78-db71-40a1-8172-6b080b7663d4",
+      "name": "Loop Over Items",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}\n",
+        "options": {
+          "systemMessage": "=Eres un agente especialista en Productos.\n\nTu trabajo es encontrar el producto recibido en la tabla neto-cloud.agente_rebeca.tiendas_articulos_precio.\n\nDebes seguir estrictamente este proceso:\n\n🧾 Entrada\n\nRecibirás un JSON {{ $json.text }}\n\nnombre: {{ JSON.parse($json.text).text }}\n\ntienda: ID de la tienda {{ $('When Executed by Another Workflow').item.json.tienda }}. Corresponde al campo FITIENDAID en la tabla.\n\nprecio: {{ JSON.parse($json.text).precio }}\n\n🔁 Normalización\n\nConvierte todos los valores recibidos (nombre, tienda, precio) a MAYÚSCULAS antes de usarlos en cualquier búsqueda o comparación.\n\n🔎 Filtros de búsqueda\n\nCuando armes tus consultas, usa simultáneamente los siguientes filtros:\n\nFCARTICULO: debe hacer coincidencia parcial o similar con el valor de nombre (usa LIKE o similar).\n\nFITIENDAID: debe coincidir exactamente con el valor de tienda.\n\nFNPRECIO: debe estar dentro de un rango de ±40% respecto al precio recibido, siempre y cuando {{ JSON.parse($json.text).precio }} sea mayor que 0.\n\n\n⛔ Limitación de resultados\n\nCada consulta que ejecutes debe devolver como máximo 5 registros, usando LIMIT 5.\n\n⚙️ Ejecución de consultas\n\nUsa siempre la herramienta EjecutarConsulta para construir y ejecutar tus queries.\n\nPuedes llamar a EjecutarConsulta hasta 10 veces en total si es necesario para encontrar el producto correcto. Considera que las consultas por nombre no son exactas, pueden por ejemplo: buscar LALA Queso Panela, pero en la base de datos esta como PANELA LALA, por lo que debes de buscar con todas las palabras quitando palabras, cambiando de posicion para encontrar el resultado correcto lo esperado es que solo haya una respuesta por consulta, pero si no o logras puedes traer hasta 5 resultados por consulta\n\n✅ Resultado esperado\n\nSi encuentras un producto que coincide, retorna la información más precisa y relevante del registro encontrado y agrega un campo extra el de precio que es el que viene desde la solicitud {{ JSON.parse($json.text).precio }}.\n\nSi después de 20 intentos no encuentras el producto, retorna la información original recibida categoria, nombre, precio, presentacion, observaciones, tienda, userid e imagenAnalizada y agrega un campo adicional llamada proceso con la lellenda \"Producto No Encontrado\" :\n\n📌 Campos disponibles en la tabla\nCampo\tSignificado\nFITIENDAID\tID de la tienda (usa este campo para \"tienda\" recibida)\nFCTIENDA\tNombre de la tienda (solo informativo)\nFIARTICULOID\tID del producto\nFCARTICULO\tNombre del producto (usa este campo para \"nombre\" recibida)\nFNCOSTO\tCosto real del producto\nFNPRECIO\tPrecio del producto (usa este campo para \"precio\" recibida)\nFNPRECIOBASE\tPrecio base del producto (respaldo si no hay FNPRECIO)\n❌ Errores comunes que debes evitar\n\nNo confundas FITIENDAID (ID de tienda) con FCTIENDA (nombre de tienda).\n\nNo compares el valor recibido en tienda contra FCTIENDA. Siempre úsalo contra FITIENDAID.\n\nNo construyas consultas sin respetar la equivalencia de campos explicada arriba.\n\nNo Respondas con nada de informacion adicional solo responde con el resultado en formato json nunca agregues ```json al inicio del json ni ``` al final del json y tampoco pongas \\n, solo pon el json puro.",
+          "maxIterations": 20
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        512
+      ],
+      "id": "9836ba7c-07c1-4e3b-9ad4-02c054ba680b",
+      "name": "AI Agent",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        224
+      ],
+      "id": "06e280d7-be63-4724-9826-f630df8e71b9",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "YbZ7VH3iPXrJ8Ou6",
+          "name": "A-Patricia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": {
+          "__rl": true,
+          "value": "neto-cloud",
+          "mode": "list",
+          "cachedResultName": "Neto-Cloud",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=neto-cloud"
+        },
+        "sqlQuery": "{{ $fromAI('query') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQueryTool",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        736
+      ],
+      "id": "75438486-4d70-49bf-83f2-a1a2a149b2f3",
+      "name": "EjecutarConsulta",
+      "credentials": {
+        "googleApi": {
+          "id": "BrAyOfCNy2JTszLb",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        96
+      ],
+      "id": "e14bdae8-18da-4ffb-84cd-c3e8ac242bbb",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Eres un experto en analisis de datos y tu tarea es hacer un resumen de la informacion recibida con el siguiente formato de salida: \n\n#   PRODUCTO                                PRECIO FOTO     PRECIO SISTEMA     VALIDACION\n-----------------------------------------------------------------------------------------  \n1   MARGARINA LALA SIN SAL 90 GR               $16.00           $16.00            ✅    \n2   MANCHEGO LALA 200 GR                       $55.00           $64.00     \t  ❌    \n3   QUESO CREMA BEST CHOICE 190GRS             $20.00           $25.00            ❌   \n4   SUSTITUTO DE CREMA BEST CHOICE 210 GRS     $29.00           $24.00            ❌    \n5   CREMA LALA 900 GR ACIDA                    $72.00           $90.00            ❌      \n6   CREMA LALA 426 GR ACIDA                    $35.00           $47.00            ❌    \n7   CREMA ACIDA VOLCANES ENTERA 400ML          $43.00           $45.00            ❌    \n8   MEDIA CREMA LALA 250 ML                    $16.50           $17.00            ❌      \n9   CREMA ALPURA 200 GR ACIDA                  $20.00           $23.00            ❌    \n10  CREMA ALPURA 426 GR ACIDA                  $35.00           $37.00            ❌\n11  CREMA ALPURA 900 GR ACIDA                  $74.00           $74.00            ✅\n12  J. COCIDO NUTRI DELI CERDO PAVO 400 GR     $33.00           $41.00            ❌\n\n\nReglas:\n1) Productos no encontrados: Son todos lo que contengan la frace \"Producto No Encontrado\"\n2) Productos correctos: Son todos los que el nombre que en este caso es FCARTICULO exista y cuyo Precio Observadi que es igual a precio es igual a Precio Real que es igual a FNPRECIO\n3)Productos con diferencia de precio: Son todos los que el nombre que en este caso es FCARTICULO exista y cuyo Precio Observadi que es igual a precio es igual a Precio Real que es diretente a FNPRECIO, y la Direrencia es igual al Precio Real menos Precio Observado.\n\n-Solo incliye los campos que apliquen me refiero a Productos no encontrados, Productos Correctos y Productos con diferencia de precio.\n\nPon Precio Real en lugar de poner FNPRECIO.\n\nNo coloques nada mas que la tabla generada y recuerda que si los precios de PRECIO que es el FNPRECIO y BD que es precio son iguales debe calificarlo en VALIDACION con una flecha blanca fondo verde, pero si no coinciden con una x roja para indiocar el error.\n\npor favor no incluyas en la tabla estos detalles:\n \\n\\n- Producto No Encontrado: Media Crema LALA\\n- Producto No Encontrado: Queso Nutri\\n- Producto No Encontrado: Jamón (marca no legible)\\n- Producto No Encontrado: Producto Nutri Deli\\n- Producto No Encontrado: Producto no identificado\n\nPon la tabla dentro de un elemento de codigo de slack para que se vea mejor"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        0,
+        0
+      ],
+      "id": "69259881-a1e5-4796-a1e8-7fe2ab8d5284",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.categoria }}\n{{ $json.nombre }}\n{{ $json.precio }}\n{{ $json.presentacion }}\n{{ $json.observaciones }}\n{{ $json.tienda }}\n{{ $json.userid }}\n{{ $json.imagenAnalizada }}\n{{ $json.id_producto }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Analiza los nombres de todos los productos y elimina los duplicados, no retornes nada mas que el puro nombre del producto en diferentes variables y el precio, no agregues nada mas.\n\npero lo debes retornar en formato JSON:\n\n  \"text\": \"nombre del producto\"\n  \"precio\": precio del producto\n\n\nNo agregues cosas de mas como esto:\n\n```json\\n{\\n \"text\": \"LALA Panela\",\\n \"precio\": 0\\n}\\n```\n\nsolo retorna el json solo en una sola line:\n\n{\"text\": \"nombre de producto\",\"precio\": precio}\n\n\n"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -848,
+        304
+      ],
+      "id": "095f8ac2-89fb-4c32-b6b3-f04af90ca5c0",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -768,
+        528
+      ],
+      "id": "2ef76d04-ff6c-49f8-99d5-4e72919822f4",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "YbZ7VH3iPXrJ8Ou6",
+          "name": "A-Patricia"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Download Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image": {
+      "main": [
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze image": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EjecutarConsulta": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b6e1a3e7-f3fb-4b48-b6b9-a5467f1e424d",
+  "meta": {
+    "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
+  },
+  "id": "LQ4zOzdA99hvu7lb",
+  "tags": []
+}
