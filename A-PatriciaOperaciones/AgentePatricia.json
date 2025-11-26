@@ -38,8 +38,8 @@
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
-          "id": "YbZ7VH3iPXrJ8Ou6",
-          "name": "A-Patricia"
+          "id": "0NxwCTqkas7pZzo6",
+          "name": "OpenAi A-PatriciaOperaciones"
         }
       }
     },
@@ -562,7 +562,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "9cb0e3c6-6849-4659-a851-f59a14605360",
+  "versionId": "7d3fa71e-e281-4ded-8dd4-591000d63b34",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"

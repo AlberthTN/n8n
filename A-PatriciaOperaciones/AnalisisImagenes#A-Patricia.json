@@ -144,8 +144,8 @@
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
-          "id": "YbZ7VH3iPXrJ8Ou6",
-          "name": "A-Patricia"
+          "id": "0NxwCTqkas7pZzo6",
+          "name": "OpenAi A-PatriciaOperaciones"
         }
       }
     },
@@ -254,8 +254,8 @@
       "name": "OpenAI Chat Model1",
       "credentials": {
         "openAiApi": {
-          "id": "YbZ7VH3iPXrJ8Ou6",
-          "name": "A-Patricia"
+          "id": "0NxwCTqkas7pZzo6",
+          "name": "OpenAi A-PatriciaOperaciones"
         }
       }
     }
@@ -400,7 +400,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "b6e1a3e7-f3fb-4b48-b6b9-a5467f1e424d",
+  "versionId": "82385523-386d-4266-a801-245f0d191228",
   "meta": {
     "instanceId": "513b8468f38706db87bc69e329565f9d7c7508c065cd8491cb3b8e0d8f69afa3"
   },
